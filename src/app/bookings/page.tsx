@@ -186,13 +186,21 @@ function BookingsList() {
               <h3 className="mt-3 text-xl font-bold text-ink-soft">{selectedPass.propertyTitle}</h3>
               <p className="mt-1 text-xs text-muted">Booking ID: {selectedPass.id}</p>
 
-              <div className="my-6 flex justify-center rounded-2xl bg-gray-50 p-6 border border-gray-100 shadow-inner">
+              <div className="my-6 flex flex-col items-center justify-center rounded-2xl bg-gray-50 p-6 border border-gray-100 shadow-inner">
                 <QRCodeCanvas
-                  value={JSON.stringify({ bookingId: selectedPass.id, type: "HOPEBED_STAY_PASS" })}
+                  value={typeof window !== "undefined" ? `${window.location.origin}/verify-pass/${selectedPass.id}` : `https://hopabed.in/verify-pass/${selectedPass.id}`}
                   size={180}
                   level="H"
                   includeMargin={true}
                 />
+                <a
+                  href={`/verify-pass/${selectedPass.id}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="mt-3 text-[11px] font-medium text-brand hover:underline"
+                >
+                  Scan or Click to Verify Pass &rarr;
+                </a>
               </div>
 
               <div className="space-y-2 rounded-xl bg-canvas p-4 text-left text-xs text-ink-soft">

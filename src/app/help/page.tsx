@@ -28,7 +28,7 @@ export default function HelpCenterPage() {
             <HelpCard
               icon={<CreditCard className="h-5 w-5 text-brand" />}
               title="Payment Help"
-              description="Supported payment methods via PayU including UPI, Credit/Debit cards, and Net Banking."
+              description="Supported payment methods via Razorpay including UPI, Credit/Debit cards, and Net Banking."
             />
             <HelpCard
               icon={<RefreshCw className="h-5 w-5 text-brand" />}

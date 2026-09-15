@@ -22,7 +22,7 @@ export default function HostPricingPage() {
           <PricingCard
             icon={<CreditCard className="h-6 w-6 text-brand" />}
             title="Secure Booking Payments"
-            description="Guest payments are securely processed through PayU (supporting UPI, Debit/Credit Cards, and Net Banking)."
+            description="Guest payments are securely processed through Razorpay (supporting UPI, Debit/Credit Cards, and Net Banking)."
           />
           <PricingCard
             icon={<Clock className="h-6 w-6 text-brand" />}

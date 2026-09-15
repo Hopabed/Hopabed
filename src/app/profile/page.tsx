@@ -74,6 +74,54 @@ function ProfileContent() {
   const [smsAlerts, setSmsAlerts] = useState(true);
   const [savedNotifSuccess, setSavedNotifSuccess] = useState(false);
 
+  // Saved Payment Methods State
+  const [defaultPaymentMethod, setDefaultPaymentMethod] = useState<"upi" | "card" | "netbanking">("upi");
+  const [savedUpiId, setSavedUpiId] = useState<string>("");
+  const [showAddPaymentModal, setShowAddPaymentModal] = useState(false);
+  const [inputUpiId, setInputUpiId] = useState("");
+  const [paymentSavedToast, setPaymentSavedToast] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const savedMethod = localStorage.getItem("hopebed_default_payment_method") as "upi" | "card" | "netbanking";
+      if (savedMethod) setDefaultPaymentMethod(savedMethod);
+      const savedVpa = localStorage.getItem("hopebed_saved_upi_id");
+      if (savedVpa) setSavedUpiId(savedVpa);
+    }
+  }, []);
+
+  const handleSelectPaymentMethod = (method: "upi" | "card" | "netbanking") => {
+    setDefaultPaymentMethod(method);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("hopebed_default_payment_method", method);
+    }
+    const name = method === "upi" ? "Razorpay UPI" : method === "card" ? "Credit / Debit Card" : "Net Banking";
+    setPaymentSavedToast(`Default payment option set to ${name}`);
+    setTimeout(() => setPaymentSavedToast(null), 3000);
+  };
+
+  const handleSaveUpiId = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!inputUpiId.trim()) return;
+    setSavedUpiId(inputUpiId.trim());
+    if (typeof window !== "undefined") {
+      localStorage.setItem("hopebed_saved_upi_id", inputUpiId.trim());
+    }
+    setShowAddPaymentModal(false);
+    setInputUpiId("");
+    setPaymentSavedToast("Saved UPI ID successfully!");
+    setTimeout(() => setPaymentSavedToast(null), 3000);
+  };
+
+  const handleRemoveUpiId = () => {
+    setSavedUpiId("");
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("hopebed_saved_upi_id");
+    }
+    setPaymentSavedToast("Saved UPI ID removed.");
+    setTimeout(() => setPaymentSavedToast(null), 3000);
+  };
+
   const [loadingDraft, setLoadingDraft] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
@@ -626,7 +674,7 @@ function ProfileContent() {
         <div className="space-y-6">
           <div className="rounded-3xl border border-gray-200 bg-white p-6 shadow-xs sm:p-8">
             <h2 className="text-xl font-bold text-[#111111] flex items-center gap-2 mb-4">
-              <CreditCard className="h-5 w-5 text-[#0b8f3c]" /> PayU Payment Gateway & Wallet
+              <CreditCard className="h-5 w-5 text-[#0b8f3c]" /> Razorpay Payment Gateway & Wallet
             </h2>
 
             <div className="grid gap-6 md:grid-cols-2 mb-8">
@@ -636,13 +684,13 @@ function ProfileContent() {
                 <div className="space-y-3">
                   <div className="flex items-center justify-between rounded-xl bg-white p-3 border border-gray-200 text-xs font-semibold">
                     <span className="flex items-center gap-2">
-                      <Smartphone className="h-4 w-4 text-[#0b8f3c]" /> PayU UPI / GPay / PhonePe
+                      <Smartphone className="h-4 w-4 text-[#0b8f3c]" /> Razorpay UPI / GPay / PhonePe
                     </span>
                     <span className="text-green-700 bg-green-50 px-2 py-0.5 rounded-full text-[10px] font-bold">Default</span>
                   </div>
                   <div className="flex items-center justify-between rounded-xl bg-white p-3 border border-gray-200 text-xs font-semibold">
                     <span className="flex items-center gap-2">
-                      <CreditCard className="h-4 w-4 text-gray-500" /> Credit / Debit Card (PayU Secured)
+                      <CreditCard className="h-4 w-4 text-gray-500" /> Credit / Debit Card (Razorpay Secured)
                     </span>
                     <span className="text-gray-400 text-[10px]">Verified</span>
                   </div>
@@ -658,7 +706,7 @@ function ProfileContent() {
                     <span className="text-green-700">₹0.00</span>
                   </div>
                   <p className="text-[11px] text-[#59615c]">
-                    All eligible booking cancellation refunds are processed instantly back to original PayU payment source within 24-48 hours.
+                    All eligible booking cancellation refunds are processed instantly back to original Razorpay payment source within 24-48 hours.
                   </p>
                 </div>
               </div>
@@ -676,7 +724,7 @@ function ProfileContent() {
                     <div key={safeId} className="p-4 flex items-center justify-between">
                       <div>
                         <p className="font-bold text-[#111111]">{b.propertyTitle}</p>
-                        <p className="text-[11px] text-[#59615c]">PayU Ref: PAYU_TXN_{safeId.slice(-6).toUpperCase()}</p>
+                        <p className="text-[11px] text-[#59615c]">Razorpay Ref: RZP_TXN_{safeId.slice(-6).toUpperCase()}</p>
                       </div>
                       <div className="flex items-center gap-4">
                         <span className="font-bold text-[#0b8f3c]">₹{b.totalPrice}</span>
@@ -874,13 +922,21 @@ function ProfileContent() {
               <h3 className="mt-3 text-xl font-bold text-[#111111]">{selectedPass.propertyTitle}</h3>
               <p className="mt-1 text-xs text-[#59615c]">Booking ID: {selectedPass.id}</p>
 
-              <div className="my-6 flex justify-center rounded-2xl bg-gray-50 p-6 border border-gray-100 shadow-inner">
+              <div className="my-6 flex flex-col items-center justify-center rounded-2xl bg-gray-50 p-6 border border-gray-100 shadow-inner">
                 <QRCodeCanvas
-                  value={JSON.stringify({ bookingId: selectedPass.id, type: "HOPEBED_STAY_PASS" })}
+                  value={typeof window !== "undefined" ? `${window.location.origin}/verify-pass/${selectedPass.id}` : `https://hopabed.in/verify-pass/${selectedPass.id}`}
                   size={180}
                   level="H"
                   includeMargin={true}
                 />
+                <a
+                  href={`/verify-pass/${selectedPass.id}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="mt-3 text-[11px] font-medium text-[#0b8f3c] hover:underline"
+                >
+                  Scan or Click to Verify Pass &rarr;
+                </a>
               </div>
 
               <div className="space-y-2 rounded-xl bg-[#f7fbf8] p-4 text-left text-xs text-[#111111]">

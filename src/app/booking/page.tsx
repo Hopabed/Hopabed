@@ -156,7 +156,7 @@ function BookingForm() {
                 <h2 className="text-xl font-semibold text-ink-soft mb-4">Payment rules</h2>
                 <div className="flex gap-4 rounded-xl bg-blue-50 p-4 text-blue-800">
                   <Info className="h-6 w-6 flex-shrink-0" />
-                  <p className="text-sm">By continuing, you agree to Hopebed&apos;s Terms of Service and Privacy Policy. The payment will be processed securely via PayU after booking creation.</p>
+                  <p className="text-sm">By continuing, you agree to Hopebed&apos;s Terms of Service and Privacy Policy. The payment will be processed securely via Razorpay after booking creation.</p>
                 </div>
               </div>
               
