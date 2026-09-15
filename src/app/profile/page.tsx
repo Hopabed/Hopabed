@@ -111,7 +111,7 @@ function ProfileContent() {
     try {
       setPayingBookingId(bookingId);
       const data = await initRazorpayPayment(bookingId);
-      
+
       const options = {
         key: data.keyId,
         amount: data.amount,
@@ -142,10 +142,10 @@ function ProfileContent() {
           color: "#0b8f3c"
         }
       };
-      
+
       const rzp = new (window as any).Razorpay(options);
-      rzp.on('payment.failed', function (response: any){
-          window.location.href = `/profile?tab=bookings&error=payment_failed`;
+      rzp.on('payment.failed', function (response: any) {
+        window.location.href = `/profile?tab=bookings&error=payment_failed`;
       });
       rzp.open();
       setPayingBookingId(null);
@@ -289,11 +289,10 @@ function ProfileContent() {
       <div className="mb-8 flex overflow-x-auto border-b border-gray-200 no-scrollbar">
         <button
           onClick={() => setActiveTab("bookings")}
-          className={`flex items-center gap-2 border-b-2 px-5 py-3.5 text-xs font-bold whitespace-nowrap transition-all ${
-            activeTab === "bookings"
+          className={`flex items-center gap-2 border-b-2 px-5 py-3.5 text-xs font-bold whitespace-nowrap transition-all ${activeTab === "bookings"
               ? "border-[#0b8f3c] text-[#0b8f3c]"
               : "border-transparent text-[#59615c] hover:text-[#111111]"
-          }`}
+            }`}
         >
           <Calendar className="h-4 w-4" />
           My Bookings ({bookings.length})
@@ -301,11 +300,10 @@ function ProfileContent() {
 
         <button
           onClick={() => setActiveTab("wishlist")}
-          className={`flex items-center gap-2 border-b-2 px-5 py-3.5 text-xs font-bold whitespace-nowrap transition-all ${
-            activeTab === "wishlist"
+          className={`flex items-center gap-2 border-b-2 px-5 py-3.5 text-xs font-bold whitespace-nowrap transition-all ${activeTab === "wishlist"
               ? "border-[#0b8f3c] text-[#0b8f3c]"
               : "border-transparent text-[#59615c] hover:text-[#111111]"
-          }`}
+            }`}
         >
           <Heart className="h-4 w-4" />
           Saved Wishlist ({mockWishlist.length})
@@ -313,11 +311,10 @@ function ProfileContent() {
 
         <button
           onClick={() => setActiveTab("preferences")}
-          className={`flex items-center gap-2 border-b-2 px-5 py-3.5 text-xs font-bold whitespace-nowrap transition-all ${
-            activeTab === "preferences"
+          className={`flex items-center gap-2 border-b-2 px-5 py-3.5 text-xs font-bold whitespace-nowrap transition-all ${activeTab === "preferences"
               ? "border-[#0b8f3c] text-[#0b8f3c]"
               : "border-transparent text-[#59615c] hover:text-[#111111]"
-          }`}
+            }`}
         >
           <Utensils className="h-4 w-4" />
           Stay Preferences & Safety
@@ -325,11 +322,10 @@ function ProfileContent() {
 
         <button
           onClick={() => setActiveTab("payments")}
-          className={`flex items-center gap-2 border-b-2 px-5 py-3.5 text-xs font-bold whitespace-nowrap transition-all ${
-            activeTab === "payments"
+          className={`flex items-center gap-2 border-b-2 px-5 py-3.5 text-xs font-bold whitespace-nowrap transition-all ${activeTab === "payments"
               ? "border-[#0b8f3c] text-[#0b8f3c]"
               : "border-transparent text-[#59615c] hover:text-[#111111]"
-          }`}
+            }`}
         >
           <CreditCard className="h-4 w-4" />
           Payments & Refunds
@@ -337,11 +333,10 @@ function ProfileContent() {
 
         <button
           onClick={() => setActiveTab("reviews")}
-          className={`flex items-center gap-2 border-b-2 px-5 py-3.5 text-xs font-bold whitespace-nowrap transition-all ${
-            activeTab === "reviews"
+          className={`flex items-center gap-2 border-b-2 px-5 py-3.5 text-xs font-bold whitespace-nowrap transition-all ${activeTab === "reviews"
               ? "border-[#0b8f3c] text-[#0b8f3c]"
               : "border-transparent text-[#59615c] hover:text-[#111111]"
-          }`}
+            }`}
         >
           <Star className="h-4 w-4" />
           Reviews & Feedback
@@ -349,11 +344,10 @@ function ProfileContent() {
 
         <button
           onClick={() => setActiveTab("notifications")}
-          className={`flex items-center gap-2 border-b-2 px-5 py-3.5 text-xs font-bold whitespace-nowrap transition-all ${
-            activeTab === "notifications"
+          className={`flex items-center gap-2 border-b-2 px-5 py-3.5 text-xs font-bold whitespace-nowrap transition-all ${activeTab === "notifications"
               ? "border-[#0b8f3c] text-[#0b8f3c]"
               : "border-transparent text-[#59615c] hover:text-[#111111]"
-          }`}
+            }`}
         >
           <Bell className="h-4 w-4" />
           Alerts & Notifications
@@ -361,11 +355,10 @@ function ProfileContent() {
 
         <button
           onClick={() => setActiveTab("hosting")}
-          className={`flex items-center gap-2 border-b-2 px-5 py-3.5 text-xs font-bold whitespace-nowrap transition-all ${
-            activeTab === "hosting"
+          className={`flex items-center gap-2 border-b-2 px-5 py-3.5 text-xs font-bold whitespace-nowrap transition-all ${activeTab === "hosting"
               ? "border-[#0b8f3c] text-[#0b8f3c]"
               : "border-transparent text-[#59615c] hover:text-[#111111]"
-          }`}
+            }`}
         >
           <Building2 className="h-4 w-4" />
           Host Hub
@@ -384,8 +377,8 @@ function ProfileContent() {
           {errorParam === "payment_failed"
             ? "Payment could not be completed. Your booking has not been confirmed."
             : errorParam === "payment_cancelled"
-            ? "Payment was cancelled."
-            : "An error occurred with your booking payment."}
+              ? "Payment was cancelled."
+              : "An error occurred with your booking payment."}
         </div>
       )}
 
@@ -431,13 +424,12 @@ function ProfileContent() {
                       <div className="flex items-center gap-2">
                         <h3 className="text-lg font-bold text-[#111111]">{booking.propertyTitle}</h3>
                         <span
-                          className={`rounded-full px-3 py-0.5 text-xs font-bold uppercase tracking-wider ${
-                            booking.status === "CONFIRMED" || booking.status === "checked_in"
+                          className={`rounded-full px-3 py-0.5 text-xs font-bold uppercase tracking-wider ${booking.status === "CONFIRMED" || booking.status === "checked_in"
                               ? "bg-green-100 text-green-800"
-                              : (booking.status === "PENDING" || booking.status === "pending")
-                              ? "bg-yellow-100 text-yellow-800"
-                              : "bg-red-100 text-red-800"
-                          }`}
+                              : booking.status === "PENDING"
+                                ? "bg-yellow-100 text-yellow-800"
+                                : "bg-red-100 text-red-800"
+                            }`}
                         >
                           {booking.status === "checked_in" ? "CHECKED IN" : booking.status}
                         </span>
@@ -455,7 +447,7 @@ function ProfileContent() {
                     </div>
 
                     <div className="flex items-center gap-3 self-end sm:self-center">
-                      {(booking.status === "PENDING" || booking.status === "pending") && (
+                      {booking.status === "PENDING" && (
                         <button
                           onClick={() => handlePayNow(booking.id)}
                           disabled={payingBookingId !== null}
@@ -566,11 +558,10 @@ function ProfileContent() {
                       key={pref}
                       type="button"
                       onClick={() => setDietPreference(pref)}
-                      className={`rounded-xl border p-3 text-center capitalize transition ${
-                        dietPreference === pref
+                      className={`rounded-xl border p-3 text-center capitalize transition ${dietPreference === pref
                           ? "border-[#0b8f3c] bg-[#eaf7ef] text-[#0b8f3c] font-bold"
                           : "border-gray-200 bg-white text-[#59615c] hover:bg-gray-50"
-                      }`}
+                        }`}
                     >
                       {pref}
                     </button>
