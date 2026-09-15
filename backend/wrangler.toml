@@ -1,0 +1,14 @@
+name = "hopebed-api"
+main = "src/index.ts"
+compatibility_date = "2024-12-01"
+compatibility_flags = ["nodejs_compat"]
+
+[vars]
+NODE_ENV = "production"
+CORS_ORIGIN = "https://hopabedin.mithagaris.workers.dev,http://localhost:3000"
+API_URL = "https://hopebed-api.mithagaris.workers.dev"
+FRONTEND_URL = "https://hopabedin.mithagaris.workers.dev"
+R2_REGION = "auto"
+PAYU_ENV = "production"
+MONGODB_DB_NAME = "hopebed"
+CF_WORKER = "true"

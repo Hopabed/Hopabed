@@ -20,7 +20,7 @@ function responseMock() {
 describe('authentication middleware', () => {
   it('accepts a valid access token and attaches auth context', () => {
     const request = {
-      header: (name: string) => (name === 'authorization' ? `Bearer ${createAccessToken('user-1', 'guest')}` : undefined),
+      header: (name: string) => (name === 'authorization' ? `Bearer ${createAccessToken('user-1', 'guest', 0)}` : undefined),
     } as AuthenticatedRequest;
     const response = responseMock();
     let called = false;

@@ -1,4 +1,4 @@
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "https://api.hopebed.in";
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "https://hopebed-api.mithagaris.workers.dev";
 
 export type SearchProperty = {
 	id: string;

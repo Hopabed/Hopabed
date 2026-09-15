@@ -101,14 +101,12 @@ outreachRouter.post(
             const exists = await LeadListing.findOne({ placeId: place.placeId });
             console.log('[Outreach Trace] Exists?', !!exists);
             if (!exists) {
-              const claimToken = crypto.randomBytes(24).toString('hex');
-              const newLead = new LeadListing({
+              const claimToken = Buffer.from(crypto.randomBytes(24)).toString('hex');
+              const newLead = await LeadListing.create({
                 ...place,
                 status: 'UNCLAIMED',
                 claimToken
               });
-              console.log('[Outreach Trace] Saving new lead:', place.placeId);
-              await newLead.save();
               console.log('[Outreach Trace] Saved.');
             }
           }
@@ -155,10 +153,10 @@ outreachRouter.post(
         return;
       }
 
-      const claimToken = crypto.randomBytes(24).toString('hex');
+      const claimToken = Buffer.from(crypto.randomBytes(24)).toString('hex');
       const placeId = `lead_${city.toLowerCase().replace(/[^a-z0-9]+/g, '_')}_${Date.now()}`;
 
-      const lead = new LeadListing({
+      const lead = await LeadListing.create({
         placeId,
         title,
         propertyType,
@@ -172,8 +170,6 @@ outreachRouter.post(
         status: 'UNCLAIMED',
         claimToken,
       });
-
-      await lead.save();
 
       res.json({ data: { lead, message: 'Real lead listing created successfully.' } });
     } catch (error: any) {

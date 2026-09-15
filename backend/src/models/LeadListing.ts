@@ -52,5 +52,4 @@ const leadListingSchema = new Schema<ILeadListing>(
   { timestamps: true }
 );
 
-export const LeadListing: Model<ILeadListing> =
-  model<ILeadListing>('LeadListing', leadListingSchema);
+export const LeadListing = model<ILeadListing>('LeadListing', leadListingSchema);

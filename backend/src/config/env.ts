@@ -24,7 +24,7 @@ const envSchema = z
     R2_SECRET_ACCESS_KEY: z.string().min(1).optional(),
     R2_PUBLIC_URL: z.string().url('R2_PUBLIC_URL must be a valid URL').optional(),
     R2_REGION: z.string().default('auto'),
-    CORS_ORIGIN: z.string().default('http://localhost:3000'),
+    CORS_ORIGIN: z.string().default('http://localhost:3000').transform((val) => val.includes(',') ? val.split(',').map(s => s.trim()) : val),
     SMTP_HOST: z.string().optional(),
     SMTP_PORT: z.coerce.number().optional(),
     SMTP_USER: z.string().optional(),

@@ -5,7 +5,7 @@ import crypto from 'node:crypto';
 describe('Google Lead Discovery & Host Outreach System Unit Tests', () => {
   describe('Lead Listing Claim Token Generator', () => {
     it('should generate secure 48-character hex claim tokens', () => {
-      const token = crypto.randomBytes(24).toString('hex');
+      const token = Buffer.from(crypto.randomBytes(24)).toString('hex');
       assert.equal(token.length, 48);
       assert.equal(/^[0-9a-f]+$/i.test(token), true);
     });

@@ -5,6 +5,7 @@ import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import { env } from './config/env.js';
 import { connectDatabase } from './config/database.js';
+import { httpServerHandler } from 'cloudflare:node';
 import healthRouter from './routes/health.js';
 import authRouter from './routes/auth.js';
 import propertiesRouter from './routes/properties.js';
@@ -14,6 +15,7 @@ import paymentsRouter from './routes/payments.js';
 import adminRouter from './routes/admin.js';
 import verificationRouter from './routes/verification.js';
 import { outreachRouter } from './routes/outreach.js';
+import http from 'node:http';
 
 export const app = express();
 
@@ -38,6 +40,15 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 app.use('/uploads/public', express.static(path.resolve(process.cwd(), 'uploads', 'public')));
+
+app.use(async (req, res, next) => {
+  try {
+    await connectDatabase();
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
 
 app.get('/', (_req: Request, res: Response) => {
   res.json({
@@ -77,6 +88,8 @@ const startServer = async (): Promise<void> => {
   }
 };
 
-if (process.env.NODE_ENV !== 'test') {
+if (process.env.NODE_ENV !== 'test' && !process.env.CF_WORKER) {
   startServer();
 }
+
+export default httpServerHandler(http.createServer(app) as unknown as Parameters<typeof httpServerHandler>[0]);
