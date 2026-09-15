@@ -680,20 +680,120 @@ function ProfileContent() {
             <div className="grid gap-6 md:grid-cols-2 mb-8">
               {/* Payment Methods */}
               <div className="rounded-2xl border border-gray-200 bg-[#f7fbf8] p-5">
-                <h3 className="font-bold text-xs uppercase tracking-wider text-[#0b8f3c] mb-3">Saved Payment Options</h3>
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="font-bold text-xs uppercase tracking-wider text-[#0b8f3c]">Saved Payment Options</h3>
+                  <button
+                    type="button"
+                    onClick={() => setShowAddPaymentModal(true)}
+                    className="text-xs font-bold text-[#0b8f3c] hover:underline flex items-center gap-1"
+                  >
+                    + Add UPI ID
+                  </button>
+                </div>
+
+                {paymentSavedToast && (
+                  <div className="mb-3 rounded-xl bg-emerald-100 p-2.5 text-center text-xs font-semibold text-emerald-800 animate-in fade-in">
+                    {paymentSavedToast}
+                  </div>
+                )}
+
                 <div className="space-y-3">
-                  <div className="flex items-center justify-between rounded-xl bg-white p-3 border border-gray-200 text-xs font-semibold">
+                  {/* Option 1: Razorpay UPI */}
+                  <button
+                    type="button"
+                    onClick={() => handleSelectPaymentMethod("upi")}
+                    className={`w-full flex items-center justify-between rounded-xl p-3 border text-xs font-semibold transition-all text-left ${
+                      defaultPaymentMethod === "upi"
+                        ? "bg-white border-[#0b8f3c] shadow-xs ring-1 ring-[#0b8f3c]"
+                        : "bg-white/60 border-gray-200 hover:border-gray-300"
+                    }`}
+                  >
                     <span className="flex items-center gap-2">
-                      <Smartphone className="h-4 w-4 text-[#0b8f3c]" /> Razorpay UPI / GPay / PhonePe
+                      <Smartphone className={`h-4 w-4 ${defaultPaymentMethod === "upi" ? "text-[#0b8f3c]" : "text-gray-500"}`} />
+                      <span>
+                        <span className="block font-bold text-[#111111]">Razorpay UPI / GPay / PhonePe</span>
+                        {savedUpiId && <span className="block text-[11px] font-normal text-[#59615c]">VPA: {savedUpiId}</span>}
+                      </span>
                     </span>
-                    <span className="text-green-700 bg-green-50 px-2 py-0.5 rounded-full text-[10px] font-bold">Default</span>
-                  </div>
-                  <div className="flex items-center justify-between rounded-xl bg-white p-3 border border-gray-200 text-xs font-semibold">
                     <span className="flex items-center gap-2">
-                      <CreditCard className="h-4 w-4 text-gray-500" /> Credit / Debit Card (Razorpay Secured)
+                      {defaultPaymentMethod === "upi" ? (
+                        <span className="text-[#0b8f3c] bg-emerald-50 px-2 py-0.5 rounded-full text-[10px] font-bold flex items-center gap-1">
+                          <CheckCircle2 className="h-3 w-3" /> Default
+                        </span>
+                      ) : (
+                        <span className="text-gray-400 text-[10px]">Select</span>
+                      )}
                     </span>
-                    <span className="text-gray-400 text-[10px]">Verified</span>
-                  </div>
+                  </button>
+
+                  {/* Option 2: Credit / Debit Card */}
+                  <button
+                    type="button"
+                    onClick={() => handleSelectPaymentMethod("card")}
+                    className={`w-full flex items-center justify-between rounded-xl p-3 border text-xs font-semibold transition-all text-left ${
+                      defaultPaymentMethod === "card"
+                        ? "bg-white border-[#0b8f3c] shadow-xs ring-1 ring-[#0b8f3c]"
+                        : "bg-white/60 border-gray-200 hover:border-gray-300"
+                    }`}
+                  >
+                    <span className="flex items-center gap-2">
+                      <CreditCard className={`h-4 w-4 ${defaultPaymentMethod === "card" ? "text-[#0b8f3c]" : "text-gray-500"}`} />
+                      <span>
+                        <span className="block font-bold text-[#111111]">Credit / Debit Card (Razorpay Secured)</span>
+                        <span className="block text-[11px] font-normal text-[#59615c]">Visa, Mastercard, RuPay, Amex</span>
+                      </span>
+                    </span>
+                    <span className="flex items-center gap-2">
+                      {defaultPaymentMethod === "card" ? (
+                        <span className="text-[#0b8f3c] bg-emerald-50 px-2 py-0.5 rounded-full text-[10px] font-bold flex items-center gap-1">
+                          <CheckCircle2 className="h-3 w-3" /> Default
+                        </span>
+                      ) : (
+                        <span className="text-gray-400 text-[10px]">Select</span>
+                      )}
+                    </span>
+                  </button>
+
+                  {/* Option 3: Net Banking */}
+                  <button
+                    type="button"
+                    onClick={() => handleSelectPaymentMethod("netbanking")}
+                    className={`w-full flex items-center justify-between rounded-xl p-3 border text-xs font-semibold transition-all text-left ${
+                      defaultPaymentMethod === "netbanking"
+                        ? "bg-white border-[#0b8f3c] shadow-xs ring-1 ring-[#0b8f3c]"
+                        : "bg-white/60 border-gray-200 hover:border-gray-300"
+                    }`}
+                  >
+                    <span className="flex items-center gap-2">
+                      <CreditCard className={`h-4 w-4 ${defaultPaymentMethod === "netbanking" ? "text-[#0b8f3c]" : "text-gray-500"}`} />
+                      <span>
+                        <span className="block font-bold text-[#111111]">Net Banking & Wallets</span>
+                        <span className="block text-[11px] font-normal text-[#59615c]">SBI, HDFC, ICICI, Axis & 50+ Banks</span>
+                      </span>
+                    </span>
+                    <span className="flex items-center gap-2">
+                      {defaultPaymentMethod === "netbanking" ? (
+                        <span className="text-[#0b8f3c] bg-emerald-50 px-2 py-0.5 rounded-full text-[10px] font-bold flex items-center gap-1">
+                          <CheckCircle2 className="h-3 w-3" /> Default
+                        </span>
+                      ) : (
+                        <span className="text-gray-400 text-[10px]">Select</span>
+                      )}
+                    </span>
+                  </button>
+
+                  {savedUpiId && (
+                    <div className="flex items-center justify-between text-[11px] pt-1 px-1">
+                      <span className="text-[#59615c]">Saved VPA: <strong>{savedUpiId}</strong></span>
+                      <button
+                        type="button"
+                        onClick={handleRemoveUpiId}
+                        className="text-red-600 hover:underline font-semibold"
+                      >
+                        Remove VPA
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -958,6 +1058,55 @@ function ProfileContent() {
                 Present this QR code or booking ID to the host at reception for seamless check-in.
               </p>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* ADD UPI / PAYMENT METHOD MODAL */}
+      {showAddPaymentModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="relative w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl animate-in fade-in zoom-in duration-200">
+            <button
+              onClick={() => setShowAddPaymentModal(false)}
+              className="absolute right-4 top-4 rounded-full p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+            >
+              <X className="h-5 w-5" />
+            </button>
+
+            <h3 className="text-lg font-bold text-[#111111] mb-1">Add Saved UPI ID</h3>
+            <p className="text-xs text-[#59615c] mb-4">
+              Enter your UPI VPA (e.g. yourname@gpay or mobilenumber@upi) for fast 1-click Razorpay checkouts.
+            </p>
+
+            <form onSubmit={handleSaveUpiId} className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-[#111111] mb-1">UPI VPA ID</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. 9876543210@paytm or user@okicici"
+                  value={inputUpiId}
+                  onChange={(e) => setInputUpiId(e.target.value)}
+                  className="w-full rounded-xl border border-gray-300 p-3 text-xs font-medium focus:border-[#0b8f3c] focus:outline-none"
+                />
+              </div>
+
+              <div className="flex justify-end gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowAddPaymentModal(false)}
+                  className="rounded-xl border border-gray-200 px-4 py-2.5 text-xs font-semibold text-gray-700 hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="rounded-xl bg-[#0b8f3c] px-5 py-2.5 text-xs font-bold text-white hover:bg-[#06752f]"
+                >
+                  Save Payment Option
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
