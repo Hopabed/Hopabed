@@ -81,14 +81,14 @@
 
 ### Phase 14: Legal & Host Settlement
 - `[x]` **Legal Pages:** Terms, Privacy, Cancellation, Contact, and Help pages.
-- `[ ]` **Host Payout Process:** Establish host payout schedules and settlement processes for booked stays.
+- `[x]` **Host Payout Process:** Establish host payout schedules and settlement processes for booked stays.
 
 ### Phase 15: Real-World Soft Launch (29 Oct – 31 Oct 2026)
-- `[ ]` **End-to-End Live Workflow Test:** Execute full flow from host registration → admin approval → booking → live payment → QR verification.
-- `[ ]` **Production Live Payment Test:** Complete small real transaction via PayU to confirm settlement, webhook confirmation, and refund processing.
+- `[x]` **End-to-End Live Workflow Test:** Execute full flow from host registration → admin approval → booking → live payment → QR verification.
+- `[x]` **Production Live Payment Test:** Complete small real transaction via PayU to confirm settlement, webhook confirmation, and refund processing.
 
 ### Phase 16: Launch Freeze (31 Oct 2026)
-- `[ ]` **Feature Freeze:** Stop all non-essential code changes. Permit only critical operational fixes.
+- `[x]` **Feature Freeze:** Stop all non-essential code changes. Permit only critical operational fixes.
 
 ### Phase 17: Rollback & Recovery Plan
-- `[ ]` **Rollback Procedure:** Document frontend, backend, and database rollback steps in case of launch incident.
+- `[x]` **Rollback Procedure:** Document frontend, backend, and database rollback steps in case of launch incident.
