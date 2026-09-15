@@ -131,7 +131,8 @@ function ProfileContent() {
               window.location.href = `/profile?tab=bookings&success=true`;
             }
           } catch (err: any) {
-            alert(err.message || "Payment verification failed");
+            const errorMsg = encodeURIComponent(err.message || "Payment verification failed");
+            window.location.href = `/profile?tab=bookings&error=verification_failed&message=${errorMsg}`;
           }
         },
         prefill: {
@@ -150,10 +151,10 @@ function ProfileContent() {
       rzp.open();
       setPayingBookingId(null);
     } catch (err: unknown) {
-      if (err instanceof Error) {
-        alert(err.message || "Failed to initiate payment");
-      }
       setPayingBookingId(null);
+      let errorMsg = "Failed to initiate payment";
+      if (err instanceof Error) errorMsg = err.message;
+      window.location.href = `/profile?tab=bookings&error=init_failed&message=${encodeURIComponent(errorMsg)}`;
     }
   };
 
@@ -374,11 +375,13 @@ function ProfileContent() {
       )}
       {errorParam && (
         <div className="mb-6 rounded-2xl bg-red-50 p-4 text-sm text-red-700 border border-red-200">
-          {errorParam === "payment_failed"
-            ? "Payment could not be completed. Your booking has not been confirmed."
-            : errorParam === "payment_cancelled"
-              ? "Payment was cancelled."
-              : "An error occurred with your booking payment."}
+          {searchParams.get("message") || (
+            errorParam === "payment_failed"
+              ? "Payment could not be completed. Your booking has not been confirmed."
+              : errorParam === "payment_cancelled"
+                ? "Payment was cancelled."
+                : "An error occurred with your booking payment."
+          )}
         </div>
       )}
 

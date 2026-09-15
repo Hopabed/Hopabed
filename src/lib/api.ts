@@ -172,6 +172,45 @@ export async function getBookings() {
 	return body.data.bookings;
 }
 
+export type VerifiedStayPass = {
+	id: string;
+	status: string;
+	paymentStatus: string;
+	guestName: string;
+	guestEmail: string;
+	guestPhone: string;
+	propertyTitle: string;
+	propertyAddress: string;
+	city: string;
+	locality: string;
+	primaryImage?: string;
+	roomName: string;
+	roomType: string;
+	checkIn: string;
+	checkOut: string;
+	nights: number;
+	guests: number;
+	roomCount: number;
+	totalAmount: number;
+	currency: string;
+	createdAt: string;
+	isVerified: boolean;
+};
+
+export async function verifyStayPass(bookingId: string): Promise<VerifiedStayPass> {
+	const response = await fetch(`${API_BASE_URL}/api/bookings/${bookingId}/verify-pass`, { cache: "no-store" });
+	const body = (await response.json()) as { data?: { booking: VerifiedStayPass }; error?: { message?: string } };
+	if (!response.ok || !body.data) throw new Error(body.error?.message ?? "Invalid or expired Stay Pass.");
+	return body.data.booking;
+}
+
+export async function markStayPassCheckedIn(bookingId: string) {
+	const response = await fetch(`${API_BASE_URL}/api/bookings/${bookingId}/check-in`, { method: "POST" });
+	const body = (await response.json()) as { success?: boolean; error?: { message?: string } };
+	if (!response.ok || !body.success) throw new Error(body.error?.message ?? "Failed to update check-in status.");
+	return body;
+}
+
 export async function registerHost(input: { businessName?: string; bio?: string }) {
 	const token = localStorage.getItem("hopebed_access_token");
 	if (!token) throw new Error("Please log in before registering as a host.");

@@ -512,9 +512,10 @@ router.post('/razorpay-verify', requireAuth, async (req: AuthenticatedRequest, r
         });
 
       if (booking && booking.paymentStatus !== 'PAID') {
-        booking.paymentStatus = 'PAID';
-        booking.status = 'confirmed';
-        await booking.save();
+        await Booking.updateOne(
+          { _id: bookingId }, 
+          { $set: { paymentStatus: 'PAID', status: 'confirmed' } }
+        );
 
         const guestName = booking.guest?.name || 'Guest';
         const guestEmail = booking.guest?.email;

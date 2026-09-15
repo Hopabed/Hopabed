@@ -8,6 +8,80 @@ import { sha512 } from 'js-sha512';
 
 const router = Router();
 
+router.get('/:id/verify-pass', async (req, res, next) => {
+  try {
+    const bookingId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+    if (!Types.ObjectId.isValid(bookingId)) {
+      res.status(404).json({ success: false, error: { code: 'BOOKING_NOT_FOUND', message: 'Invalid or missing booking ID.' } });
+      return;
+    }
+    const booking = await Booking.findById(bookingId)
+      .populate('property', 'title city locality primaryImage address')
+      .populate('guest', 'name email mobile phone')
+      .populate('room', 'name roomType')
+      .lean();
+
+    if (!booking) {
+      res.status(404).json({ success: false, error: { code: 'BOOKING_NOT_FOUND', message: 'Booking pass not found.' } });
+      return;
+    }
+
+    const isVerified = booking.paymentStatus === 'PAID' && booking.status !== 'cancelled' && booking.status !== 'rejected';
+
+    res.json({
+      success: true,
+      data: {
+        booking: {
+          id: String(booking._id),
+          status: booking.status,
+          paymentStatus: booking.paymentStatus,
+          guestName: (booking.guest as any)?.name || 'Guest',
+          guestEmail: (booking.guest as any)?.email || '',
+          guestPhone: (booking.guest as any)?.mobile || (booking.guest as any)?.phone || '',
+          propertyTitle: (booking.property as any)?.title || 'Hopebed Property',
+          propertyAddress: (booking.property as any)?.address || '',
+          city: (booking.property as any)?.city || '',
+          locality: (booking.property as any)?.locality || '',
+          primaryImage: (booking.property as any)?.primaryImage || '',
+          roomName: (booking.room as any)?.name || 'Standard Room',
+          roomType: (booking.room as any)?.roomType || '',
+          checkIn: booking.checkIn,
+          checkOut: booking.checkOut,
+          nights: booking.nights,
+          guests: booking.guests,
+          roomCount: booking.roomCount,
+          totalAmount: booking.totalAmount,
+          currency: booking.currency || 'INR',
+          createdAt: booking.createdAt,
+          isVerified,
+        }
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.post('/:id/check-in', async (req, res, next) => {
+  try {
+    const bookingId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+    if (!Types.ObjectId.isValid(bookingId)) {
+      res.status(404).json({ success: false, error: { code: 'BOOKING_NOT_FOUND', message: 'Invalid booking ID.' } });
+      return;
+    }
+    const booking = await Booking.findById(bookingId);
+    if (!booking) {
+      res.status(404).json({ success: false, error: { code: 'BOOKING_NOT_FOUND', message: 'Booking not found.' } });
+      return;
+    }
+    booking.status = 'checked_in';
+    await booking.save();
+    res.json({ success: true, message: 'Guest checked in successfully', status: booking.status });
+  } catch (error) {
+    next(error);
+  }
+});
+
 router.get('/', requireAuth, async (req: AuthenticatedRequest, res, next) => {
   try {
     const bookings = await Booking.find({ guest: req.auth?.userId })
