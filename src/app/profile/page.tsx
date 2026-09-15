@@ -99,7 +99,7 @@ function ProfileContent() {
           checkIn: String(b.checkIn || new Date().toISOString()),
           checkOut: String(b.checkOut || new Date().toISOString()),
           status: (b.status as any) || "CONFIRMED",
-          totalPrice: Number(b.totalPrice || 0),
+          totalPrice: Number(b.totalAmount || b.totalPrice || 0),
         }));
         setBookings(normalized as unknown as Booking[]);
       })
@@ -434,7 +434,7 @@ function ProfileContent() {
                           className={`rounded-full px-3 py-0.5 text-xs font-bold uppercase tracking-wider ${
                             booking.status === "CONFIRMED" || booking.status === "checked_in"
                               ? "bg-green-100 text-green-800"
-                              : booking.status === "PENDING"
+                              : (booking.status === "PENDING" || booking.status === "pending")
                               ? "bg-yellow-100 text-yellow-800"
                               : "bg-red-100 text-red-800"
                           }`}
@@ -455,7 +455,7 @@ function ProfileContent() {
                     </div>
 
                     <div className="flex items-center gap-3 self-end sm:self-center">
-                      {booking.status === "PENDING" && (
+                      {(booking.status === "PENDING" || booking.status === "pending") && (
                         <button
                           onClick={() => handlePayNow(booking.id)}
                           disabled={payingBookingId !== null}
