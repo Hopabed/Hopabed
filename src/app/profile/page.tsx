@@ -912,9 +912,6 @@ function ProfileContent() {
         </div>
       )}
 
-      {checkoutData && payingBookingId && (
-        <PayUCheckoutForm checkoutData={checkoutData} bookingId={payingBookingId} />
-      )}
     </div>
   );
 }
