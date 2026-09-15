@@ -87,8 +87,8 @@ const startServer = async (): Promise<void> => {
   }
 };
 
-if (process.env.NODE_ENV !== 'test' && !process.env.CF_WORKER) {
+if (process.env.NODE_ENV !== 'test') {
   startServer();
 }
 
-export default httpServerHandler(app as unknown as Parameters<typeof httpServerHandler>[0]);
+export default httpServerHandler({ port: env.PORT || 4000 });
