@@ -204,16 +204,16 @@ export function AuthModal() {
   };
 
   return (
-    <div className="fixed inset-0 z-[80] flex items-center justify-center bg-ink/50 backdrop-blur-sm px-4" role="dialog" aria-modal>
-      <div className="w-full max-w-md rounded-2xl bg-white/90 backdrop-blur-md p-6 shadow-2xl border border-white/20">
+    <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/40 backdrop-blur-md px-4 transition-all duration-300" role="dialog" aria-modal>
+      <div className="w-full max-w-md rounded-3xl bg-white/95 backdrop-blur-xl p-8 shadow-[0_8px_32px_rgba(0,0,0,0.12)] border border-white/40 transform transition-all">
         {/* Header */}
-        <div className="mb-5 flex items-start justify-between">
+        <div className="mb-6 flex items-start justify-between">
           <div>
-            <p className="text-xs font-semibold tracking-wider text-brand uppercase">HOPEBED</p>
-            <h2 className="text-xl font-bold text-ink-soft">
+            <p className="text-[10px] font-bold tracking-[0.2em] text-brand uppercase mb-1">HOPEBED</p>
+            <h2 className="text-2xl font-extrabold text-gray-900 tracking-tight">
               {isOwnerFlow ? "List Your Property" : "Welcome to Hopebed"}
             </h2>
-            <p className="mt-1 text-xs text-muted">
+            <p className="mt-1.5 text-sm text-gray-500 font-medium">
               {isOwnerFlow
                 ? "Sign in or create an account to start listing your stay"
                 : "Log in or sign up to manage stays and bookings"}
@@ -222,7 +222,7 @@ export function AuthModal() {
           <button
             type="button"
             onClick={closeAuth}
-            className="rounded-full p-1 text-muted transition hover:bg-canvas hover:text-ink-soft"
+            className="rounded-full p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-900 transition-colors"
             aria-label="Close"
           >
             <X className="h-5 w-5" />
@@ -253,72 +253,72 @@ export function AuthModal() {
                   strategy="afterInteractive"
                   onLoad={() => setGoogleReady(true)}
                 />
-                <div ref={googleButtonRef} className="mb-4 flex min-h-10 justify-center" />
-                <div className="mb-4 flex items-center gap-3 text-xs text-muted">
-                  <span className="h-px flex-1 bg-border" />
+                <div ref={googleButtonRef} className="mb-6 flex min-h-[40px] justify-center" />
+                <div className="mb-6 flex items-center gap-4 text-xs font-medium text-gray-400 uppercase tracking-wider">
+                  <span className="h-px flex-1 bg-gray-200" />
                   or
-                  <span className="h-px flex-1 bg-border" />
+                  <span className="h-px flex-1 bg-gray-200" />
                 </div>
               </>
             ) : null}
 
             {/* Email / Mobile Selector */}
-            <div className="mb-4 flex rounded-xl bg-canvas p-1 text-xs font-semibold text-muted">
+            <div className="mb-6 flex rounded-xl bg-gray-100/80 p-1 text-sm font-semibold text-gray-500 backdrop-blur-sm">
               <button
                 type="button"
-                className={`flex-1 flex items-center justify-center gap-2 rounded-lg py-2 transition ${
-                  authMethod === "email" ? "bg-white text-ink-soft shadow-sm" : "hover:text-ink-soft"
+                className={`flex-1 flex items-center justify-center gap-2 rounded-lg py-2.5 transition-all duration-200 ${
+                  authMethod === "email" ? "bg-white text-gray-900 shadow-sm" : "hover:text-gray-900 hover:bg-gray-200/50"
                 }`}
                 onClick={() => {
                   setAuthMethod("email");
                   setError(null);
                 }}
               >
-                <Mail className="h-3.5 w-3.5" />
-                Continue with Email
+                <Mail className="h-4 w-4" />
+                Email
               </button>
               <button
                 type="button"
-                className={`flex-1 flex items-center justify-center gap-2 rounded-lg py-2 transition ${
-                  authMethod === "mobile" ? "bg-white text-ink-soft shadow-sm" : "hover:text-ink-soft"
+                className={`flex-1 flex items-center justify-center gap-2 rounded-lg py-2.5 transition-all duration-200 ${
+                  authMethod === "mobile" ? "bg-white text-gray-900 shadow-sm" : "hover:text-gray-900 hover:bg-gray-200/50"
                 }`}
                 onClick={() => {
                   setAuthMethod("mobile");
                   setError(null);
                 }}
               >
-                <Phone className="h-3.5 w-3.5" />
-                Continue with Mobile
+                <Phone className="h-4 w-4" />
+                Mobile
               </button>
             </div>
 
             {/* Email or Mobile Input Form */}
-            <form onSubmit={handleSendOtp} className="space-y-4">
+            <form onSubmit={handleSendOtp} className="space-y-5">
               {authMethod === "email" ? (
                 <div>
-                  <label className="mb-1 block text-xs font-medium text-ink-soft">Email address</label>
+                  <label className="mb-1.5 block text-sm font-semibold text-gray-900">Email Address</label>
                   <input
                     type="email"
                     value={emailInput}
                     onChange={(e) => setEmailInput(e.target.value)}
                     placeholder="name@example.com"
-                    className="w-full rounded-xl border border-border px-3.5 py-2.5 text-sm outline-none transition focus:border-brand focus:ring-1 focus:ring-brand"
+                    className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-base outline-none transition-all focus:border-brand focus:ring-2 focus:ring-brand/20 focus:bg-white"
                     required
                   />
                 </div>
               ) : (
                 <div>
-                  <label className="mb-1 block text-xs font-medium text-ink-soft">Mobile number (+91)</label>
-                  <div className="flex rounded-xl border border-border overflow-hidden focus-within:border-brand focus-within:ring-1 focus-within:ring-brand">
-                    <span className="flex items-center bg-canvas px-3 text-xs font-medium text-muted border-r border-border">
+                  <label className="mb-1.5 block text-sm font-semibold text-gray-900">Mobile Number (+91)</label>
+                  <div className="flex rounded-xl border border-gray-200 bg-gray-50 overflow-hidden transition-all focus-within:border-brand focus-within:ring-2 focus-within:ring-brand/20 focus-within:bg-white">
+                    <span className="flex items-center px-4 text-base font-semibold text-gray-500 border-r border-gray-200">
                       +91
                     </span>
                     <input
                       type="tel"
                       value={mobileInput}
                       onChange={(e) => setMobileInput(e.target.value.replace(/\D/g, "").slice(0, 10))}
-                      placeholder="9876543210"
-                      className="w-full px-3.5 py-2.5 text-sm outline-none"
+                      placeholder="9876 543 210"
+                      className="w-full bg-transparent px-4 py-3 text-base font-medium outline-none placeholder:text-gray-400 placeholder:font-normal"
                       maxLength={10}
                       required
                     />
@@ -329,7 +329,7 @@ export function AuthModal() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full rounded-xl bg-brand py-3 text-sm font-semibold text-white transition hover:bg-brand-dark disabled:opacity-60"
+                className="w-full rounded-xl bg-brand py-3.5 text-base font-bold text-white shadow-lg shadow-brand/30 transition-all hover:bg-brand-dark hover:shadow-brand/40 active:scale-[0.98] disabled:opacity-70 disabled:pointer-events-none"
               >
                 {isSubmitting ? "Sending Code..." : "Send Verification OTP"}
               </button>
@@ -339,16 +339,16 @@ export function AuthModal() {
 
         {/* STEP 2: VERIFY OTP */}
         {step === "verify_otp" && (
-          <form onSubmit={handleVerifyOtp} className="space-y-5">
-            <div className="text-center">
-              <p className="text-xs text-muted">Enter the 6-digit code sent to</p>
-              <p className="mt-1 text-sm font-semibold text-ink-soft">
+          <form onSubmit={handleVerifyOtp} className="space-y-6">
+            <div className="text-center mt-2">
+              <p className="text-sm text-gray-500 font-medium">Enter the 6-digit code sent to</p>
+              <p className="mt-1 text-base font-bold text-gray-900">
                 {maskIdentifier(authMethod, currentIdentifier)}
               </p>
             </div>
 
             {/* 6-Digit OTP Inputs */}
-            <div className="flex justify-center gap-2">
+            <div className="flex justify-center gap-3">
               {otpDigits.map((digit, idx) => (
                 <input
                   key={idx}
@@ -361,7 +361,7 @@ export function AuthModal() {
                   value={digit}
                   onChange={(e) => handleDigitChange(idx, e.target.value)}
                   onKeyDown={(e) => handleKeyDown(idx, e)}
-                  className="h-12 w-11 rounded-xl border border-border text-center text-lg font-bold outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
+                  className="h-14 w-12 rounded-xl border border-gray-200 bg-gray-50 text-center text-xl font-bold text-gray-900 outline-none transition-all focus:border-brand focus:ring-2 focus:ring-brand/20 focus:bg-white shadow-sm"
                 />
               ))}
             </div>
@@ -369,13 +369,13 @@ export function AuthModal() {
             <button
               type="submit"
               disabled={isSubmitting || otpDigits.join("").length < 6}
-              className="w-full rounded-xl bg-brand py-3 text-sm font-semibold text-white transition hover:bg-brand-dark disabled:opacity-60"
+              className="w-full rounded-xl bg-brand py-3.5 text-base font-bold text-white shadow-lg shadow-brand/30 transition-all hover:bg-brand-dark hover:shadow-brand/40 active:scale-[0.98] disabled:opacity-70 disabled:pointer-events-none"
             >
               {isSubmitting ? "Verifying..." : "Verify & Continue"}
             </button>
 
             {/* Resend & Change Identifier Actions */}
-            <div className="flex items-center justify-between pt-2 text-xs">
+            <div className="flex items-center justify-between pt-4 border-t border-gray-100 text-sm font-medium">
               <button
                 type="button"
                 onClick={() => {
@@ -383,20 +383,20 @@ export function AuthModal() {
                   setError(null);
                   setMessage(null);
                 }}
-                className="inline-flex items-center gap-1 text-muted hover:text-ink-soft"
+                className="inline-flex items-center gap-1.5 text-gray-500 hover:text-gray-900 transition-colors"
               >
-                <ArrowLeft className="h-3.5 w-3.5" />
+                <ArrowLeft className="h-4 w-4" />
                 Change {authMethod}
               </button>
 
               {resendTimer > 0 ? (
-                <span className="text-muted">Resend code in {resendTimer}s</span>
+                <span className="text-gray-400">Resend code in {resendTimer}s</span>
               ) : (
                 <button
                   type="button"
                   onClick={() => handleSendOtp()}
                   disabled={isSubmitting}
-                  className="font-semibold text-brand hover:underline disabled:opacity-50"
+                  className="font-bold text-brand hover:text-brand-dark transition-colors disabled:opacity-50"
                 >
                   Resend OTP
                 </button>
