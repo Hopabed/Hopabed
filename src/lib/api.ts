@@ -248,6 +248,32 @@ export async function verifyPayUPayment(bookingId: string) {
 	return body.data;
 }
 
+export async function initRazorpayPayment(bookingId: string) {
+	const token = localStorage.getItem("hopebed_access_token");
+	if (!token) throw new Error("Please log in.");
+	const response = await fetch(`${API_BASE_URL}/api/payments/razorpay-init`, {
+		method: "POST",
+		headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+		body: JSON.stringify({ bookingId }),
+	});
+	const body = (await response.json()) as { data?: { orderId: string, amount: number, currency: string, keyId: string }; error?: { message?: string } };
+	if (!response.ok || !body.data) throw new Error(body.error?.message ?? "Failed to initialize payment.");
+	return body.data;
+}
+
+export async function verifyRazorpayPayment(data: { razorpay_order_id: string; razorpay_payment_id: string; razorpay_signature: string; bookingId: string }) {
+	const token = localStorage.getItem("hopebed_access_token");
+	if (!token) throw new Error("Please log in.");
+	const response = await fetch(`${API_BASE_URL}/api/payments/razorpay-verify`, {
+		method: "POST",
+		headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+		body: JSON.stringify(data),
+	});
+	const body = (await response.json()) as { data?: { status: string }; error?: { message?: string } };
+	if (!response.ok || !body.data) throw new Error(body.error?.message ?? "Failed to verify payment.");
+	return body.data;
+}
+
 export async function refundPayUPayment(bookingId: string, amount?: number) {
 	const token = localStorage.getItem("hopebed_access_token");
 	if (!token) throw new Error("Please log in.");

@@ -3,8 +3,7 @@
 import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { useAuthModal } from "@/components/AuthProvider";
-import { getBookings, initPayUPayment } from "@/lib/api";
-import { PayUCheckoutForm, PayUCheckoutData } from "@/components/PayUCheckoutForm";
+import { getBookings, initRazorpayPayment, verifyRazorpayPayment } from "@/lib/api";
 import { Loader2, QrCode, X, CheckCircle2 } from "lucide-react";
 import { QRCodeCanvas } from "qrcode.react";
 
@@ -24,7 +23,6 @@ function BookingsList() {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [payingBookingId, setPayingBookingId] = useState<string | null>(null);
-  const [checkoutData, setCheckoutData] = useState<PayUCheckoutData | null>(null);
   const [selectedPass, setSelectedPass] = useState<Booking | null>(null);
 
   const successParam = searchParams.get("success");
@@ -40,8 +38,45 @@ function BookingsList() {
   const handlePayNow = async (bookingId: string) => {
     try {
       setPayingBookingId(bookingId);
-      const data = await initPayUPayment(bookingId);
-      setCheckoutData(data as unknown as PayUCheckoutData);
+      const data = await initRazorpayPayment(bookingId);
+      
+      const options = {
+        key: data.keyId,
+        amount: data.amount,
+        currency: data.currency,
+        name: "Hopebed",
+        description: "Stay Booking Payment",
+        order_id: data.orderId,
+        handler: async function (response: any) {
+          try {
+            const verifyData = await verifyRazorpayPayment({
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+              bookingId: bookingId
+            });
+            if (verifyData.status === 'success') {
+              window.location.href = `/bookings?success=true`;
+            }
+          } catch (err: any) {
+            alert(err.message || "Payment verification failed");
+          }
+        },
+        prefill: {
+          name: user?.name,
+          email: user?.email,
+        },
+        theme: {
+          color: "#0b8f3c"
+        }
+      };
+      
+      const rzp = new (window as any).Razorpay(options);
+      rzp.on('payment.failed', function (response: any){
+          window.location.href = `/bookings?error=payment_failed`;
+      });
+      rzp.open();
+      setPayingBookingId(null);
     } catch (err: unknown) {
       if (err instanceof Error) {
         alert(err.message || "Failed to initiate payment");
@@ -183,7 +218,7 @@ function BookingsList() {
         </div>
       )}
 
-      {checkoutData && payingBookingId && <PayUCheckoutForm checkoutData={checkoutData} bookingId={payingBookingId} />}
+
     </div>
   );
 }

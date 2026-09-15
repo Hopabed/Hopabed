@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import { Mail, Phone, MapPin, Send } from "lucide-react";
 
@@ -55,7 +57,7 @@ export default function SupportPage() {
         {/* Contact Form */}
         <div className="rounded-2xl border border-border bg-white p-8 shadow-sm">
           <h2 className="mb-6 text-xl font-bold text-ink-soft">Send us a message</h2>
-          <form className="space-y-5" action={() => { /* Server action or api endpoint for contact form */ }}>
+          <form className="space-y-5" onSubmit={(e) => e.preventDefault()}>
             <div className="grid gap-5 sm:grid-cols-2">
               <div>
                 <label className="mb-2 block text-sm font-semibold text-ink-soft">First Name</label>

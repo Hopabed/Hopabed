@@ -375,5 +375,189 @@ router.post('/payu-refund', requireAuth, async (req: AuthenticatedRequest, res, 
     next(error);
   }
 });
+// ----------------------------------------------------------------------------
+// RAZORPAY INTEGRATION
+// ----------------------------------------------------------------------------
+
+import Razorpay from 'razorpay';
+
+// Initialize Razorpay instance lazily to avoid crashing if keys are missing
+const getRazorpayInstance = () => {
+  if (!env.RAZORPAY_KEY_ID || !env.RAZORPAY_KEY_SECRET) {
+    throw new Error('Razorpay credentials are not configured.');
+  }
+  return new Razorpay({
+    key_id: env.RAZORPAY_KEY_ID,
+    key_secret: env.RAZORPAY_KEY_SECRET,
+  });
+};
+
+router.post('/razorpay-init', requireAuth, async (req: AuthenticatedRequest, res, next) => {
+  try {
+    const input = z.object({ bookingId: z.string() }).parse(req.body);
+    const userId = req.auth?.userId;
+    if (!userId) {
+      res.status(401).json({ success: false, error: { message: 'Unauthorized' } });
+      return;
+    }
+
+    const booking = await Booking.findOne({ _id: input.bookingId, guest: userId });
+    if (!booking) {
+      res.status(404).json({ success: false, error: { message: 'Booking not found' } });
+      return;
+    }
+
+    if (booking.paymentStatus === 'PAID') {
+      res.status(400).json({ success: false, error: { message: 'Booking is already paid' } });
+      return;
+    }
+
+    const amountInPaise = Math.round(booking.totalAmount * 100);
+    if (amountInPaise < 100) {
+      res.status(400).json({ success: false, error: { message: 'Amount must be at least 1 INR' } });
+      return;
+    }
+
+    const razorpay = getRazorpayInstance();
+    const receipt = `RCP_${booking._id.toString().slice(-8)}_${Date.now()}`;
+
+    const order = await razorpay.orders.create({
+      amount: amountInPaise,
+      currency: 'INR',
+      receipt,
+    });
+
+    // Create or update pending payment
+    await Payment.findOneAndUpdate(
+      { booking: booking._id },
+      {
+        $set: {
+          user: userId,
+          amount: booking.totalAmount,
+          currency: 'INR',
+          paymentGateway: 'razorpay',
+          orderId: order.id,
+          status: 'pending',
+        },
+      },
+      { upsert: true, new: true }
+    );
+
+    res.status(201).json({
+      success: true,
+      data: {
+        orderId: order.id,
+        amount: order.amount,
+        currency: order.currency,
+        keyId: env.RAZORPAY_KEY_ID,
+      },
+    });
+  } catch (error: any) {
+    console.error('Razorpay init error:', error);
+    res.status(500).json({ success: false, error: { message: error.message || 'Failed to initialize Razorpay payment' } });
+  }
+});
+
+router.post('/razorpay-verify', requireAuth, async (req: AuthenticatedRequest, res, next) => {
+  try {
+    const input = z.object({
+      razorpay_order_id: z.string(),
+      razorpay_payment_id: z.string(),
+      razorpay_signature: z.string(),
+      bookingId: z.string(),
+    }).parse(req.body);
+
+    const userId = req.auth?.userId;
+    if (!userId) {
+      res.status(401).json({ success: false, error: { message: 'Unauthorized' } });
+      return;
+    }
+
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature, bookingId } = input;
+
+    // Verify Signature: HMAC-SHA256(order_id + "|" + payment_id, KEY_SECRET)
+    if (!env.RAZORPAY_KEY_SECRET) {
+      res.status(500).json({ success: false, error: { message: 'Razorpay secret not configured' } });
+      return;
+    }
+
+    const generatedSignature = crypto
+      .createHmac('sha256', env.RAZORPAY_KEY_SECRET)
+      .update(`${razorpay_order_id}|${razorpay_payment_id}`)
+      .digest('hex');
+
+    if (generatedSignature !== razorpay_signature) {
+      res.status(400).json({ success: false, error: { message: 'Invalid payment signature' } });
+      return;
+    }
+
+    const payment = await Payment.findOne({ orderId: razorpay_order_id, user: userId });
+    if (!payment) {
+      res.status(404).json({ success: false, error: { message: 'Payment record not found' } });
+      return;
+    }
+
+    if (payment.status !== 'captured') {
+      payment.status = 'captured';
+      payment.paymentId = razorpay_payment_id;
+      await payment.save();
+
+      const booking = await Booking.findById(bookingId)
+        .populate<{ guest: { name: string; email: string } }>('guest', 'name email')
+        .populate<{ property: { title: string } }>('property', 'title')
+        .populate<{ room: { name: string; type?: string } }>('room', 'name type')
+        .populate<{ host: { user: { name: string; email: string } } }>({
+          path: 'host',
+          populate: { path: 'user', select: 'name email' },
+        });
+
+      if (booking && booking.paymentStatus !== 'PAID') {
+        booking.paymentStatus = 'PAID';
+        booking.status = 'confirmed';
+        await booking.save();
+
+        const guestName = booking.guest?.name || 'Guest';
+        const guestEmail = booking.guest?.email;
+        const propertyTitle = booking.property?.title || 'Hopebed Property';
+        const roomName = (booking.room as any)?.name || (booking.room as any)?.type || 'Standard Room';
+        const stayPassUrl = `${env.FRONTEND_URL}/bookings`;
+
+        if (guestEmail) {
+          sendBookingConfirmationEmail({
+            guestName,
+            guestEmail,
+            bookingId: String(booking._id),
+            propertyTitle,
+            roomName,
+            checkIn: booking.checkIn.toISOString(),
+            checkOut: booking.checkOut.toISOString(),
+            totalAmount: booking.totalAmount,
+            stayPassUrl,
+          }).catch((err) => console.error('[Razorpay] Guest confirmation email error:', err));
+        }
+
+        const hostUser = (booking.host as any)?.user;
+        if (hostUser?.email) {
+          sendHostBookingAlertEmail({
+            hostName: hostUser.name || 'Host',
+            hostEmail: hostUser.email,
+            bookingId: String(booking._id),
+            propertyTitle,
+            roomName,
+            guestName,
+            checkIn: booking.checkIn.toISOString(),
+            checkOut: booking.checkOut.toISOString(),
+            totalAmount: booking.totalAmount,
+          }).catch((err) => console.error('[Razorpay] Host booking alert email error:', err));
+        }
+      }
+    }
+
+    res.status(200).json({ success: true, data: { status: 'success' } });
+  } catch (error: any) {
+    console.error('Razorpay verification error:', error);
+    res.status(500).json({ success: false, error: { message: error.message || 'Internal verification error' } });
+  }
+});
 
 export default router;
