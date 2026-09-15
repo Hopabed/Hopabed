@@ -25,7 +25,7 @@
 ---
 
 ## Phase 2: Infrastructure & Hosting (Target: 21 Oct – 25 Oct 2026)
-- `[ ]` **Backend Production Server**: Express / Node.js on production container (PM2 / Docker) with HTTPS, MongoDB Atlas connection, auto-restart, CPU/RAM monitoring, and log rotation.
+- `[x]` **Backend Production Server**: Express / Node.js on production container (PM2 / Docker) with HTTPS, MongoDB Atlas connection, auto-restart, CPU/RAM monitoring, and log rotation.
 - `[ ]` **Domain Routing**: Route `hopebed.in` and `www.hopebed.in` to Next.js frontend, and `api.hopebed.in` to backend.
 - `[ ]` **Health Check Validation**: Test `https://api.hopebed.in/api/health` before linking production frontend.
 - `[ ]` **DNS & SSL Verification**: Configure Cloudflare proxy, A/AAAA/CNAME records, SSL/TLS, and eliminate direct dependency on dev URLs (`hopabedin.mithagaris.workers.dev`).
@@ -56,9 +56,9 @@
 
 ---
 
-## Phase 6: File & Document Storage
-- `[ ]` **Production File Storage**: Migrate property images and host verification documents to production S3 / Cloudflare R2 object storage.
-- `[ ]` **File Validation**: Enforce file type limits (JPG, PNG, WEBP, PDF) and max size rules.
+## Phase 6: File / Document Storage (Target: 29 Oct 2026)
+- `[x]` **Production Storage Migration**: Route property image uploads and private host KYC documents to AWS S3 / Cloudflare R2.
+- `[x]` **Upload Rules**: Strict backend enforcement of maximum file sizes and allowed MIME types (JPG, PNG, WEBP, PDF).
 
 ---
 

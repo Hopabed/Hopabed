@@ -1,4 +1,5 @@
 import cors from 'cors';
+import path from 'node:path';
 import express, { type Request, type Response, type NextFunction } from 'express';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
@@ -35,6 +36,8 @@ app.use(
 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+app.use('/uploads/public', express.static(path.resolve(process.cwd(), 'uploads', 'public')));
 
 app.get('/', (_req: Request, res: Response) => {
   res.json({

@@ -7,6 +7,8 @@ import { Property } from '../models/Property.js';
 import { Room } from '../models/Room.js';
 import { Booking } from '../models/Booking.js';
 import { PropertyAvailability } from '../models/PropertyAvailability.js';
+import { PropertyMedia } from '../models/PropertyMedia.js';
+import { savePublicImage } from '../services/storageService.js';
 
 const router = Router();
 
@@ -240,6 +242,81 @@ router.post('/properties/:propertyId/rooms', requireAuth, requireRole('host', 'a
     
     res.status(201).json({ success: true, data: { room } });
   } catch (error) {
+    next(error);
+  }
+});
+
+router.post('/properties/:propertyId/images', requireAuth, requireRole('host', 'admin'), async (req: AuthenticatedRequest, res, next) => {
+  try {
+    const host = await Host.findOne({ user: req.auth?.userId });
+    if (!host) {
+      res.status(404).json({ success: false, error: { code: 'NOT_A_HOST', message: 'Host profile not found.' } });
+      return;
+    }
+
+    const property = await Property.findOne({ _id: req.params.propertyId, host: host._id });
+    if (!property) {
+      res.status(404).json({ success: false, error: { code: 'PROPERTY_NOT_FOUND', message: 'Property not found.' } });
+      return;
+    }
+
+    const schema = z.object({
+      originalFilename: z.string().min(1),
+      mimeType: z.string().min(1),
+      fileBase64: z.string().min(1),
+      isPrimary: z.boolean().default(false),
+    });
+
+    const input = schema.parse(req.body);
+
+    const base64Clean = input.fileBase64.replace(/^data:[^;]+;base64,/, '');
+    const buffer = Buffer.from(base64Clean, 'base64');
+
+    const saveResult = await savePublicImage({
+      propertyId: String(property._id),
+      documentType: 'image', // unused for public image really, but required by interface type
+      originalFilename: input.originalFilename,
+      mimeType: input.mimeType,
+      buffer,
+    });
+
+    // Determine if this should be the primary image
+    const existingImagesCount = await PropertyMedia.countDocuments({ property: property._id, mediaType: 'image' });
+    const isPrimary = input.isPrimary || existingImagesCount === 0;
+
+    if (isPrimary) {
+      // Unset previous primary images
+      await PropertyMedia.updateMany({ property: property._id, mediaType: 'image' }, { isPrimary: false });
+    }
+
+    const media = await PropertyMedia.create({
+      property: property._id,
+      mediaType: 'image',
+      fileName: input.originalFilename,
+      objectKey: saveResult.objectKey,
+      url: saveResult.url,
+      mimeType: input.mimeType,
+      size: saveResult.size,
+      isPrimary,
+    });
+
+    if (isPrimary) {
+      property.primaryImage = saveResult.url;
+      await property.save();
+    }
+
+    res.status(201).json({ success: true, data: { media } });
+  } catch (error) {
+    if (error instanceof Error) {
+      if (error.message === 'UNSUPPORTED_FILE_TYPE') {
+        res.status(400).json({ success: false, error: { message: 'Only JPG, PNG, and WEBP files are supported.' } });
+        return;
+      }
+      if (error.message === 'FILE_TOO_LARGE') {
+        res.status(400).json({ success: false, error: { message: 'Maximum file size allowed is 5 MB.' } });
+        return;
+      }
+    }
     next(error);
   }
 });

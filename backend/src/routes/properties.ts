@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { Types } from 'mongoose';
 import { z } from 'zod';
 import { Booking } from '../models/Booking.js';
+import { PropertyAvailability } from '../models/PropertyAvailability.js';
 import { Property } from '../models/Property.js';
 import { Host } from '../models/Host.js';
 import { Room } from '../models/Room.js';
@@ -16,9 +17,9 @@ const dateSchema = z.object({
 
 function validateDates(checkIn: Date, checkOut: Date) {
   const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  checkIn.setHours(0, 0, 0, 0);
-  checkOut.setHours(0, 0, 0, 0);
+  today.setUTCHours(0, 0, 0, 0);
+  checkIn.setUTCHours(0, 0, 0, 0);
+  checkOut.setUTCHours(0, 0, 0, 0);
   if (checkIn < today || checkOut <= checkIn) {
     throw new Error('DATES_INVALID');
   }
@@ -38,9 +39,17 @@ async function availableRooms(propertyIds: Types.ObjectId[], checkIn: Date, chec
     checkIn: { $lt: checkOut },
     checkOut: { $gt: checkIn },
   }).lean();
+
+  const blocks = await PropertyAvailability.find({
+    room: { $in: roomIds },
+    status: 'blocked',
+    date: { $gte: checkIn, $lt: checkOut },
+  }).lean();
+  const blockedRoomIds = new Set(blocks.map((b) => String(b.room)));
+
   const booked = new Map<string, number>();
   for (const booking of bookings) booked.set(String(booking.room), (booked.get(String(booking.room)) ?? 0) + booking.roomCount);
-  return rooms.filter((room) => (booked.get(String(room._id)) ?? 0) < room.inventory);
+  return rooms.filter((room) => !blockedRoomIds.has(String(room._id)) && (booked.get(String(room._id)) ?? 0) < room.inventory);
 }
 
 router.get('/search', async (req, res, next) => {
@@ -131,6 +140,10 @@ router.post('/:id/bookings', requireAuth, async (req: AuthenticatedRequest, res,
 
       const room = await Room.findOneAndUpdate({ _id: input.roomId, property: propertyId, isActive: true }, { $inc: { __v: 1 } }, { new: true }).session(session);
       if (!room || input.guests > room.capacity) throw new Error('ROOM_UNAVAILABLE');
+
+      const blocks = await PropertyAvailability.findOne({ room: room._id, status: 'blocked', date: { $gte: input.checkIn, $lt: input.checkOut } }).session(session);
+      if (blocks) throw new Error('ROOM_UNAVAILABLE');
+
       const overlap = await Booking.aggregate([{ $match: { room: room._id, status: { $in: ['pending', 'confirmed', 'checked_in'] }, checkIn: { $lt: input.checkOut }, checkOut: { $gt: input.checkIn } } }]).session(session);
       const bookedCount = overlap.reduce((total, item) => total + (item.roomCount ?? 1), 0);
       if (bookedCount + input.roomCount > room.inventory) throw new Error('ROOM_UNAVAILABLE');

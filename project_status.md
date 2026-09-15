@@ -21,7 +21,7 @@
 - `[x]` **Health Endpoint:** `/api/health` checking server uptime and MongoDB connectivity.
 
 ### Phase 2: Infrastructure & Hosting (21 Oct – 25 Oct 2026)
-- `[ ]` **Backend Production Server:** Express Node.js backend containerized (PM2 / Docker) with HTTPS, MongoDB Atlas connection, auto-restart, CPU/RAM monitoring, and log rotation.
+- `[x]` **Backend Production Server:** Express Node.js backend containerized (PM2 / Docker) with HTTPS, MongoDB Atlas connection, auto-restart, CPU/RAM monitoring, and log rotation.
 - `[ ]` **Domain Routing:** Route `hopebed.in` and `www.hopebed.in` to Next.js frontend, and `api.hopebed.in` to backend.
 - `[ ]` **Health Check Verification:** Test `https://api.hopebed.in/api/health` before connecting production frontend.
 - `[ ]` **DNS & SSL Setup:** Configure Cloudflare proxy, A/AAAA/CNAME records, and HTTPS certificates.
@@ -44,8 +44,8 @@
 - `[x]` **Host Check-In Verification:** `/verify` route calling `/api/hosts/verify-pass` for real-time check-in validation.
 
 ### Phase 6: File / Document Storage
-- `[ ]` **Production File Storage:** Migrate property images and host KYC files to S3 / Cloudflare R2 object storage.
-- `[ ]` **File Rules:** Enforce max file size limits and file type restrictions (JPG, PNG, WEBP, PDF).
+- `[x]` **Production File Storage:** Migrate property images and host KYC files to S3 / Cloudflare R2 object storage.
+- `[x]` **File Rules:** Enforce max file size limits and file type restrictions (JPG, PNG, WEBP, PDF).
 
 ### Phase 7: Admin & Operations
 - `[x]` **Host & Listing Moderation:** Dashboard tools at `/admin` to verify or reject property submissions.

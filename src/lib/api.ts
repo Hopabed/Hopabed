@@ -694,3 +694,16 @@ export async function logoutUser(token: string) {
 		// Ignore network errors on logout
 	}
 }
+
+export async function uploadPropertyImage(propertyId: string, input: { originalFilename: string; mimeType: string; fileBase64: string; isPrimary?: boolean }) {
+	const token = localStorage.getItem("hopebed_access_token");
+	if (!token) throw new Error("Please log in.");
+	const response = await fetch(`${API_BASE_URL}/api/hosts/properties/${propertyId}/images`, {
+		method: "POST",
+		headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+		body: JSON.stringify(input),
+	});
+	const body = (await response.json()) as { data?: Record<string, unknown>; error?: { message?: string } };
+	if (!response.ok || !body.data) throw new Error(body.error?.message ?? "Image upload failed.");
+	return body.data;
+}

@@ -5,13 +5,17 @@ import { PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from '@aws-sd
 import { Readable } from 'node:stream';
 
 const UPLOAD_DIR = path.resolve(process.cwd(), 'uploads', 'documents');
+const PUBLIC_UPLOAD_DIR = path.resolve(process.cwd(), 'uploads', 'public');
 
-// Ensure local upload folder exists for private storage fallback
+// Ensure local upload folders exist
 if (!fs.existsSync(UPLOAD_DIR)) {
   fs.mkdirSync(UPLOAD_DIR, { recursive: true });
 }
+if (!fs.existsSync(PUBLIC_UPLOAD_DIR)) {
+  fs.mkdirSync(PUBLIC_UPLOAD_DIR, { recursive: true });
+}
 
-export const ALLOWED_MIME_TYPES = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'];
+export const ALLOWED_MIME_TYPES = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
 export const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024; // 5 MB limit
 
 export interface SaveDocumentInput {
@@ -135,4 +139,53 @@ export async function deletePrivateDocument(storageReference: string): Promise<v
   } catch (err) {
     console.error('[storageService] Failed to delete document:', err);
   }
+}
+
+/**
+ * Save public image either to R2 (if configured) or local public storage.
+ * Returns the public URL.
+ */
+export async function savePublicImage(input: SaveDocumentInput): Promise<{ url: string; objectKey: string; size: number }> {
+  const { propertyId, originalFilename, mimeType, buffer } = input;
+
+  if (!ALLOWED_MIME_TYPES.includes(mimeType.toLowerCase()) || mimeType === 'application/pdf') {
+    throw new Error('UNSUPPORTED_FILE_TYPE');
+  }
+
+  if (buffer.length > MAX_FILE_SIZE_BYTES) {
+    throw new Error('FILE_TOO_LARGE');
+  }
+
+  const ext = path.extname(originalFilename) || '.jpg';
+  const filename = `prop_${propertyId}_${Date.now()}_${Math.random().toString(36).substring(2, 8)}${ext}`;
+
+  if (r2Client && r2Config.bucket && r2Config.publicUrl) {
+    const key = `public/properties/${propertyId}/${filename}`;
+    await r2Client.send(
+      new PutObjectCommand({
+        Bucket: r2Config.bucket,
+        Key: key,
+        Body: buffer,
+        ContentType: mimeType,
+      })
+    );
+    return {
+      url: `${r2Config.publicUrl}/${key}`,
+      objectKey: key,
+      size: buffer.length,
+    };
+  }
+
+  // Local public storage fallback
+  const filePath = path.join(PUBLIC_UPLOAD_DIR, filename);
+  await fs.promises.writeFile(filePath, buffer);
+
+  // Note: the backend process env or logic needs to know the domain. For local fallback, we return a relative or localhost path.
+  // We assume localhost:4000 for local dev if r2 is not configured
+  const localUrl = `/uploads/public/${filename}`;
+  return {
+    url: localUrl,
+    objectKey: `local://${filename}`,
+    size: buffer.length,
+  };
 }
