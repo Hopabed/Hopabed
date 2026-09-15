@@ -7,12 +7,15 @@ import { Readable } from 'node:stream';
 const UPLOAD_DIR = path.resolve(process.cwd(), 'uploads', 'documents');
 const PUBLIC_UPLOAD_DIR = path.resolve(process.cwd(), 'uploads', 'public');
 
-// Ensure local upload folders exist
-if (!fs.existsSync(UPLOAD_DIR)) {
-  fs.mkdirSync(UPLOAD_DIR, { recursive: true });
-}
-if (!fs.existsSync(PUBLIC_UPLOAD_DIR)) {
-  fs.mkdirSync(PUBLIC_UPLOAD_DIR, { recursive: true });
+try {
+  if (!fs.existsSync(UPLOAD_DIR)) {
+    fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+  }
+  if (!fs.existsSync(PUBLIC_UPLOAD_DIR)) {
+    fs.mkdirSync(PUBLIC_UPLOAD_DIR, { recursive: true });
+  }
+} catch (e) {
+  // Ignore filesystem errors in edge environments
 }
 
 export const ALLOWED_MIME_TYPES = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg', 'image/webp'];

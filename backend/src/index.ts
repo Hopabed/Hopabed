@@ -15,7 +15,6 @@ import paymentsRouter from './routes/payments.js';
 import adminRouter from './routes/admin.js';
 import verificationRouter from './routes/verification.js';
 import { outreachRouter } from './routes/outreach.js';
-import http from 'node:http';
 
 export const app = express();
 
@@ -92,4 +91,4 @@ if (process.env.NODE_ENV !== 'test' && !process.env.CF_WORKER) {
   startServer();
 }
 
-export default httpServerHandler(http.createServer(app) as unknown as Parameters<typeof httpServerHandler>[0]);
+export default httpServerHandler(app as unknown as Parameters<typeof httpServerHandler>[0]);

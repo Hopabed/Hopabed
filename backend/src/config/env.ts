@@ -51,4 +51,20 @@ const envSchema = z
     }
   );
 
-export const env = envSchema.parse(process.env);
+export const env = new Proxy({}, {
+  get(target, prop) {
+    if (!(target as any).parsed) {
+      try {
+        (target as any).parsed = envSchema.parse(process.env);
+      } catch (e) {
+        // Top-level evaluation fallback for Cloudflare Workers
+        if (prop === 'CORS_ORIGIN') {
+          const val = process.env.CORS_ORIGIN || 'http://localhost:3000';
+          return val.includes(',') ? val.split(',').map(s => s.trim()) : val;
+        }
+        return process.env[prop as string];
+      }
+    }
+    return (target as any).parsed[prop];
+  }
+}) as z.infer<typeof envSchema>;
