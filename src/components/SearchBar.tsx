@@ -32,51 +32,58 @@ export function SearchBar({ defaultDestination = "" }: SearchBarProps) {
   return (
     <form
       onSubmit={onSubmit}
-      className="relative z-20 mx-auto w-full overflow-visible rounded-[20px] bg-transparent"
+      className="relative z-20 mx-auto w-full lg:max-w-[1100px] overflow-visible rounded-[32px] lg:rounded-full bg-white/40 backdrop-blur-2xl shadow-[0_8px_32px_0_rgba(0,0,0,0.1)] border border-white/60 flex flex-col lg:flex-row lg:items-center p-2"
     >
-      <div className="flex flex-col lg:flex-row lg:items-center">
-        <SearchField icon={MapPin} label="Destination" className="lg:border-r lg:border-border/80">
-            <input
-            value={destination}
-            onChange={(event) => setDestination(event.target.value)}
-            placeholder="Where are you going?"
-            className="w-full bg-transparent text-sm lg:text-base font-medium text-ink-soft outline-none placeholder:text-muted"
-            name="destination"
-          />
-        </SearchField>
-        <SearchField icon={CalendarDays} label="Check-in" className="border-t border-border/80 lg:border-t-0 lg:border-r">
-          <DateInput value={checkIn} onChange={setCheckIn} label="Check-in date" />
-        </SearchField>
-        <SearchField icon={CalendarDays} label="Check-out" className="border-t border-border/80 lg:border-t-0 lg:border-r">
-          <DateInput value={checkOut} onChange={setCheckOut} label="Check-out date" />
-        </SearchField>
-        <div className="relative flex min-w-0 flex-1 items-center border-t border-border/80 lg:border-t-0 lg:border-r">
-          <SearchField icon={Users} label="Guests & Rooms">
-            <button
-              type="button"
-              className="flex w-full items-center justify-between text-left text-sm lg:text-base font-medium text-ink-soft"
-              onClick={() => setGuestOpen((open) => !open)}
-            >
-              <span>
-                {guests} guests, {rooms} room{rooms > 1 ? "s" : ""}
-              </span>
-              <ChevronDown className="h-4 w-4 text-muted" />
-            </button>
-          </SearchField>
-          {guestOpen ? (
-            <div className="absolute left-4 right-4 top-[80px] z-30 rounded-2xl border border-border bg-white p-4 shadow-[0_18px_40px_rgba(7,16,12,0.12)] lg:left-0 lg:right-auto lg:w-64">
-              <Stepper label="Guests" value={guests} min={1} onChange={setGuests} />
-              <Stepper label="Rooms" value={rooms} min={1} onChange={setRooms} />
-            </div>
-          ) : null}
+      <SearchField label="Where" className="flex-[1.5]">
+        <input
+          value={destination}
+          onChange={(event) => setDestination(event.target.value)}
+          placeholder="Search destinations"
+          className="w-full min-w-0 bg-transparent text-sm lg:text-base font-medium text-gray-900 outline-none placeholder:text-gray-600 truncate"
+          name="destination"
+        />
+      </SearchField>
+      
+      <div className="hidden lg:block w-[1px] h-10 bg-white/60" />
+      
+      <SearchField label="Check in" className="flex-1 border-t border-white/60 lg:border-t-0">
+        <DateInput value={checkIn} onChange={setCheckIn} label="Check-in date" />
+      </SearchField>
+
+      <div className="hidden lg:block w-[1px] h-10 bg-white/60" />
+
+      <SearchField label="Check out" className="flex-1 border-t border-white/60 lg:border-t-0">
+        <DateInput value={checkOut} onChange={setCheckOut} label="Check-out date" />
+      </SearchField>
+
+      <div className="hidden lg:block w-[1px] h-10 bg-white/60" />
+
+      <div 
+        className="relative flex min-w-0 flex-[1.4] items-center border-t border-white/60 lg:border-t-0 hover:bg-white/40 lg:rounded-full transition-all cursor-pointer group"
+      >
+        <div className="flex flex-1 flex-col justify-center px-6 lg:pl-8 lg:pr-4 py-3.5" onClick={() => setGuestOpen((open) => !open)}>
+          <span className="text-[12px] font-extrabold tracking-wide text-gray-900">Who</span>
+          <div className="mt-0.5 flex items-center text-sm lg:text-base font-medium text-gray-900">
+            <span className="truncate">
+              {guests} guests, {rooms} room{rooms > 1 ? "s" : ""}
+            </span>
+          </div>
         </div>
-        <div className="p-3 lg:p-3 lg:pl-3">
+
+        {guestOpen ? (
+          <div className="absolute left-4 right-4 top-[80px] z-30 rounded-2xl border border-white/60 bg-white/80 backdrop-blur-2xl p-6 shadow-xl lg:left-0 lg:right-auto lg:w-72 cursor-default" onClick={(e) => e.stopPropagation()}>
+            <Stepper label="Guests" value={guests} min={1} onChange={setGuests} />
+            <Stepper label="Rooms" value={rooms} min={1} onChange={setRooms} />
+          </div>
+        ) : null}
+
+        <div className="p-2 shrink-0">
           <button
             type="submit"
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-brand px-10 text-sm lg:text-base font-bold text-white transition hover:bg-brand-dark hover:shadow-md lg:h-16 lg:min-w-[160px]"
+            className="flex h-12 w-full lg:h-[56px] lg:w-[56px] lg:p-0 items-center justify-center gap-2 rounded-full bg-brand px-8 text-sm lg:text-base font-bold text-white transition-all hover:bg-brand-dark hover:scale-[1.05] active:scale-[0.95] shadow-lg shadow-brand/30"
           >
             <Search className="h-5 w-5 lg:h-6 lg:w-6" />
-            Search
+            <span className="lg:hidden">Search</span>
           </button>
         </div>
       </div>
@@ -95,12 +102,12 @@ function DateInput({
 }) {
   return (
     <span className="relative block">
-      {!value ? <span className="pointer-events-none absolute inset-0 text-sm lg:text-base text-muted">Add dates</span> : null}
+      {!value ? <span className="pointer-events-none absolute inset-0 text-sm lg:text-base font-medium text-gray-600">Add dates</span> : null}
       <input
         type="date"
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className={`w-full bg-transparent text-sm lg:text-base outline-none ${value ? "text-ink-soft" : "text-transparent"}`}
+        className={`w-full min-w-0 bg-transparent text-sm lg:text-base font-medium outline-none ${value ? "text-gray-900" : "text-transparent"}`}
         aria-label={label}
       />
     </span>

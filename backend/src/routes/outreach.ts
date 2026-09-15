@@ -11,6 +11,56 @@ const router = Router();
 export const outreachRouter = router;
 
 // ----------------------------------------------------------------------------
+// MOCK GOOGLE PLACES API HELPER (MVP fallback without API Key)
+// ----------------------------------------------------------------------------
+function fetchMockGooglePlaces(city: string, category: string) {
+  const normCity = city.trim();
+  const c = normCity.charAt(0).toUpperCase() + normCity.slice(1).toLowerCase();
+  
+  return [
+    {
+      placeId: `mock_gp_1_${c.toLowerCase()}`,
+      title: `Grand Heritage ${c}`,
+      propertyType: 'hotel',
+      city: c,
+      locality: 'Downtown',
+      address: `123 Main St, Downtown, ${c}`,
+      phone: '+91-9876543210',
+      email: `contact@grandheritage${c.toLowerCase()}.com`,
+      website: `https://grandheritage${c.toLowerCase()}.com`,
+      rating: 4.8,
+      primaryImage: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80',
+    },
+    {
+      placeId: `mock_gp_2_${c.toLowerCase()}`,
+      title: `${c} Boutique Villa`,
+      propertyType: 'villa',
+      city: c,
+      locality: 'Hillside',
+      address: `45 Hillside Ave, ${c}`,
+      phone: '+91-9876543211',
+      email: `info@boutiquevilla${c.toLowerCase()}.in`,
+      website: `https://boutiquevilla${c.toLowerCase()}.in`,
+      rating: 4.5,
+      primaryImage: 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=800&q=80',
+    },
+    {
+      placeId: `mock_gp_3_${c.toLowerCase()}`,
+      title: `Sunrise Homestay ${c}`,
+      propertyType: 'homestay',
+      city: c,
+      locality: 'Lakeview',
+      address: `78 Lakeview Dr, ${c}`,
+      phone: '+91-9876543212',
+      email: `hello@sunrisehomestay${c.toLowerCase()}.com`,
+      website: `https://sunrisehomestay${c.toLowerCase()}.com`,
+      rating: 4.2,
+      primaryImage: 'https://images.unsplash.com/photo-1502672260266-1c1cd2cb9df8?auto=format&fit=crop&w=800&q=80',
+    },
+  ];
+}
+
+// ----------------------------------------------------------------------------
 // 1. ADMIN: Search Database Lead Listings by City & Category or Keyword
 // ----------------------------------------------------------------------------
 outreachRouter.post(
@@ -39,7 +89,37 @@ outreachRouter.post(
         ];
       }
 
+      // -- DISCOVERY ENGINE: Fetch from Mock Google Places & Persist --
+      if (city && city.trim().length > 0 && !query) {
+        try {
+          console.log('[Outreach Trace] Starting mock discovery for:', city);
+          const discoveredPlaces = fetchMockGooglePlaces(city, category || 'hotel');
+          console.log('[Outreach Trace] Generated places:', discoveredPlaces.length);
+          
+          for (const place of discoveredPlaces) {
+            console.log('[Outreach Trace] Checking existence for:', place.placeId);
+            const exists = await LeadListing.findOne({ placeId: place.placeId });
+            console.log('[Outreach Trace] Exists?', !!exists);
+            if (!exists) {
+              const claimToken = crypto.randomBytes(24).toString('hex');
+              const newLead = new LeadListing({
+                ...place,
+                status: 'UNCLAIMED',
+                claimToken
+              });
+              console.log('[Outreach Trace] Saving new lead:', place.placeId);
+              await newLead.save();
+              console.log('[Outreach Trace] Saved.');
+            }
+          }
+        } catch (discoverErr) {
+          console.error('[Outreach WARNING] Failed to discover new leads:', discoverErr);
+        }
+      }
+
+      console.log('[Outreach Trace] Finding leads in DB...');
       const leads = await LeadListing.find(filter).sort({ createdAt: -1 });
+      console.log('[Outreach Trace] Found leads:', leads.length);
 
       res.json({ data: { leads, count: leads.length, source: 'database' } });
     } catch (error: any) {

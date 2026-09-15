@@ -38,10 +38,8 @@ export function Hero() {
       </div>
       
       <div className="relative z-20 -mt-24 px-4 sm:-mt-28 lg:-mt-32">
-        <div className="mx-auto flex max-w-[1200px] w-full flex-col items-center">
-          <div className="w-full rounded-[32px] bg-white p-2 sm:p-3 shadow-2xl">
-            <SearchBar />
-          </div>
+        <div className="mx-auto w-full">
+          <SearchBar />
         </div>
       </div>
     </section>

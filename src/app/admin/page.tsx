@@ -328,6 +328,8 @@ export default function AdminDashboardPage() {
       return;
     }
 
+    if (!confirm(`Are you sure you want to invite ${propertyTitle} via ${ownerEmail}?`)) return;
+
     setInvitingLeadId(leadId);
     setOutreachNotice(null);
     try {
