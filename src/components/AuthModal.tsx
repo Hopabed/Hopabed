@@ -204,8 +204,8 @@ export function AuthModal() {
   };
 
   return (
-    <div className="fixed inset-0 z-[80] flex items-center justify-center bg-ink/50 px-4" role="dialog" aria-modal>
-      <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
+    <div className="fixed inset-0 z-[80] flex items-center justify-center bg-ink/50 backdrop-blur-sm px-4" role="dialog" aria-modal>
+      <div className="w-full max-w-md rounded-2xl bg-white/90 backdrop-blur-md p-6 shadow-2xl border border-white/20">
         {/* Header */}
         <div className="mb-5 flex items-start justify-between">
           <div>
