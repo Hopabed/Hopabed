@@ -22,9 +22,9 @@
 
 ### Phase 2: Infrastructure & Hosting (21 Oct – 25 Oct 2026)
 - `[x]` **Backend Production Server:** Express Node.js backend containerized (PM2 / Docker) with HTTPS, MongoDB Atlas connection, auto-restart, CPU/RAM monitoring, and log rotation.
-- `[ ]` **Domain Routing:** Route `hopebed.in` and `www.hopebed.in` to Next.js frontend, and `api.hopebed.in` to backend.
-- `[ ]` **Health Check Verification:** Test `https://api.hopebed.in/api/health` before connecting production frontend.
-- `[ ]` **DNS & SSL Setup:** Configure Cloudflare proxy, A/AAAA/CNAME records, and HTTPS certificates.
+- `[x]` **Domain Routing:** Route `hopebed.in` and `www.hopebed.in` to Next.js frontend, and `api.hopebed.in` to backend.
+- `[x]` **Health Check Verification:** Test `https://api.hopebed.in/api/health` before connecting production frontend.
+- `[x]` **DNS & SSL Setup:** Configure Cloudflare proxy, A/AAAA/CNAME records, and HTTPS certificates.
 
 ### Phase 3: Booking & Inventory Safety Verification
 - `[x]` **Core Booking Engine:** Verified reservation dates, room allocation, guest capacity, pricing, and booking creation.
@@ -49,35 +49,35 @@
 
 ### Phase 7: Admin & Operations
 - `[x]` **Host & Listing Moderation:** Dashboard tools at `/admin` to verify or reject property submissions.
-- `[ ]` **Operational Controls:** Ability to suspend or disable host listings without deleting historical transaction logs.
+- `[x]` **Operational Controls:** Ability to suspend or disable host listings without deleting historical transaction logs.
 
 ### Phase 8: Cancellation & Refund Engine
 - `[x]` **Status Model:** Lifecycle support (`PENDING` -> `CONFIRMED` -> `CANCELLED` -> `REFUNDED`).
 - `[x]` **PayU Refund API:** Automated server-to-server refund endpoint at `/api/payments/payu-refund`.
-- `[ ]` **Cancellation Policy:** Finalize guest and host cancellation timelines and refund percentage rules.
+- `[x]` **Cancellation Policy:** Finalize guest and host cancellation timelines and refund percentage rules.
 
 ### Phase 9: Security Hardening
 - `[x]` **HTTPS & Strict CORS:** Restrict API access exclusively to trusted frontend origins.
 - `[x]` **Role-Based Guards:** Strict route protection (`requireAuth`, `requireRole('host')`, `requireRole('admin')`).
-- `[ ]` **Rate Limiting:** Protect authentication and booking endpoints against brute force attacks.
+- `[x]` **Rate Limiting:** Protect authentication and booking endpoints against brute force attacks.
 
 ### Phase 10: Database Backup & Restore Test
-- `[ ]` **Automated Backups:** Daily MongoDB Atlas snapshots with point-in-time recovery.
-- `[ ]` **Restore Test:** Execute actual database restore test to prove disaster recovery capability.
+- `[x]` **Automated Backups:** Daily MongoDB Atlas snapshots with point-in-time recovery.
+- `[x]` **Restore Test:** Execute actual database restore test to prove disaster recovery capability.
 
 ### Phase 11: Monitoring & Alerts
-- `[ ]` **Uptime Ping:** Automated uptime ping for `api.hopebed.in/api/health`.
-- `[ ]` **Alert Triggers:** Instant notifications for webhook failures, database drops, and 5xx API errors.
+- `[x]` **Uptime Ping:** Automated uptime ping for `api.hopebed.in/api/health`.
+- `[x]` **Alert Triggers:** Instant notifications for webhook failures, database drops, and 5xx API errors.
 
 ### Phase 12: Frontend Domain Verification
 - `[x]` **Production Build:** `npm run build` completed with 31/31 static routes generated cleanly.
-- `[ ]` **Domain Smoke Test:** Verify all pages on `https://hopebed.in`.
-- `[ ]` **Zero Localhost References:** Verify no hardcoded `localhost:3000` or `localhost:5000` URLs exist in production assets.
+- `[x]` **Domain Smoke Test:** Verify all pages on `https://hopebed.in`.
+- `[x]` **Zero Localhost References:** Verify no hardcoded `localhost:3000` or `localhost:5000` URLs exist in production assets.
 
 ### Phase 13: SEO & Webmaster Configuration
 - `[x]` **Meta Tags:** SEO title and description tags configured on main pages.
-- `[ ]` **Sitemap & Robots:** Deploy `sitemap.xml` and `robots.txt`.
-- `[ ]` **Webmaster Tools:** Register `hopebed.in` on Google Search Console and Bing Webmaster Tools.
+- `[x]` **Sitemap & Robots:** Deploy `sitemap.xml` and `robots.txt`.
+- `[x]` **Webmaster Tools:** Register `hopebed.in` on Google Search Console and Bing Webmaster Tools.
 
 ### Phase 14: Legal & Host Settlement
 - `[x]` **Legal Pages:** Terms, Privacy, Cancellation, Contact, and Help pages.

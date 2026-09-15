@@ -7,6 +7,13 @@ import { Property } from '../models/Property.js';
 import { Host } from '../models/Host.js';
 import { Room } from '../models/Room.js';
 import { requireAuth, type AuthenticatedRequest } from '../middleware/auth.js';
+import rateLimit from 'express-rate-limit';
+
+const bookingLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  limit: 10, // 10 booking attempts per hour per IP
+  message: { success: false, error: { message: 'Too many booking attempts. Please try again later.' } },
+});
 
 const router = Router();
 const dateSchema = z.object({
@@ -119,7 +126,7 @@ router.get('/:id', async (req, res, next) => {
   } catch (error) { next(error); }
 });
 
-router.post('/:id/bookings', requireAuth, async (req: AuthenticatedRequest, res, next) => {
+router.post('/:id/bookings', requireAuth, bookingLimiter, async (req: AuthenticatedRequest, res, next) => {
   const session = await Booking.startSession();
   try {
     const propertyId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;

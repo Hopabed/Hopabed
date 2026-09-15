@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { Sparkles } from "lucide-react";
 import { SearchBar } from "./SearchBar";
 
 const HERO_IMAGE = "/hero-bg.png";
@@ -22,9 +23,10 @@ export function Hero() {
         
         <div className="relative flex h-full items-center justify-center text-center">
           <div className="container-page pb-20 pt-10">
-            <p className="mb-4 inline-flex items-center justify-center font-semibold uppercase tracking-[0.2em] text-white shadow-sm text-xs">
+            <div className="mb-6 inline-flex items-center justify-center gap-2 rounded-full border border-white/30 bg-white/20 px-5 py-2 font-semibold uppercase tracking-[0.2em] text-white backdrop-blur-md shadow-sm text-xs">
+              <Sparkles className="h-4 w-4" />
               Stays Made Simple
-            </p>
+            </div>
             <h1 className="mx-auto max-w-4xl text-4xl font-bold leading-tight text-white sm:text-5xl lg:text-6xl text-shadow-sm">
               Find your perfect stay in India.
             </h1>
@@ -36,7 +38,7 @@ export function Hero() {
       </div>
       
       <div className="relative z-20 -mt-24 px-4 sm:-mt-28 lg:-mt-32">
-        <div className="mx-auto flex max-w-[1000px] flex-col items-center">
+        <div className="mx-auto flex max-w-[1200px] w-full flex-col items-center">
           <div className="w-full rounded-[32px] bg-white p-2 sm:p-3 shadow-2xl">
             <SearchBar />
           </div>

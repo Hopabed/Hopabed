@@ -36,11 +36,11 @@ export function SearchBar({ defaultDestination = "" }: SearchBarProps) {
     >
       <div className="flex flex-col lg:flex-row lg:items-center">
         <SearchField icon={MapPin} label="Destination" className="lg:border-r lg:border-border/80">
-          <input
+            <input
             value={destination}
             onChange={(event) => setDestination(event.target.value)}
             placeholder="Where are you going?"
-            className="w-full bg-transparent text-sm font-medium text-ink-soft outline-none placeholder:text-muted"
+            className="w-full bg-transparent text-sm lg:text-base font-medium text-ink-soft outline-none placeholder:text-muted"
             name="destination"
           />
         </SearchField>
@@ -54,7 +54,7 @@ export function SearchBar({ defaultDestination = "" }: SearchBarProps) {
           <SearchField icon={Users} label="Guests & Rooms">
             <button
               type="button"
-              className="flex w-full items-center justify-between text-left text-sm font-medium text-ink-soft"
+              className="flex w-full items-center justify-between text-left text-sm lg:text-base font-medium text-ink-soft"
               onClick={() => setGuestOpen((open) => !open)}
             >
               <span>
@@ -70,12 +70,12 @@ export function SearchBar({ defaultDestination = "" }: SearchBarProps) {
             </div>
           ) : null}
         </div>
-        <div className="p-3">
+        <div className="p-3 lg:p-3 lg:pl-3">
           <button
             type="submit"
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-brand px-6 text-sm font-semibold text-white transition hover:bg-brand-dark lg:h-full lg:min-w-[132px]"
+            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-brand px-10 text-sm lg:text-base font-bold text-white transition hover:bg-brand-dark hover:shadow-md lg:h-16 lg:min-w-[160px]"
           >
-            <Search className="h-4 w-4" />
+            <Search className="h-5 w-5 lg:h-6 lg:w-6" />
             Search
           </button>
         </div>
@@ -95,12 +95,12 @@ function DateInput({
 }) {
   return (
     <span className="relative block">
-      {!value ? <span className="pointer-events-none absolute inset-0 text-sm text-muted">Add dates</span> : null}
+      {!value ? <span className="pointer-events-none absolute inset-0 text-sm lg:text-base text-muted">Add dates</span> : null}
       <input
         type="date"
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className={`w-full bg-transparent text-sm outline-none ${value ? "text-ink-soft" : "text-transparent"}`}
+        className={`w-full bg-transparent text-sm lg:text-base outline-none ${value ? "text-ink-soft" : "text-transparent"}`}
         aria-label={label}
       />
     </span>

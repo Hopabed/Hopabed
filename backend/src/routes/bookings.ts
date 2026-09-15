@@ -2,6 +2,9 @@ import { Router } from 'express';
 import { Types } from 'mongoose';
 import { Booking } from '../models/Booking.js';
 import { requireAuth, type AuthenticatedRequest } from '../middleware/auth.js';
+import { Payment } from '../models/Payment.js';
+import { env } from '../config/env.js';
+import { sha512 } from 'js-sha512';
 
 const router = Router();
 
@@ -51,6 +54,58 @@ router.post('/:id/cancel', requireAuth, async (req: AuthenticatedRequest, res, n
       res.status(400).json({ success: false, error: { code: 'ALREADY_CANCELLED', message: 'Booking is already cancelled.' } });
       return;
     }
+
+    // --- Phase 8: Cancellation & Refund Engine ---
+    const now = new Date();
+    const checkInDate = new Date(booking.checkIn);
+    const diffHours = (checkInDate.getTime() - now.getTime()) / (1000 * 60 * 60);
+
+    let refundPercentage = 0;
+    if (diffHours >= 168) { // > 7 days (168 hours)
+      refundPercentage = 1;
+    } else if (diffHours >= 48) { // > 48 hours
+      refundPercentage = 0.5;
+    }
+
+    if (booking.paymentStatus === 'PAID' && refundPercentage > 0) {
+      const payment = await Payment.findOne({ booking: booking._id, status: 'captured' });
+      if (payment) {
+        const refundAmount = Number((booking.totalAmount * refundPercentage).toFixed(2));
+        
+        const txnid = payment.paymentId || payment.orderId;
+        const cancelRefundToken = 'REF_' + Math.random().toString(36).substring(2, 10).toUpperCase() + '_' + Date.now();
+        const key = env.PAYU_MERCHANT_KEY;
+        const salt = env.PAYU_MERCHANT_SALT;
+        const command = 'cancel_refund_transaction';
+        const hashStr = `${key}|${command}|${txnid}|${salt}`;
+        const hash = sha512(hashStr);
+
+        const url = env.PAYU_ENV !== 'production' ? 'https://test.payu.in/merchant/postservice?form=2' : 'https://info.payu.in/merchant/postservice.php?form=2';
+        const params = new URLSearchParams();
+        params.append('key', key);
+        params.append('command', command);
+        params.append('hash', hash);
+        if(txnid) params.append('var1', txnid);
+        params.append('var2', cancelRefundToken);
+        params.append('var3', refundAmount.toString());
+
+        try {
+          const refundRes = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: params.toString() });
+          const refundBody = (await refundRes.json()) as any;
+          if (refundBody.status === 1) {
+            payment.status = 'refunded';
+            payment.metadata = { ...payment.metadata, refundResponse: refundBody };
+            await payment.save();
+            booking.paymentStatus = 'REFUNDED';
+          } else {
+             console.error('[BookingRoute] PayU Refund Failed:', refundBody);
+          }
+        } catch(err) {
+          console.error('[BookingRoute] PayU Refund Request Error:', err);
+        }
+      }
+    }
+    // --- End Phase 8 ---
 
     booking.status = 'cancelled';
     await booking.save();

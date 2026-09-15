@@ -1,4 +1,6 @@
-import { Facebook, Instagram, Linkedin } from "lucide-react";
+"use client";
+
+import { Facebook, Instagram, Linkedin, ArrowRight, Mail } from "lucide-react";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { Logo } from "./Logo";
@@ -29,42 +31,71 @@ const HOSTS = [
 
 export function Footer() {
   return (
-    <footer className="bg-black text-white">
-      <div className="container-page grid gap-10 py-12 sm:grid-cols-2 lg:grid-cols-[1.4fr_repeat(4,1fr)]">
-        <div>
-          <Logo />
-          <p className="mt-4 max-w-xs text-sm leading-6 text-white/70">
-            Hopebed is building a smarter way to find, book and verify stays in India.
-          </p>
-          <div className="mt-5 flex gap-3">
-            <Social href="https://instagram.com" label="Instagram">
-              <Instagram className="h-4 w-4" />
-            </Social>
-            <Social href="https://facebook.com" label="Facebook">
-              <Facebook className="h-4 w-4" />
-            </Social>
-            <Social href="https://x.com" label="X">
-              <span className="text-[13px] font-semibold">𝕏</span>
-            </Social>
-            <Social href="https://linkedin.com" label="LinkedIn">
-              <Linkedin className="h-4 w-4" />
-            </Social>
+    <footer className="bg-[#050505] text-white">
+      <div className="container-page py-16 lg:py-20">
+        <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_1fr_1.5fr]">
+          {/* Brand Column */}
+          <div className="flex flex-col">
+            <Logo />
+            <p className="mt-6 max-w-xs text-sm leading-relaxed text-white/60">
+              Hopebed is building a smarter way to find, book and verify stays in India. Discover your perfect getaway with us.
+            </p>
+            <div className="mt-8 flex gap-4">
+              <Social href="https://instagram.com" label="Instagram">
+                <Instagram className="h-[18px] w-[18px]" />
+              </Social>
+              <Social href="https://facebook.com" label="Facebook">
+                <Facebook className="h-[18px] w-[18px]" />
+              </Social>
+              <Social href="https://x.com" label="X">
+                <span className="text-[14px] font-bold tracking-tighter">𝕏</span>
+              </Social>
+              <Social href="https://linkedin.com" label="LinkedIn">
+                <Linkedin className="h-[18px] w-[18px]" />
+              </Social>
+            </div>
           </div>
-        </div>
-        <FooterColumn title="Company" links={COMPANY} />
-        <FooterColumn title="Support" links={SUPPORT} />
-        <FooterColumn title="For Hosts" links={HOSTS} />
-        <div>
-          <h3 className="mb-4 text-sm font-semibold">Mobile App</h3>
-          <div className="inline-flex w-fit items-center gap-2 rounded-lg bg-black px-3.5 py-2 text-white/80 ring-1 ring-white/25 text-xs font-medium">
-            <span>Mobile App Coming Soon</span>
+
+          {/* Links Columns */}
+          <FooterColumn title="Company" links={COMPANY} />
+          <FooterColumn title="Support" links={SUPPORT} />
+          <FooterColumn title="For Hosts" links={HOSTS} />
+
+          {/* Newsletter Column */}
+          <div className="flex flex-col">
+            <h3 className="mb-6 text-sm font-bold uppercase tracking-wider text-white/90">Stay Updated</h3>
+            <p className="mb-4 text-sm text-white/60">
+              Subscribe to our newsletter for the latest travel updates and exclusive offers.
+            </p>
+            <form className="relative mt-2 flex items-center" onSubmit={(e) => e.preventDefault()}>
+              <Mail className="absolute left-3.5 h-4 w-4 text-white/40" />
+              <input
+                type="email"
+                placeholder="Enter your email"
+                className="w-full rounded-xl bg-white/5 py-3.5 pl-10 pr-12 text-sm text-white placeholder:text-white/40 outline-none ring-1 ring-white/10 transition-all focus:bg-white/10 focus:ring-brand"
+                required
+              />
+              <button
+                type="submit"
+                aria-label="Subscribe"
+                className="absolute right-2 flex h-8 w-8 items-center justify-center rounded-lg bg-brand text-white transition-transform hover:scale-105 active:scale-95"
+              >
+                <ArrowRight className="h-4 w-4" />
+              </button>
+            </form>
           </div>
         </div>
       </div>
-      <div className="border-t border-white/10">
-        <div className="container-page flex flex-col gap-2 py-4 text-xs text-white/65 sm:flex-row sm:items-center sm:justify-between">
-          <p>© Hopebed.in | All rights reserved</p>
-          <p>Made with ♥ in India</p>
+
+      {/* Bottom Bar */}
+      <div className="border-t border-white/10 bg-[#000000]">
+        <div className="container-page flex flex-col items-center justify-between gap-4 py-6 text-xs text-white/50 sm:flex-row">
+          <p>© {new Date().getFullYear()} Hopebed.in | All rights reserved.</p>
+          <div className="flex items-center gap-2">
+            <span>Made with</span>
+            <span className="text-brand text-sm">♥</span>
+            <span>in India</span>
+          </div>
         </div>
       </div>
     </footer>
@@ -74,11 +105,11 @@ export function Footer() {
 function FooterColumn({ title, links }: { title: string; links: { href: string; label: string }[] }) {
   return (
     <div>
-      <h3 className="mb-4 text-sm font-semibold">{title}</h3>
-      <ul className="space-y-2.5 text-sm text-white/75">
+      <h3 className="mb-6 text-sm font-bold uppercase tracking-wider text-white/90">{title}</h3>
+      <ul className="space-y-4 text-sm text-white/60">
         {links.map((link) => (
           <li key={link.label}>
-            <Link href={link.href} className="hover:text-white">
+            <Link href={link.href} className="transition-colors hover:text-brand">
               {link.label}
             </Link>
           </li>
@@ -93,7 +124,7 @@ function Social({ href, label, children }: { href: string; label: string; childr
     <a
       href={href}
       aria-label={label}
-      className="flex h-9 w-9 items-center justify-center rounded-full border border-white/30 text-white hover:border-white"
+      className="flex h-10 w-10 items-center justify-center rounded-full bg-white/5 text-white/80 ring-1 ring-white/10 transition-all hover:scale-110 hover:bg-brand hover:text-white hover:ring-brand"
       target="_blank"
       rel="noreferrer"
     >

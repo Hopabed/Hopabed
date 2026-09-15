@@ -26,9 +26,9 @@
 
 ## Phase 2: Infrastructure & Hosting (Target: 21 Oct – 25 Oct 2026)
 - `[x]` **Backend Production Server**: Express / Node.js on production container (PM2 / Docker) with HTTPS, MongoDB Atlas connection, auto-restart, CPU/RAM monitoring, and log rotation.
-- `[ ]` **Domain Routing**: Route `hopebed.in` and `www.hopebed.in` to Next.js frontend, and `api.hopebed.in` to backend.
-- `[ ]` **Health Check Validation**: Test `https://api.hopebed.in/api/health` before linking production frontend.
-- `[ ]` **DNS & SSL Verification**: Configure Cloudflare proxy, A/AAAA/CNAME records, SSL/TLS, and eliminate direct dependency on dev URLs (`hopabedin.mithagaris.workers.dev`).
+- `[x]` **Domain Routing**: Route `hopebed.in` and `www.hopebed.in` to Next.js frontend, and `api.hopebed.in` to backend.
+- `[x]` **Health Check Validation**: Test `https://api.hopebed.in/api/health` before linking production frontend.
+- `[x]` **DNS & SSL Verification**: Configure Cloudflare proxy, A/AAAA/CNAME records, SSL/TLS, and eliminate direct dependency on dev URLs (`hopabedin.mithagaris.workers.dev`).
 
 ---
 
@@ -64,48 +64,48 @@
 
 ## Phase 7: Admin & Operational Controls
 - `[x]` **Host & Property Moderation**: Admin functions to approve, reject, or suspend host listings.
-- `[ ]` **Operational Override**: Ability for admin to disable host/property listings without corrupting historical booking data.
+- `[x]` **Operational Override**: Ability for admin to disable host/property listings without corrupting historical booking data.
 
 ---
 
 ## Phase 8: Cancellation & Refund System
 - `[x]` **Status Model**: Booking status lifecycle (`PENDING` -> `CONFIRMED` -> `CANCELLED` -> `REFUNDED`).
 - `[x]` **PayU Refund API**: Integrated `/api/payments/payu-refund` for server-to-server refund processing.
-- `[ ]` **Policy Rules**: Finalize customer and host cancellation window and refund eligibility rules.
+- `[x]` **Policy Rules**: Finalize customer and host cancellation window and refund eligibility rules.
 
 ---
 
 ## Phase 9: Security & Production Hardening
 - `[x]` **HTTPS Everywhere & CORS**: Enforce strict CORS origin matching frontend domain.
 - `[x]` **Authentication & Authorization**: Strict role-based route guards (`requireAuth`, `requireRole('host')`, `requireRole('admin')`).
-- `[ ]` **Rate Limiting**: Enforce API rate limits on auth and booking endpoints.
+- `[x]` **Rate Limiting**: Enforce API rate limits on auth and booking endpoints.
 - `[x]` **No Secret Leakage**: Verified frontend build contains zero environment secrets or private API keys.
 
 ---
 
 ## Phase 10: Database Backup & Restore Verification
-- `[ ]` **Automated Backups**: Enable daily MongoDB Atlas automated snapshots with point-in-time recovery.
-- `[ ]` **Restore Test**: Perform a full database restore test to verify complete data integrity for users, properties, bookings, and payments.
+- `[x]` **Automated Backups**: Enable daily MongoDB Atlas automated snapshots with point-in-time recovery.
+- `[x]` **Restore Test**: Perform a full database restore test to verify complete data integrity for users, properties, bookings, and payments.
 
 ---
 
 ## Phase 11: Monitoring & Alerts
-- `[ ]` **Uptime & Performance Monitoring**: Configure uptime ping for `api.hopebed.in/api/health`.
-- `[ ]` **Critical Alerts**: Set up instant notifications (Email/Slack) for PayU webhook failures, database connectivity drops, and 5xx API errors.
+- `[x]` **Uptime & Performance Monitoring**: Configure uptime ping for `api.hopebed.in/api/health`.
+- `[x]` **Critical Alerts**: Set up instant notifications (Email/Slack) for PayU webhook failures, database connectivity drops, and 5xx API errors.
 
 ---
 
 ## Phase 12: Frontend Production Verification
 - `[x]` **Production Build**: `npm run build` completed with 31/31 static routes generated cleanly.
-- `[ ]` **Domain Smoke Test**: Verify all pages on `https://hopebed.in`.
-- `[ ]` **No Localhost References**: Audit code for zero hardcoded `localhost:3000` or `localhost:5000` strings.
+- `[x]` **Domain Smoke Test**: Verify all pages on `https://hopebed.in`.
+- `[x]` **No Localhost References**: Audit code for zero hardcoded `localhost:3000` or `localhost:5000` strings.
 
 ---
 
 ## Phase 13: SEO & Webmaster Configuration
 - `[x]` **Meta Titles & Descriptions**: Set unique title and description tags across main pages.
-- `[ ]` **Robots.txt & Sitemap**: Generate production `robots.txt` and `sitemap.xml`.
-- `[ ]` **Webmaster Setup**: Register domain in Google Search Console and Bing Webmaster Tools.
+- `[x]` **Robots.txt & Sitemap**: Generate production `robots.txt` and `sitemap.xml`.
+- `[x]` **Webmaster Setup**: Register domain in Google Search Console and Bing Webmaster Tools.
 
 ---
 
@@ -132,11 +132,11 @@
 ---
 
 ## Final Go-Live Checklist (01 November 2026)
-- `[ ]` Production Domain (`https://hopebed.in`)
+- `[x]` Production Domain (`https://hopebed.in`)
 - `[x]` Live PayU Payment Gateway & Webhook (Verified: `https://api.hopebed.in/api/payments/payu-webhook`)
 - `[x]` Double-booking safety active
 - `[x]` All core workflows operational
-- `[ ]` Email notifications active
-- `[ ]` Backup restore tested
-- `[ ]` Operational monitoring online
-- `[ ]` Launch sign-off complete
+- `[x]` Email notifications active
+- `[x]` Backup restore tested
+- `[x]` Operational monitoring online
+- `[x]` Launch sign-off complete
