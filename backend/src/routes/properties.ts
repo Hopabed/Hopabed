@@ -157,7 +157,8 @@ router.post('/:id/bookings', requireAuth, bookingLimiter, async (req: Authentica
       const subtotal = room.pricePerNight * nights * input.roomCount;
       const serviceFee = Math.round(subtotal * 0.05);
       const taxes = Math.round((subtotal + serviceFee) * 0.05);
-      [booking] = await Booking.create([{ property: property._id, guest: auth.userId, host: property.host, room: room._id, checkIn: input.checkIn, checkOut: input.checkOut, nights, guests: input.guests, roomCount: input.roomCount, pricePerNight: room.pricePerNight, subtotal, serviceFee, taxes, totalAmount: subtotal + serviceFee + taxes, currency: room.currency, notes: input.notes, status: 'pending', paymentStatus: 'UNPAID' }], { session });
+      booking = new Booking({ property: property._id, guest: auth.userId, host: property.host, room: room._id, checkIn: input.checkIn, checkOut: input.checkOut, nights, guests: input.guests, roomCount: input.roomCount, pricePerNight: room.pricePerNight, subtotal, serviceFee, taxes, totalAmount: subtotal + serviceFee + taxes, currency: room.currency, notes: input.notes, status: 'pending', paymentStatus: 'UNPAID' });
+      await booking.save({ session });
     });
     res.status(201).json({ success: true, data: { booking } });
   } catch (error) {

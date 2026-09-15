@@ -44,7 +44,7 @@ interface Booking {
   propertyTitle: string;
   checkIn: string;
   checkOut: string;
-  status: "PENDING" | "CONFIRMED" | "CANCELLED" | "checked_in";
+  status: "PENDING" | "CONFIRMED" | "CANCELLED" | "CHECKED_IN";
   totalPrice: number;
 }
 
@@ -98,7 +98,7 @@ function ProfileContent() {
           propertyTitle: String(b.propertyTitle || b.title || "Hopebed Stay Pass"),
           checkIn: String(b.checkIn || new Date().toISOString()),
           checkOut: String(b.checkOut || new Date().toISOString()),
-          status: (b.status as any) || "CONFIRMED",
+          status: String(b.status || "CONFIRMED").toUpperCase() as any,
           totalPrice: Number(b.totalAmount || b.totalPrice || 0),
         }));
         setBookings(normalized as unknown as Booking[]);
@@ -424,14 +424,14 @@ function ProfileContent() {
                       <div className="flex items-center gap-2">
                         <h3 className="text-lg font-bold text-[#111111]">{booking.propertyTitle}</h3>
                         <span
-                          className={`rounded-full px-3 py-0.5 text-xs font-bold uppercase tracking-wider ${booking.status === "CONFIRMED" || booking.status === "checked_in"
+                          className={`rounded-full px-3 py-0.5 text-xs font-bold uppercase tracking-wider ${booking.status === "CONFIRMED" || booking.status === "CHECKED_IN"
                               ? "bg-green-100 text-green-800"
                               : booking.status === "PENDING"
                                 ? "bg-yellow-100 text-yellow-800"
                                 : "bg-red-100 text-red-800"
                             }`}
                         >
-                          {booking.status === "checked_in" ? "CHECKED IN" : booking.status}
+                          {booking.status === "CHECKED_IN" ? "CHECKED IN" : booking.status}
                         </span>
                       </div>
                       <p className="mt-1.5 text-xs text-[#59615c] flex items-center gap-3">
@@ -463,7 +463,7 @@ function ProfileContent() {
                         </button>
                       )}
 
-                      {(booking.status === "CONFIRMED" || booking.status === "checked_in") && (
+                      {(booking.status === "CONFIRMED" || booking.status === "CHECKED_IN") && (
                         <button
                           onClick={() => setSelectedPass(booking)}
                           className="flex items-center gap-2 rounded-xl border border-[#0b8f3c]/30 bg-[#eaf7ef] px-4 py-2.5 text-xs font-bold text-[#0b8f3c] transition hover:bg-[#0b8f3c] hover:text-white"

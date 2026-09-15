@@ -5,7 +5,6 @@ import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import { env } from './config/env.js';
 import { connectDatabase } from './config/database.js';
-import { httpServerHandler } from 'cloudflare:node';
 import healthRouter from './routes/health.js';
 import authRouter from './routes/auth.js';
 import propertiesRouter from './routes/properties.js';
@@ -90,5 +89,3 @@ const startServer = async (): Promise<void> => {
 if (process.env.NODE_ENV !== 'test') {
   startServer();
 }
-
-export default httpServerHandler({ port: env.PORT || 4000 });
