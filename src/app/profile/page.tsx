@@ -828,12 +828,13 @@ function ProfileContent() {
                       </div>
                       <div className="flex items-center gap-4">
                         <span className="font-bold text-[#0b8f3c]">₹{b.totalPrice}</span>
-                        <button
-                          onClick={() => alert(`Downloading Invoice for Booking ID: ${safeId}`)}
+                        <Link
+                          href={`/invoices/${safeId}`}
+                          target="_blank"
                           className="flex items-center gap-1 rounded-lg border border-gray-200 px-3 py-1.5 text-[11px] font-bold text-[#111111] hover:bg-gray-50"
                         >
-                          <Download className="h-3.5 w-3.5 text-[#0b8f3c]" /> Invoice
-                        </button>
+                          <Download className="h-3.5 w-3.5 text-[#0b8f3c]" /> Download Invoice
+                        </Link>
                       </div>
                     </div>
                   );

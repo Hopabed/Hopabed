@@ -211,6 +211,40 @@ export async function markStayPassCheckedIn(bookingId: string) {
 	return body;
 }
 
+export type InvoiceData = {
+	id: string;
+	invoiceNumber: string;
+	bookingId: string;
+	paymentId: string;
+	issuedAt: string;
+	guestName: string;
+	guestEmail: string;
+	guestPhone?: string;
+	propertyTitle: string;
+	propertyAddress?: string;
+	city?: string;
+	locality?: string;
+	roomName: string;
+	checkIn: string;
+	checkOut: string;
+	nights: number;
+	guests: number;
+	roomCount: number;
+	subtotal: number;
+	serviceFee: number;
+	taxes: number;
+	totalAmount: number;
+	currency: string;
+	status: string;
+};
+
+export async function getBookingInvoice(bookingId: string): Promise<InvoiceData> {
+	const response = await fetch(`${API_BASE_URL}/api/invoices/booking/${bookingId}`, { cache: "no-store" });
+	const body = (await response.json()) as { data?: { invoice: InvoiceData }; error?: { message?: string } };
+	if (!response.ok || !body.data) throw new Error(body.error?.message ?? "Failed to retrieve invoice.");
+	return body.data.invoice;
+}
+
 export async function registerHost(input: { businessName?: string; bio?: string }) {
 	const token = localStorage.getItem("hopebed_access_token");
 	if (!token) throw new Error("Please log in before registering as a host.");

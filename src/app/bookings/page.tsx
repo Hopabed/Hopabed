@@ -4,7 +4,7 @@ import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { useAuthModal } from "@/components/AuthProvider";
 import { getBookings, initRazorpayPayment, verifyRazorpayPayment } from "@/lib/api";
-import { Loader2, QrCode, X, CheckCircle2 } from "lucide-react";
+import { Loader2, QrCode, X, CheckCircle2, FileText } from "lucide-react";
 import { QRCodeCanvas } from "qrcode.react";
 
 interface Booking {
@@ -153,13 +153,24 @@ function BookingsList() {
                   )}
 
                   {(booking.status === "CONFIRMED" || booking.status === "checked_in") && (
-                    <button
-                      onClick={() => setSelectedPass(booking)}
-                      className="mt-2 flex items-center gap-2 rounded-lg border border-brand bg-brand/5 px-4 py-2 text-sm font-semibold text-brand transition-all hover:bg-brand/10"
-                    >
-                      <QrCode className="h-4 w-4" />
-                      View Stay Pass
-                    </button>
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      <button
+                        onClick={() => setSelectedPass(booking)}
+                        className="flex items-center gap-1.5 rounded-lg border border-brand bg-brand/5 px-3 py-1.5 text-xs font-semibold text-brand transition-all hover:bg-brand/10"
+                      >
+                        <QrCode className="h-3.5 w-3.5" />
+                        Stay Pass
+                      </button>
+                      <a
+                        href={`/invoices/${booking.id}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 hover:bg-gray-50 transition-all shadow-xs"
+                      >
+                        <FileText className="h-3.5 w-3.5 text-[#0b8f3c]" />
+                        Invoice
+                      </a>
+                    </div>
                   )}
                 </div>
               </div>

@@ -13,6 +13,7 @@ import hostsRouter from './routes/hosts.js';
 import paymentsRouter from './routes/payments.js';
 import adminRouter from './routes/admin.js';
 import verificationRouter from './routes/verification.js';
+import invoicesRouter from './routes/invoices.js';
 import { outreachRouter } from './routes/outreach.js';
 
 export const app = express();
@@ -63,6 +64,7 @@ app.use('/api/hosts', hostsRouter);
 app.use('/api/payments', paymentsRouter);
 app.use('/api/admin', adminRouter);
 app.use('/api/verification', verificationRouter);
+app.use('/api/invoices', invoicesRouter);
 app.use('/api', outreachRouter);
 
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
@@ -86,6 +88,4 @@ const startServer = async (): Promise<void> => {
   }
 };
 
-if (process.env.NODE_ENV !== 'test') {
-  startServer();
-}
+void startServer();
