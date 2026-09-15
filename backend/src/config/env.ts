@@ -28,7 +28,7 @@ const envSchema = z
     SMTP_USER: z.string().optional(),
     SMTP_PASS: z.string().optional(),
     SMTP_SECURE: z.enum(['true', 'false']).transform((v) => v === 'true').optional(),
-    EMAIL_FROM: z.string().default('Hopebed <noreply@hopebed.in>'),
+    EMAIL_FROM: z.string().default('Hopebed <hello@hopebed.in>'),
     ADMIN_ALERT_EMAIL: z.string().default('admin@hopebed.in'),
   })
   .refine(

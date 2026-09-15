@@ -207,6 +207,9 @@ router.post('/otp/verify', async (req, res, next) => {
 
     if (input.identifierType === 'email') {
       user = await User.findOne({ email: normalizedIdentifier });
+      const adminEmails = ['mithagaris@gmail.com', 'admin@hopebed.in'];
+      const targetRole = adminEmails.includes(normalizedIdentifier.toLowerCase()) ? 'admin' : 'guest';
+
       if (!user) {
         isNewUser = true;
         const nameFromEmail = normalizedIdentifier.split('@')[0];
@@ -216,12 +219,13 @@ router.post('/otp/verify', async (req, res, next) => {
           email: normalizedIdentifier,
           authProvider: 'password',
           isEmailVerified: true,
-          role: 'guest',
+          role: targetRole,
         });
         sendWelcomeEmail({ name: user.name, email: user.email }).catch(console.error);
       } else {
-        if (!user.isEmailVerified) {
+        if (!user.isEmailVerified || (targetRole === 'admin' && user.role !== 'admin')) {
           user.isEmailVerified = true;
+          user.role = targetRole;
           await user.save();
         }
       }
@@ -293,8 +297,7 @@ router.post('/otp/verify', async (req, res, next) => {
       }
       firstPropertyId = String(property._id);
     }
-
-    const token = createAccessToken(user.id, user.role);
+    const token = createAccessToken(user.id, user.role, (user as any).tokenVersion ?? 0);
 
     res.json({
       success: true,

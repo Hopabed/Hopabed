@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
-import { getCurrentUser } from "@/lib/api";
+import { getCurrentUser, logoutUser } from "@/lib/api";
 
 export type AuthUser = { id: string; name: string; email: string; role: string; phone?: string; avatarUrl?: string };
 
@@ -49,6 +49,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(authenticatedUser);
       },
       logout: () => {
+        const token = localStorage.getItem("hopebed_access_token");
+        if (token) {
+          logoutUser(token).catch(console.error);
+        }
         localStorage.removeItem("hopebed_access_token");
         setUser(null);
       },

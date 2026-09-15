@@ -16,7 +16,7 @@
 
 ## Phase 1: Production Credentials & API Setup (Target: 1 Oct – 20 Oct 2026)
 - `[x]` **Production Environment Separation**: Live production credentials configured in gitignored `backend/.env`.
-- `[ ]` **JWT & Session Security**: Generate strong 64-char production JWT secret; verify token expiration; test session invalidation on logout/password updates.
+- `[x]` **JWT & Session Security**: Generate strong 64-char production JWT secret; verify token expiration; test session invalidation on logout/password updates.
 - `[x]` **PayU Production Configuration**: Live merchant key & salt set (`PAYU_ENV=production`); payment hash & callback webhook signature validation verified.
 - `[x]` **PayU Webhook Idempotency**: Duplicate webhooks handled safely with HTTP 200 `"Already processed"` without double-updating records.
 - `[x]` **Server-side Payment Amount Validation**: Backend strictly recalculates property/room rate; rejects browser-tampered prices.

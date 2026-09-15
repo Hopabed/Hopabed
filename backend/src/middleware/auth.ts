@@ -1,6 +1,7 @@
 import type { NextFunction, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import { env } from '../config/env.js';
+import { User } from '../models/User.js';
 
 export type UserRole = 'guest' | 'host' | 'admin';
 
@@ -14,16 +15,17 @@ export interface AuthenticatedRequest extends Request {
 interface AccessTokenPayload {
   sub: string;
   role: UserRole;
+  tokenVersion: number;
 }
 
-export function createAccessToken(userId: string, role: UserRole): string {
-  return jwt.sign({ role }, env.JWT_SECRET, {
+export function createAccessToken(userId: string, role: UserRole, tokenVersion: number): string {
+  return jwt.sign({ role, tokenVersion }, env.JWT_SECRET, {
     subject: userId,
     expiresIn: '1d',
   });
 }
 
-export function requireAuth(req: AuthenticatedRequest, res: Response, next: NextFunction): void {
+export async function requireAuth(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
   const authorization = req.header('authorization');
   const token = authorization?.startsWith('Bearer ')
     ? authorization.slice('Bearer '.length)
@@ -39,8 +41,13 @@ export function requireAuth(req: AuthenticatedRequest, res: Response, next: Next
 
   try {
     const payload = jwt.verify(token, env.JWT_SECRET) as AccessTokenPayload;
-    if (!payload.sub || !['guest', 'host', 'admin'].includes(payload.role)) {
+    if (!payload.sub || !['guest', 'host', 'admin'].includes(payload.role) || typeof payload.tokenVersion !== 'number') {
       throw new Error('Invalid access token payload.');
+    }
+
+    const user = await User.findById(payload.sub).select('tokenVersion').lean();
+    if (!user || user.tokenVersion !== payload.tokenVersion) {
+      throw new Error('Session expired or user not found.');
     }
 
     req.auth = { userId: payload.sub, role: payload.role };

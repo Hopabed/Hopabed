@@ -11,6 +11,9 @@ import {
   rejectAdminHost,
   suspendAdminHost,
   getAdminAuditLogs,
+  searchGoogleLeads,
+  importAndInviteLead,
+  createLeadListing,
   API_BASE_URL,
 } from "@/lib/api";
 import {
@@ -29,6 +32,13 @@ import {
   ShieldAlert,
   History,
   Ban,
+  Search,
+  Mail,
+  Globe,
+  Send,
+  Sparkles,
+  Copy,
+  CheckCircle2,
 } from "lucide-react";
 
 interface PropertyQueueItem {
@@ -135,7 +145,7 @@ interface AuditLogItem {
 export default function AdminDashboardPage() {
   const { user } = useAuthModal();
 
-  const [mainTab, setMainTab] = useState<"PROPERTIES" | "HOSTS" | "AUDIT_LOGS">("PROPERTIES");
+  const [mainTab, setMainTab] = useState<"PROPERTIES" | "HOSTS" | "AUDIT_LOGS" | "LEAD_DISCOVERY">("PROPERTIES");
 
   const [stats, setStats] = useState<{ users: number; hosts: number; properties: number; bookings: number } | null>(null);
   
@@ -149,6 +159,37 @@ export default function AdminDashboardPage() {
 
   // Audit Logs State
   const [auditLogs, setAuditLogs] = useState<AuditLogItem[]>([]);
+
+  // Lead Discovery State
+  const [searchCity, setSearchCity] = useState("Bangalore");
+  const [searchCategory, setSearchCategory] = useState("hotel");
+  const [leads, setLeads] = useState<Array<Record<string, any>>>([]);
+  const [searchingLeads, setSearchingLeads] = useState(false);
+  const [invitingLeadId, setInvitingLeadId] = useState<string | null>(null);
+  const [customEmails, setCustomEmails] = useState<Record<string, string>>({});
+  const [outreachNotice, setOutreachNotice] = useState<string | null>(null);
+  const [copiedLink, setCopiedLink] = useState(false);
+  const [outreachModal, setOutreachModal] = useState<{
+    show: boolean;
+    ownerEmail: string;
+    claimUrl: string;
+    propertyTitle: string;
+    senderEmail: string;
+  } | null>(null);
+
+  // Manual Real Lead Creation State
+  const [showCreateLeadModal, setShowCreateLeadModal] = useState(false);
+  const [newLeadForm, setNewLeadForm] = useState({
+    title: "",
+    propertyType: "hotel",
+    city: "Bangalore",
+    locality: "",
+    address: "",
+    phone: "",
+    email: "",
+    website: "",
+  });
+  const [creatingLead, setCreatingLead] = useState(false);
 
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
@@ -265,6 +306,81 @@ export default function AdminDashboardPage() {
     }
   };
 
+  const handleSearchLeads = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!searchCity) return;
+    setSearchingLeads(true);
+    setOutreachNotice(null);
+    try {
+      const res = await searchGoogleLeads({ city: searchCity, category: searchCategory });
+      setLeads(res as Array<Record<string, any>>);
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : "Failed to search leads.");
+    } finally {
+      setSearchingLeads(false);
+    }
+  };
+
+  const handleInviteLead = async (leadId: string, defaultEmail?: string, propertyTitle?: string) => {
+    const ownerEmail = customEmails[leadId] || defaultEmail;
+    if (!ownerEmail) {
+      alert("Please enter the property owner's email address.");
+      return;
+    }
+
+    setInvitingLeadId(leadId);
+    setOutreachNotice(null);
+    try {
+      const res = (await importAndInviteLead({ leadId, ownerEmail })) as { message?: string; claimUrl?: string };
+      
+      setLeads((prev) =>
+        prev.map((l) =>
+          String(l._id || l.placeId) === leadId ? { ...l, status: "INVITED", email: ownerEmail } : l
+        )
+      );
+
+      const relClaimUrl = res.claimUrl || `/claim-property?token=${leadId}`;
+      const fullClaimUrl = typeof window !== "undefined" ? `${window.location.origin}${relClaimUrl}` : relClaimUrl;
+
+      setOutreachModal({
+        show: true,
+        ownerEmail,
+        claimUrl: fullClaimUrl,
+        propertyTitle: propertyTitle || "Property",
+        senderEmail: "Hopebed Stays <hello@hopebed.in>",
+      });
+
+      setOutreachNotice(`Outreach invitation email dispatched to ${ownerEmail}!`);
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : "Failed to send outreach email.");
+    } finally {
+      setInvitingLeadId(null);
+    }
+  };
+
+  const handleCreateLead = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newLeadForm.title || !newLeadForm.city || !newLeadForm.locality || !newLeadForm.address) {
+      alert("Please fill in Property Title, City, Locality, and Address.");
+      return;
+    }
+    setCreatingLead(true);
+    try {
+      const res = await createLeadListing(newLeadForm);
+      alert(res.message || "Real lead listing created successfully!");
+      setShowCreateLeadModal(false);
+      const targetCity = newLeadForm.city;
+      setSearchCity(targetCity);
+      setNewLeadForm({ title: "", propertyType: "hotel", city: targetCity, locality: "", address: "", phone: "", email: "", website: "" });
+      const updatedLeads = await searchGoogleLeads({ city: targetCity, category: "all" });
+      setLeads(updatedLeads as Array<Record<string, any>>);
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : "Failed to create lead listing.");
+    } finally {
+      setCreatingLead(false);
+    }
+  };
+
   const submitModalAction = () => {
     if (!rejectReason.trim()) {
       setModalError("Please enter a reason.");
@@ -329,6 +445,15 @@ export default function AdminDashboardPage() {
           }`}
         >
           <History className="h-4 w-4" /> Compliance Audit Trail
+        </button>
+
+        <button
+          onClick={() => setMainTab("LEAD_DISCOVERY")}
+          className={`inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-xs font-bold transition ${
+            mainTab === "LEAD_DISCOVERY" ? "bg-brand text-white shadow-sm" : "bg-white text-muted hover:bg-canvas"
+          }`}
+        >
+          <Sparkles className="h-4 w-4" /> Google Lead Discovery & Host Outreach
         </button>
       </div>
 
@@ -882,6 +1007,208 @@ export default function AdminDashboardPage() {
         </div>
       )}
 
+      {/* LEAD DISCOVERY VIEW */}
+      {mainTab === "LEAD_DISCOVERY" && (
+        <div className="space-y-6">
+          <div className="rounded-3xl border border-border bg-white p-6 shadow-xs sm:p-8">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand/10 text-brand">
+                <Globe className="h-5 w-5" />
+              </div>
+              <div>
+                <h2 className="text-xl font-bold text-ink-soft">Google Places Lead Search & Automated Outreach</h2>
+                <p className="text-xs text-muted">Discover candidate stays by city, display as unclaimed properties, and dispatch invite emails with 1-click claim links.</p>
+              </div>
+            </div>
+
+            {outreachNotice && (
+              <div className="mt-4 rounded-xl bg-green-50 p-3.5 text-xs font-bold text-green-800 border border-green-200 flex items-center gap-2">
+                <CheckCircle className="h-4 w-4 text-green-600" /> {outreachNotice}
+              </div>
+            )}
+
+            <form onSubmit={handleSearchLeads} className="mt-6 flex flex-wrap items-center gap-3">
+              <div className="flex-1 min-w-[200px]">
+                <label className="block text-xs font-bold text-ink-soft mb-1">Target City</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Bangalore, Goa, Delhi, Mumbai, Pune"
+                  value={searchCity}
+                  onChange={(e) => setSearchCity(e.target.value)}
+                  className="w-full rounded-xl border border-border bg-canvas p-3 text-xs text-ink-soft focus:border-brand focus:outline-none"
+                />
+              </div>
+
+              <div className="w-48">
+                <label className="block text-xs font-bold text-ink-soft mb-1">Property Category</label>
+                <select
+                  value={searchCategory}
+                  onChange={(e) => setSearchCategory(e.target.value)}
+                  className="w-full rounded-xl border border-border bg-canvas p-3 text-xs text-ink-soft focus:border-brand focus:outline-none"
+                >
+                  <option value="hotel">Hotels & Resorts</option>
+                  <option value="pg">Paying Guest (PG)</option>
+                  <option value="homestay">Homestays & B&Bs</option>
+                  <option value="villa">Villas & Apartments</option>
+                </select>
+              </div>
+
+              <div className="self-end flex items-center gap-2">
+                <button
+                  type="submit"
+                  disabled={searchingLeads}
+                  className="inline-flex items-center gap-2 rounded-xl bg-brand px-6 py-3 text-xs font-bold text-white shadow-xs transition hover:bg-brand-dark disabled:opacity-50"
+                >
+                  {searchingLeads ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
+                  Search Database Leads
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setShowCreateLeadModal(true)}
+                  className="inline-flex items-center gap-2 rounded-xl border border-brand bg-emerald-50 px-5 py-3 text-xs font-bold text-emerald-800 transition hover:bg-emerald-100"
+                >
+                  + Add Real Lead Entry
+                </button>
+              </div>
+            </form>
+          </div>
+
+          {/* Leads Grid */}
+          {leads.length > 0 && (
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {leads.map((lead) => {
+                const leadId = String(lead._id || lead.placeId);
+                return (
+                  <div key={leadId} className="overflow-hidden rounded-2xl border border-border bg-white shadow-xs p-5 transition hover:shadow-sm">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <span className={`inline-block rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider mb-2 ${
+                          lead.status === 'CLAIMED' ? 'bg-green-100 text-green-800' :
+                          lead.status === 'INVITED' ? 'bg-amber-100 text-amber-800' :
+                          'bg-blue-100 text-blue-800'
+                        }`}>
+                          {lead.status}
+                        </span>
+                        <h3 className="font-bold text-ink-soft text-base">{lead.title}</h3>
+                        <p className="text-xs text-muted mt-0.5">{lead.locality}, {lead.city}</p>
+                      </div>
+                      <span className="text-xs font-bold text-amber-800 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
+                        ★ {lead.rating || 4.8}
+                      </span>
+                    </div>
+
+                    <p className="text-xs text-muted mt-2 truncate">📍 {lead.address}</p>
+
+                    <div className="mt-4 pt-3 border-t border-gray-100 space-y-3">
+                      <div>
+                        <label className="block text-[11px] font-semibold text-muted mb-1">Property Owner Email Address</label>
+                        <input
+                          type="email"
+                          placeholder="e.g. owner@hotel.com"
+                          value={customEmails[leadId] || lead.email || ""}
+                          onChange={(e) => setCustomEmails({ ...customEmails, [leadId]: e.target.value })}
+                          className="w-full rounded-lg border border-border bg-canvas p-2 text-xs text-ink-soft focus:border-brand focus:outline-none"
+                        />
+                      </div>
+
+                      <button
+                        onClick={() => handleInviteLead(leadId, lead.email, lead.title)}
+                        disabled={invitingLeadId === leadId}
+                        className="w-full flex items-center justify-center gap-2 rounded-xl bg-brand px-4 py-2.5 text-xs font-bold text-white transition hover:bg-brand-dark disabled:opacity-50"
+                      >
+                        {invitingLeadId === leadId ? (
+                          <>
+                            <Loader2 className="h-3.5 w-3.5 animate-spin" /> Sending Outreach Email...
+                          </>
+                        ) : (
+                          <>
+                            <Send className="h-3.5 w-3.5" /> Dispatch Invite Email & Claim Link
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* OUTREACH CONFIRMATION MODAL */}
+      {outreachModal?.show && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
+          <div className="relative w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl animate-in fade-in zoom-in duration-200 text-ink-soft">
+            <button
+              onClick={() => setOutreachModal(null)}
+              className="absolute right-4 top-4 rounded-full p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+            >
+              <X className="h-5 w-5" />
+            </button>
+
+            <div className="flex items-center gap-3 mb-4">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-green-100 text-green-700 shrink-0">
+                <CheckCircle2 className="h-7 w-7" />
+              </div>
+              <div>
+                <span className="text-[11px] font-bold text-green-700 uppercase tracking-wider">OUTREACH EMAIL DISPATCHED</span>
+                <h3 className="text-base font-bold text-ink-soft">{outreachModal.propertyTitle}</h3>
+              </div>
+            </div>
+
+            <div className="space-y-3 rounded-2xl bg-canvas p-4 text-xs font-medium border border-gray-200">
+              <div className="flex justify-between border-b border-gray-200 pb-2">
+                <span className="text-muted">Sender (From):</span>
+                <span className="font-bold text-brand">{outreachModal.senderEmail}</span>
+              </div>
+
+              <div className="flex justify-between border-b border-gray-200 pb-2">
+                <span className="text-muted">Recipient (To):</span>
+                <span className="font-bold text-ink-soft">{outreachModal.ownerEmail}</span>
+              </div>
+
+              <div>
+                <span className="text-muted block mb-1">Generated Property Claim Link:</span>
+                <div className="flex items-center gap-2 rounded-xl bg-white p-2.5 border border-gray-200">
+                  <span className="truncate text-[11px] font-mono text-ink-soft flex-1">{outreachModal.claimUrl}</span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      navigator.clipboard.writeText(outreachModal.claimUrl);
+                      setCopiedLink(true);
+                      setTimeout(() => setCopiedLink(false), 2000);
+                    }}
+                    className="flex items-center gap-1 rounded-lg bg-brand px-3 py-1.5 text-[11px] font-bold text-white transition hover:bg-brand-dark shrink-0"
+                  >
+                    <Copy className="h-3.5 w-3.5" />
+                    {copiedLink ? "Copied!" : "Copy Link"}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-5 flex flex-col gap-2">
+              <a
+                href={outreachModal.claimUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="w-full flex items-center justify-center gap-2 rounded-xl bg-brand px-4 py-3 text-xs font-bold text-white transition hover:bg-brand-dark text-center"
+              >
+                <ExternalLink className="h-4 w-4" /> Open Claim Link in New Tab to Test
+              </a>
+              <button
+                type="button"
+                onClick={() => setOutreachModal(null)}
+                className="w-full rounded-xl border border-gray-200 py-2.5 text-xs font-semibold text-muted hover:bg-canvas transition"
+              >
+                Close Window
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* REJECT / SUSPEND REASON MODAL */}
       {showRejectModal && (
         <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs">
@@ -923,6 +1250,145 @@ export default function AdminDashboardPage() {
                 {actionLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Confirm Action"}
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* CREATE REAL LEAD MODAL */}
+      {showCreateLeadModal && (
+        <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs">
+          <div className="w-full max-w-xl rounded-3xl bg-white p-6 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-border pb-3 mb-4">
+              <h3 className="text-lg font-bold text-ink-soft">Add Real Property Lead Entry</h3>
+              <button
+                type="button"
+                onClick={() => setShowCreateLeadModal(false)}
+                className="rounded-full p-1.5 text-muted hover:bg-canvas transition"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateLead} className="space-y-4 text-xs">
+              <div>
+                <label className="block font-bold text-ink-soft mb-1">Property Title *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Royal Palms Hotel & Stay"
+                  value={newLeadForm.title}
+                  onChange={(e) => setNewLeadForm({ ...newLeadForm, title: e.target.value })}
+                  className="w-full rounded-xl border border-border bg-canvas p-3 text-ink-soft focus:border-brand focus:outline-none"
+                />
+              </div>
+
+              <div className="grid sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-bold text-ink-soft mb-1">Property Category *</label>
+                  <select
+                    value={newLeadForm.propertyType}
+                    onChange={(e) => setNewLeadForm({ ...newLeadForm, propertyType: e.target.value })}
+                    className="w-full rounded-xl border border-border bg-canvas p-3 text-ink-soft focus:border-brand focus:outline-none"
+                  >
+                    <option value="hotel">Hotel</option>
+                    <option value="pg">PG / Co-Living</option>
+                    <option value="homestay">Homestay</option>
+                    <option value="villa">Villa</option>
+                    <option value="apartment">Apartment</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block font-bold text-ink-soft mb-1">City *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Bangalore"
+                    value={newLeadForm.city}
+                    onChange={(e) => setNewLeadForm({ ...newLeadForm, city: e.target.value })}
+                    className="w-full rounded-xl border border-border bg-canvas p-3 text-ink-soft focus:border-brand focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              <div className="grid sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-bold text-ink-soft mb-1">Locality *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. MG Road, Indiranagar"
+                    value={newLeadForm.locality}
+                    onChange={(e) => setNewLeadForm({ ...newLeadForm, locality: e.target.value })}
+                    className="w-full rounded-xl border border-border bg-canvas p-3 text-ink-soft focus:border-brand focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block font-bold text-ink-soft mb-1">Owner Email</label>
+                  <input
+                    type="email"
+                    placeholder="e.g. owner@hotel.com"
+                    value={newLeadForm.email}
+                    onChange={(e) => setNewLeadForm({ ...newLeadForm, email: e.target.value })}
+                    className="w-full rounded-xl border border-border bg-canvas p-3 text-ink-soft focus:border-brand focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block font-bold text-ink-soft mb-1">Full Address *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. No. 45, MG Road, Ward 12, Bangalore"
+                  value={newLeadForm.address}
+                  onChange={(e) => setNewLeadForm({ ...newLeadForm, address: e.target.value })}
+                  className="w-full rounded-xl border border-border bg-canvas p-3 text-ink-soft focus:border-brand focus:outline-none"
+                />
+              </div>
+
+              <div className="grid sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-bold text-ink-soft mb-1">Contact Phone</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. +91 98765 43210"
+                    value={newLeadForm.phone}
+                    onChange={(e) => setNewLeadForm({ ...newLeadForm, phone: e.target.value })}
+                    className="w-full rounded-xl border border-border bg-canvas p-3 text-ink-soft focus:border-brand focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block font-bold text-ink-soft mb-1">Website URL</label>
+                  <input
+                    type="url"
+                    placeholder="https://example.com"
+                    value={newLeadForm.website}
+                    onChange={(e) => setNewLeadForm({ ...newLeadForm, website: e.target.value })}
+                    className="w-full rounded-xl border border-border bg-canvas p-3 text-ink-soft focus:border-brand focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              <div className="mt-5 flex justify-end gap-3 pt-3 border-t border-border">
+                <button
+                  type="button"
+                  onClick={() => setShowCreateLeadModal(false)}
+                  className="rounded-xl border border-border px-4 py-2.5 text-xs font-semibold text-muted hover:bg-canvas transition"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={creatingLead}
+                  className="inline-flex items-center gap-1.5 rounded-xl bg-brand px-6 py-2.5 text-xs font-semibold text-white transition hover:bg-brand-dark disabled:opacity-70"
+                >
+                  {creatingLead ? <Loader2 className="h-4 w-4 animate-spin" /> : "Save Real Lead Entry"}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

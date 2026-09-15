@@ -608,4 +608,89 @@ export async function getAdminAuditLogs() {
 	return body.data.logs;
 }
 
+export async function createLeadListing(input: {
+	title: string;
+	propertyType?: string;
+	city: string;
+	locality: string;
+	address: string;
+	phone?: string;
+	email?: string;
+	website?: string;
+	rating?: number;
+}) {
+	const token = localStorage.getItem("hopebed_access_token");
+	if (!token) throw new Error("Please log in as Admin.");
 
+	const response = await fetch(`${API_BASE_URL}/api/admin/leads/create`, {
+		method: "POST",
+		headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+		body: JSON.stringify(input),
+	});
+
+	const body = (await response.json()) as { data?: { lead: Record<string, unknown>; message: string }; error?: { message?: string } };
+	if (!response.ok || !body.data) throw new Error(body.error?.message ?? "Failed to create real lead listing.");
+	return body.data;
+}
+
+export async function searchGoogleLeads(input: { city?: string; category?: string; query?: string }) {
+	const token = localStorage.getItem("hopebed_access_token");
+	if (!token) throw new Error("Please log in as Admin.");
+
+	const response = await fetch(`${API_BASE_URL}/api/admin/leads/search`, {
+		method: "POST",
+		headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+		body: JSON.stringify(input),
+	});
+
+	const body = (await response.json()) as { data?: { leads: Array<Record<string, unknown>> }; error?: { message?: string } };
+	if (!response.ok || !body.data) throw new Error(body.error?.message ?? "Failed to search leads.");
+	return body.data.leads;
+}
+
+export async function importAndInviteLead(input: { leadId: string; ownerEmail?: string }) {
+	const token = localStorage.getItem("hopebed_access_token");
+	if (!token) throw new Error("Please log in as Admin.");
+
+	const response = await fetch(`${API_BASE_URL}/api/admin/leads/import-and-invite`, {
+		method: "POST",
+		headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+		body: JSON.stringify(input),
+	});
+
+	const body = (await response.json()) as { data?: { message: string; claimUrl: string; lead: Record<string, unknown> }; error?: { message?: string } };
+	if (!response.ok || !body.data) throw new Error(body.error?.message ?? "Failed to send outreach email.");
+	return body.data;
+}
+
+export async function getClaimPropertyDetails(token: string) {
+	const response = await fetch(`${API_BASE_URL}/api/leads/claim/${token}`, { cache: "no-store" });
+	const body = (await response.json()) as { data?: { lead: Record<string, unknown> }; error?: { message?: string } };
+	if (!response.ok || !body.data?.lead) throw new Error(body.error?.message ?? "Invalid or expired property claim link.");
+	return body.data.lead;
+}
+
+export async function claimPropertyByToken(token: string) {
+	const authToken = localStorage.getItem("hopebed_access_token");
+	if (!authToken) throw new Error("Please log in or register before claiming this property.");
+
+	const response = await fetch(`${API_BASE_URL}/api/leads/claim/${token}`, {
+		method: "POST",
+		headers: { Authorization: `Bearer ${authToken}` },
+	});
+
+	const body = (await response.json()) as { data?: Record<string, unknown>; error?: { message?: string } };
+	if (!response.ok || !body.data) throw new Error(body.error?.message ?? "Failed to claim property.");
+	return body.data;
+}
+
+export async function logoutUser(token: string) {
+	try {
+		await fetch(`${API_BASE_URL}/api/auth/logout`, {
+			method: "POST",
+			headers: { Authorization: `Bearer ${token}` },
+		});
+	} catch {
+		// Ignore network errors on logout
+	}
+}

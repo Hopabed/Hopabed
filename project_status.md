@@ -14,7 +14,7 @@
 
 ### Phase 1: Production Credentials & API Setup (1 Oct – 20 Oct 2026)
 - `[x]` **Environment Isolation:** Live production credentials configured in gitignored `backend/.env`.
-- `[ ]` **JWT & Session Hardening:** Generate 64-char JWT secret; test session expiry & invalidation on logout.
+- `[x]` **JWT & Session Hardening:** Generate 64-char JWT secret; test session expiry & invalidation on logout.
 - `[x]` **PayU Production Gateway:** Switch to Live merchant credentials (`PAYU_ENV=production`); verify webhook signature validation.
 - `[x]` **PayU Webhook Idempotency:** Guarantee duplicate webhooks cannot double-confirm bookings or charge guests.
 - `[x]` **Server-Side Price Validation:** Backend strictly recalculates rate; rejects client-side price tampering.

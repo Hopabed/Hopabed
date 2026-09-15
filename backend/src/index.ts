@@ -12,6 +12,7 @@ import hostsRouter from './routes/hosts.js';
 import paymentsRouter from './routes/payments.js';
 import adminRouter from './routes/admin.js';
 import verificationRouter from './routes/verification.js';
+import { outreachRouter } from './routes/outreach.js';
 
 export const app = express();
 
@@ -50,6 +51,7 @@ app.use('/api/hosts', hostsRouter);
 app.use('/api/payments', paymentsRouter);
 app.use('/api/admin', adminRouter);
 app.use('/api/verification', verificationRouter);
+app.use('/api', outreachRouter);
 
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
   console.error('Unhandled server error:', err);

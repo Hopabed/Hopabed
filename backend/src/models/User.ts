@@ -11,6 +11,7 @@ export interface IUser {
   isEmailVerified: boolean;
   isPhoneVerified: boolean;
   avatarUrl?: string;
+  tokenVersion: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -44,9 +45,18 @@ const userSchema = new Schema<IUser>(
     isEmailVerified: { type: Boolean, default: false },
     isPhoneVerified: { type: Boolean, default: false },
     avatarUrl: { type: String, trim: true },
+    tokenVersion: { type: Number, default: 0 },
   },
   { timestamps: true }
 );
+
+userSchema.pre('save', function (next) {
+  const adminEmails = ['mithagaris@gmail.com', 'admin@hopebed.in'];
+  if (this.email && adminEmails.includes(this.email.toLowerCase())) {
+    this.role = 'admin';
+  }
+  next();
+});
 
 userSchema.index({ email: 1 }, { unique: true });
 userSchema.index({ role: 1, isEmailVerified: 1 });

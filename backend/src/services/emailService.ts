@@ -375,3 +375,38 @@ export async function sendHostVerificationStatusEmail(data: {
   return sendEmail({ to: data.hostEmail, subject, html });
 }
 
+// 10. Automated Host Outreach & Property Claim Invitation Email
+export async function sendHostOutreachEmail(data: {
+  ownerEmail: string;
+  propertyTitle: string;
+  city: string;
+  locality: string;
+  claimUrl: string;
+}) {
+  const subject = `Your Property "${data.propertyTitle}" is Featured on Hopebed! Claim Listing 🌟`;
+  const html = buildEmailTemplate(
+    subject,
+    `
+    <h2 style="color:#0d9488; margin-top:0;">Your Property is Live on Hopebed! 🏨</h2>
+    <p>Dear Property Owner / Manager,</p>
+    <p>Great news! Your stay <strong>${data.propertyTitle}</strong> located in <strong>${data.locality}, ${data.city}</strong> has been featured on Hopebed's hospitality network.</p>
+    
+    <div className="card" style="background-color:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:20px; margin:20px 0;">
+      <p style="margin:0; font-weight:bold; color:#0f172a;">Property Featured:</p>
+      <p style="margin:4px 0 0 0; color:#334155; font-size:16px;"><strong>${data.propertyTitle}</strong> (${data.locality}, ${data.city})</p>
+      <p style="margin:8px 0 0 0; font-size:13px; color:#64748b;">Benefits of claiming your Hopebed listing:</p>
+      <ul style="margin:6px 0 0 0; padding-left:20px; font-size:13px; color:#475569;">
+        <li>Zero commission on direct stay bookings</li>
+        <li>Instant QR-code digital stay pass check-in</li>
+        <li>Verified Host badge after 1-minute Gov ID KYC verification</li>
+      </ul>
+    </div>
+
+    <p>Claim your property listing in 1-click to complete your host verification and start receiving guests!</p>
+    <a href="${data.claimUrl}" class="btn" style="background-color:#0d9488;">Claim Your Property & Verify</a>
+    `
+  );
+  return sendEmail({ to: data.ownerEmail, subject, html });
+}
+
+

@@ -51,8 +51,8 @@ router.post('/register', async (req, res, next) => {
     }
 
     const passwordHash = await bcrypt.hash(input.password, 12);
-    const user = await User.create({ name: input.name, email: input.email, passwordHash });
-    const token = createAccessToken(user.id, user.role);
+    const user = await User.create({ name: input.name, email: input.email, passwordHash, tokenVersion: 0 });
+    const token = createAccessToken(user.id, user.role, user.tokenVersion);
 
     // Asynchronously dispatch welcome email (non-blocking)
     sendWelcomeEmail({ name: user.name, email: user.email }).catch((err) =>
@@ -81,7 +81,7 @@ router.post('/login', async (req, res, next) => {
       return;
     }
 
-    const token = createAccessToken(user.id, user.role);
+    const token = createAccessToken(user.id, user.role, user.tokenVersion ?? 0);
     res.json({ success: true, data: { user: publicUser(user), token } });
   } catch (error) {
     next(error);
@@ -122,6 +122,7 @@ router.post('/google', async (req, res, next) => {
         authProvider: 'google',
         isEmailVerified: true,
         avatarUrl: payload.picture,
+        tokenVersion: 0,
       });
     } else {
       if (!user.googleId) {
@@ -133,7 +134,7 @@ router.post('/google', async (req, res, next) => {
       await user.save();
     }
 
-    const token = createAccessToken(user.id, user.role);
+    const token = createAccessToken(user.id, user.role, user.tokenVersion ?? 0);
     res.json({ success: true, data: { user: publicUser(user), token } });
   } catch (error) {
     next(error);
@@ -151,7 +152,23 @@ router.get('/me', requireAuth, async (req: AuthenticatedRequest, res, next) => {
       return;
     }
 
+    const adminEmails = ['mithagaris@gmail.com', 'admin@hopebed.in'];
+    if (user.email && adminEmails.includes(user.email.toLowerCase()) && user.role !== 'admin') {
+      user.role = 'admin';
+      await user.save();
+    }
+
     res.json({ success: true, data: { user: publicUser(user) } });
+  } catch (error) {
+    next(error);
+  }
+});
+router.post('/logout', requireAuth, async (req: AuthenticatedRequest, res, next) => {
+  try {
+    if (req.auth?.userId) {
+      await User.findByIdAndUpdate(req.auth.userId, { $inc: { tokenVersion: 1 } });
+    }
+    res.json({ success: true, data: { message: 'Logged out successfully.' } });
   } catch (error) {
     next(error);
   }
