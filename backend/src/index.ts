@@ -1,4 +1,5 @@
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 import path from 'node:path';
 import express, { type Request, type Response, type NextFunction } from 'express';
 import helmet from 'helmet';
@@ -37,6 +38,7 @@ app.use(
 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(cookieParser());
 
 app.use('/uploads/public', express.static(path.resolve(process.cwd(), 'uploads', 'public')));
 

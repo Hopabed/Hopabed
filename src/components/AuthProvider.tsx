@@ -23,10 +23,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
 
   useEffect(() => {
-    const token = localStorage.getItem("hopebed_access_token");
-    if (!token) return;
-    getCurrentUser(token).then(setUser).catch(() => {
-      localStorage.removeItem("hopebed_access_token");
+    getCurrentUser().then(setUser).catch(() => {
+      // User is not logged in or session expired
     });
   }, []);
 
@@ -44,16 +42,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setIsOwnerFlow(false);
       },
       user,
-      setSession: (token: string, authenticatedUser: AuthUser) => {
-        localStorage.setItem("hopebed_access_token", token);
+      setSession: (_token: string, authenticatedUser: AuthUser) => {
+        // Token is now managed securely via HttpOnly cookies by the backend.
+        // We still accept the token parameter to avoid breaking changes in login components.
         setUser(authenticatedUser);
       },
       logout: () => {
-        const token = localStorage.getItem("hopebed_access_token");
-        if (token) {
-          logoutUser(token).catch(console.error);
-        }
-        localStorage.removeItem("hopebed_access_token");
+        logoutUser().catch(console.error);
         setUser(null);
       },
     }),

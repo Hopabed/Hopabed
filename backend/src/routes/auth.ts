@@ -4,8 +4,10 @@ import { OAuth2Client } from 'google-auth-library';
 import { z } from 'zod';
 import { env } from '../config/env.js';
 import { User } from '../models/User.js';
+import { RefreshToken } from '../models/RefreshToken.js';
 import { createAccessToken, requireAuth, type AuthenticatedRequest } from '../middleware/auth.js';
 import { sendWelcomeEmail } from '../services/emailService.js';
+import { issueAuthTokens, clearAuthCookies } from '../utils/authUtils.js';
 import otpAuthRouter from './otpAuth.js';
 import rateLimit from 'express-rate-limit';
 
@@ -60,14 +62,14 @@ router.post('/register', async (req, res, next) => {
 
     const passwordHash = await bcrypt.hash(input.password, 12);
     const user = await User.create({ name: input.name, email: input.email, passwordHash, tokenVersion: 0 });
-    const token = createAccessToken(user.id, user.role, user.tokenVersion);
+    const payload = await issueAuthTokens(req, res, user);
 
     // Asynchronously dispatch welcome email (non-blocking)
     sendWelcomeEmail({ name: user.name, email: user.email }).catch((err) =>
       console.error('[AuthRoute] Welcome email send error:', err)
     );
 
-    res.status(201).json({ success: true, data: { user: publicUser(user), token } });
+    res.status(201).json({ success: true, data: { user: publicUser(user), ...payload } });
   } catch (error) {
     next(error);
   }
@@ -89,8 +91,8 @@ router.post('/login', async (req, res, next) => {
       return;
     }
 
-    const token = createAccessToken(user.id, user.role, user.tokenVersion ?? 0);
-    res.json({ success: true, data: { user: publicUser(user), token } });
+    const authPayload = await issueAuthTokens(req, res, user);
+    res.json({ success: true, data: { user: publicUser(user), ...authPayload } });
   } catch (error) {
     next(error);
   }
@@ -142,8 +144,8 @@ router.post('/google', async (req, res, next) => {
       await user.save();
     }
 
-    const token = createAccessToken(user.id, user.role, user.tokenVersion ?? 0);
-    res.json({ success: true, data: { user: publicUser(user), token } });
+    const authPayload = await issueAuthTokens(req, res, user);
+    res.json({ success: true, data: { user: publicUser(user), ...authPayload } });
   } catch (error) {
     next(error);
   }
@@ -171,12 +173,91 @@ router.get('/me', requireAuth, async (req: AuthenticatedRequest, res, next) => {
     next(error);
   }
 });
-router.post('/logout', requireAuth, async (req: AuthenticatedRequest, res, next) => {
+router.post('/logout', async (req: AuthenticatedRequest, res, next) => {
   try {
-    if (req.auth?.userId) {
-      await User.findByIdAndUpdate(req.auth.userId, { $inc: { tokenVersion: 1 } });
+    // We don't requireAuth for logout just in case access token is already expired
+    // but they want to clear cookies. We will clear them anyway.
+    let userId = req.auth?.userId;
+    
+    // Revoke the specific refresh token
+    const isMobile = req.header('x-client-type') === 'mobile';
+    const refreshVal = isMobile ? req.body.refreshToken : req.cookies?.hopebed_refresh;
+    if (refreshVal) {
+      const [familyId] = refreshVal.split(':');
+      if (familyId) {
+        const rT = await RefreshToken.findOneAndUpdate(
+          { familyId, revokedAt: { $exists: false } },
+          { $set: { revokedAt: new Date() } }
+        );
+        if (rT && !userId) userId = rT.userId.toString();
+      }
     }
+
+    if (userId) {
+      // Optional: global logout if user clicks "log out of all devices"
+      if (req.body.global) {
+        await User.findByIdAndUpdate(userId, { $inc: { tokenVersion: 1 } });
+        await RefreshToken.updateMany({ userId, revokedAt: { $exists: false } }, { $set: { revokedAt: new Date() } });
+      }
+    }
+
+    clearAuthCookies(req, res);
     res.json({ success: true, data: { message: 'Logged out successfully.' } });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.post('/refresh', async (req, res, next) => {
+  try {
+    const isMobile = req.header('x-client-type') === 'mobile';
+    const refreshVal = isMobile ? req.body.refreshToken : req.cookies?.hopebed_refresh;
+    
+    if (!refreshVal || typeof refreshVal !== 'string') {
+      res.status(401).json({ success: false, error: { code: 'UNAUTHORIZED', message: 'No refresh token provided.' } });
+      return;
+    }
+    
+    const [familyId, rawRefresh] = refreshVal.split(':');
+    if (!familyId || !rawRefresh) {
+      res.status(401).json({ success: false, error: { code: 'UNAUTHORIZED', message: 'Invalid refresh token.' } });
+      return;
+    }
+
+    const currentToken = await RefreshToken.findOne({ familyId }).sort({ createdAt: -1 });
+    if (!currentToken) {
+      res.status(401).json({ success: false, error: { code: 'UNAUTHORIZED', message: 'Invalid refresh session.' } });
+      return;
+    }
+
+    const isValid = await bcrypt.compare(rawRefresh, currentToken.tokenHash);
+
+    // If token is revoked but valid hash, this is token reuse (theft)
+    if (isValid && currentToken.revokedAt) {
+      await RefreshToken.updateMany({ userId: currentToken.userId }, { $set: { revokedAt: new Date() } });
+      clearAuthCookies(req, res);
+      res.status(401).json({ success: false, error: { code: 'THEFT_DETECTED', message: 'Session compromised.' } });
+      return;
+    }
+
+    if (!isValid || currentToken.expiresAt < new Date()) {
+      clearAuthCookies(req, res);
+      res.status(401).json({ success: false, error: { code: 'UNAUTHORIZED', message: 'Invalid or expired refresh token.' } });
+      return;
+    }
+
+    const user = await User.findById(currentToken.userId);
+    if (!user) {
+      res.status(401).json({ success: false, error: { code: 'USER_NOT_FOUND', message: 'User no longer exists.' } });
+      return;
+    }
+
+    // Revoke current
+    currentToken.revokedAt = new Date();
+    await currentToken.save();
+
+    const payload = await issueAuthTokens(req, res, user);
+    res.json({ success: true, data: { user: publicUser(user), ...payload } });
   } catch (error) {
     next(error);
   }

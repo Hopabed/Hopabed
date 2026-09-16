@@ -311,7 +311,6 @@ router.post('/payu-verify', requireAuth, async (req: AuthenticatedRequest, res, 
 router.post('/payu-refund', requireAuth, requireRole('admin'), async (req: AuthenticatedRequest, res, next) => {
   try {
     const input = z.object({ bookingId: z.string(), amount: z.number().optional() }).parse(req.body);
-    const userId = req.auth?.userId;
     
     const payment = await Payment.findOne({ booking: input.bookingId, status: 'captured' });
     if (!payment) {

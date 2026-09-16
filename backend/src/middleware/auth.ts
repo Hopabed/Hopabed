@@ -21,15 +21,17 @@ interface AccessTokenPayload {
 export function createAccessToken(userId: string, role: UserRole, tokenVersion: number): string {
   return jwt.sign({ role, tokenVersion }, env.JWT_SECRET, {
     subject: userId,
-    expiresIn: '1d',
+    expiresIn: '15m',
   });
 }
 
 export async function requireAuth(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
-  const authorization = req.header('authorization');
-  const token = authorization?.startsWith('Bearer ')
-    ? authorization.slice('Bearer '.length)
-    : undefined;
+  let token = req.cookies?.hopebed_access;
+
+  if (!token) {
+    const authorization = req.header('authorization');
+    token = authorization?.startsWith('Bearer ') ? authorization.slice('Bearer '.length) : undefined;
+  }
 
   if (!token) {
     res.status(401).json({
@@ -51,7 +53,7 @@ export async function requireAuth(req: AuthenticatedRequest, res: Response, next
     }
 
     req.auth = { userId: payload.sub, role: payload.role };
-    next();
+    requireCsrf(req, res, next);
   } catch {
     res.status(401).json({
       success: false,
@@ -72,4 +74,31 @@ export function requireRole(...roles: UserRole[]) {
 
     next();
   };
+}
+
+export function requireCsrf(req: Request, res: Response, next: NextFunction): void {
+  // Only state-changing methods need CSRF protection
+  if (['GET', 'HEAD', 'OPTIONS'].includes(req.method)) {
+    next();
+    return;
+  }
+
+  // If mobile client (no cookies), bypass CSRF token check
+  if (req.header('x-client-type') === 'mobile') {
+    next();
+    return;
+  }
+
+  const cookieToken = req.cookies?.csrf_token;
+  const headerToken = req.header('x-csrf-token');
+
+  if (!cookieToken || !headerToken || cookieToken !== headerToken) {
+    res.status(403).json({
+      success: false,
+      error: { code: 'FORBIDDEN', message: 'Invalid or missing CSRF token.' },
+    });
+    return;
+  }
+
+  next();
 }

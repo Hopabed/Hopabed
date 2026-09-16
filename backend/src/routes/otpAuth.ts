@@ -5,7 +5,8 @@ import { User } from '../models/User.js';
 import { Host } from '../models/Host.js';
 import { Property } from '../models/Property.js';
 import { OtpVerification } from '../models/OtpVerification.js';
-import { createAccessToken, requireAuth, type AuthenticatedRequest } from '../middleware/auth.js';
+import { requireAuth, type AuthenticatedRequest } from '../middleware/auth.js';
+import { issueAuthTokens } from '../utils/authUtils.js';
 import { sendOtpEmail, sendWelcomeEmail } from '../services/emailService.js';
 import { sendSmsOTP, normalizeIndianPhoneNumber } from '../services/smsService.js';
 
@@ -297,13 +298,13 @@ router.post('/otp/verify', async (req, res, next) => {
       }
       firstPropertyId = String(property._id);
     }
-    const token = createAccessToken(user.id, user.role, (user as any).tokenVersion ?? 0);
+    const payload = await issueAuthTokens(req, res, user);
 
     res.json({
       success: true,
       data: {
         user: publicUser(user),
-        token,
+        ...payload,
         isNewUser,
         firstPropertyId,
       },
