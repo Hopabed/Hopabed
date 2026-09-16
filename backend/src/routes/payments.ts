@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import crypto from 'crypto';
-import { requireAuth, type AuthenticatedRequest } from '../middleware/auth.js';
+import { requireAuth, requireRole, type AuthenticatedRequest } from '../middleware/auth.js';
 import { Booking } from '../models/Booking.js';
 import { Payment } from '../models/Payment.js';
 import { User } from '../models/User.js';
@@ -307,8 +307,8 @@ router.post('/payu-verify', requireAuth, async (req: AuthenticatedRequest, res, 
   }
 });
 
-// Server-to-Server Refund
-router.post('/payu-refund', requireAuth, async (req: AuthenticatedRequest, res, next) => {
+// Server-to-Server Refund (Admin ONLY)
+router.post('/payu-refund', requireAuth, requireRole('admin'), async (req: AuthenticatedRequest, res, next) => {
   try {
     const input = z.object({ bookingId: z.string(), amount: z.number().optional() }).parse(req.body);
     const userId = req.auth?.userId;
@@ -320,9 +320,8 @@ router.post('/payu-refund', requireAuth, async (req: AuthenticatedRequest, res, 
     }
 
     const booking = await Booking.findById(payment.booking);
-    // Only hosts or admins or the original user should be able to refund, basic check:
-    if (!booking || (booking.guest.toString() !== userId && booking.host.toString() !== userId)) {
-      res.status(403).json({ success: false, error: { message: 'Unauthorized to refund this booking' } });
+    if (!booking) {
+      res.status(404).json({ success: false, error: { message: 'Booking not found' } });
       return;
     }
 

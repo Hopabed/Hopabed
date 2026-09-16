@@ -23,7 +23,7 @@ export function PropertyCard({ property }: { property: SearchProperty }) {
   return (
     <article className="group min-w-[280px] snap-start flex flex-col gap-3 lg:min-w-0">
       <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl bg-canvas shadow-sm transition-all duration-300 group-hover:shadow-md">
-        <Link href={`/properties/${property.id}`} className="block h-full">
+        <Link href={`/stay/${property.id}`} className="block h-full">
           <Image
             src={property.primaryImage || FALLBACK_IMAGE}
             alt={property.title}
@@ -53,7 +53,7 @@ export function PropertyCard({ property }: { property: SearchProperty }) {
       
       <div className="flex flex-col">
         <div className="flex items-start justify-between gap-2">
-          <Link href={`/properties/${property.id}`} className="font-bold leading-5 text-ink-soft line-clamp-1">
+          <Link href={`/stay/${property.id}`} className="font-bold leading-5 text-ink-soft line-clamp-1">
             {property.title}
           </Link>
           <p className="flex shrink-0 items-center gap-1 text-sm font-medium text-ink-soft">

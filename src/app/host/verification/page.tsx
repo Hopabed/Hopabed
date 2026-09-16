@@ -76,7 +76,7 @@ export default function HostVerificationPage() {
       setEmail(data.email || user?.email || "");
       setAddress(data.address || "");
       if (data.dob) setDob(data.dob.slice(0, 10));
-      if (data.governmentIdType) setIdType(data.governmentIdType as any);
+      if (data.governmentIdType) setIdType(data.governmentIdType as "aadhaar" | "passport" | "driving_licence" | "voter_id");
       if (data.panName) setPanName(data.panName);
     } catch (err: unknown) {
       console.error("Failed to load verification:", err);
@@ -91,6 +91,7 @@ export default function HostVerificationPage() {
     } else {
       setLoading(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   const handleSavePersonalInfo = async (e: React.FormEvent) => {
@@ -485,7 +486,7 @@ export default function HostVerificationPage() {
                 <select
                   disabled={isPending || isVerified || isSuspended || verifyingGovId}
                   value={idType}
-                  onChange={(e) => setIdType(e.target.value as any)}
+                  onChange={(e) => setIdType(e.target.value as "aadhaar" | "passport" | "driving_licence" | "voter_id")}
                   className="w-full rounded-xl border border-border px-4 py-2.5 text-sm focus:border-brand focus:outline-none disabled:bg-canvas"
                 >
                   <option value="aadhaar">Aadhaar Card (India e-KYC)</option>

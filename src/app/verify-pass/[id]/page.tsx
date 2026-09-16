@@ -56,8 +56,8 @@ export default function VerifyPassPage() {
       await markStayPassCheckedIn(id);
       setPass({ ...pass, status: "checked_in" });
       setCheckInSuccess(true);
-    } catch (err: any) {
-      alert(err.message || "Could not update check-in status.");
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Could not update check-in status.");
     } finally {
       setCheckingIn(false);
     }

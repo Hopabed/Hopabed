@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+
 import { Mail, Phone, MapPin, Send } from "lucide-react";
 
 export default function SupportPage() {

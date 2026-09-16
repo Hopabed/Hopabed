@@ -21,7 +21,6 @@ import {
   CheckCircle2,
   Hotel,
   Clock,
-  ExternalLink,
   Heart,
   CreditCard,
   Star,
@@ -31,7 +30,6 @@ import {
   UserCheck,
   Award,
   Download,
-  AlertCircle,
   Smartphone,
   Save,
   Check,
@@ -146,7 +144,7 @@ function ProfileContent() {
           propertyTitle: String(b.propertyTitle || b.title || "Hopebed Stay Pass"),
           checkIn: String(b.checkIn || new Date().toISOString()),
           checkOut: String(b.checkOut || new Date().toISOString()),
-          status: String(b.status || "CONFIRMED").toUpperCase() as any,
+          status: String(b.status || "CONFIRMED").toUpperCase() as Booking["status"],
           totalPrice: Number(b.totalAmount || b.totalPrice || 0),
         }));
         setBookings(normalized as unknown as Booking[]);
@@ -167,7 +165,7 @@ function ProfileContent() {
         name: "Hopebed",
         description: "Stay Booking Payment",
         order_id: data.orderId,
-        handler: async function (response: any) {
+        handler: async function (response: { razorpay_order_id: string; razorpay_payment_id: string; razorpay_signature: string }) {
           try {
             const verifyData = await verifyRazorpayPayment({
               razorpay_order_id: response.razorpay_order_id,
@@ -178,8 +176,8 @@ function ProfileContent() {
             if (verifyData.status === 'success') {
               window.location.href = `/profile?tab=bookings&success=true`;
             }
-          } catch (err: any) {
-            const errorMsg = encodeURIComponent(err.message || "Payment verification failed");
+          } catch (err) {
+            const errorMsg = encodeURIComponent(err instanceof Error ? err.message : "Payment verification failed");
             window.location.href = `/profile?tab=bookings&error=verification_failed&message=${errorMsg}`;
           }
         },
@@ -192,8 +190,9 @@ function ProfileContent() {
         }
       };
 
-      const rzp = new (window as any).Razorpay(options);
-      rzp.on('payment.failed', function (response: any) {
+      const RazorpayConstructor = (window as unknown as { Razorpay: new (opts: unknown) => { on: (evt: string, fn: () => void) => void; open: () => void } }).Razorpay;
+      const rzp = new RazorpayConstructor(options);
+      rzp.on('payment.failed', function () {
         window.location.href = `/profile?tab=bookings&error=payment_failed`;
       });
       rzp.open();
@@ -870,14 +869,7 @@ function ProfileContent() {
 
               <div className="rounded-2xl border border-gray-200 bg-[#f7fbf8] p-5">
                 <h3 className="font-bold text-xs uppercase tracking-wider text-[#0b8f3c] mb-3">Reviews Written by You</h3>
-                <p className="text-xs text-[#59615c] mb-3">You have written 2 stay reviews for Hopebed properties.</p>
-                <div className="rounded-xl bg-white p-3 border border-gray-200 text-xs">
-                  <div className="flex justify-between font-bold text-[#111111] mb-1">
-                    <span>The Grand Heritage Resort</span>
-                    <span className="text-amber-500">★ 5.0</span>
-                  </div>
-                  <p className="text-[11px] text-[#59615c]">&ldquo;Excellent hospitality and sparkling clean stay.&rdquo;</p>
-                </div>
+                <p className="text-xs text-[#59615c] mb-3">You haven&apos;t submitted any stay reviews yet.</p>
               </div>
             </div>
           </div>

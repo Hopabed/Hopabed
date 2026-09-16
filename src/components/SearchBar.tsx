@@ -1,6 +1,6 @@
 "use client";
 
-import { CalendarDays, ChevronDown, MapPin, Search, Users } from "lucide-react";
+import { Search } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { SearchField } from "./SearchField";

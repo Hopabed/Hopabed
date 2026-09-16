@@ -9,12 +9,6 @@ import {
   Share2,
   ArrowLeft,
   Loader2,
-  CheckCircle2,
-  Building,
-  Calendar,
-  User,
-  CreditCard,
-  Copy,
   Check,
   ShieldCheck,
 } from "lucide-react";

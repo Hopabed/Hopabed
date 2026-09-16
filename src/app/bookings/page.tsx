@@ -47,7 +47,7 @@ function BookingsList() {
         name: "Hopebed",
         description: "Stay Booking Payment",
         order_id: data.orderId,
-        handler: async function (response: any) {
+        handler: async function (response: { razorpay_order_id: string; razorpay_payment_id: string; razorpay_signature: string }) {
           try {
             const verifyData = await verifyRazorpayPayment({
               razorpay_order_id: response.razorpay_order_id,
@@ -58,8 +58,8 @@ function BookingsList() {
             if (verifyData.status === 'success') {
               window.location.href = `/bookings?success=true`;
             }
-          } catch (err: any) {
-            alert(err.message || "Payment verification failed");
+          } catch (err) {
+            alert(err instanceof Error ? err.message : "Payment verification failed");
           }
         },
         prefill: {
@@ -71,8 +71,9 @@ function BookingsList() {
         }
       };
       
-      const rzp = new (window as any).Razorpay(options);
-      rzp.on('payment.failed', function (response: any){
+      const RazorpayConstructor = (window as unknown as { Razorpay: new (opts: unknown) => { on: (evt: string, fn: () => void) => void; open: () => void } }).Razorpay;
+      const rzp = new RazorpayConstructor(options);
+      rzp.on('payment.failed', function (){
           window.location.href = `/bookings?error=payment_failed`;
       });
       rzp.open();

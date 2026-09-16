@@ -31,6 +31,9 @@ export const metadata: Metadata = {
     title: "Hopebed — Verified Stays in India",
     description: "Discover verified hotels, PGs, and homestays across India.",
   },
+  alternates: {
+    canonical: "/",
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

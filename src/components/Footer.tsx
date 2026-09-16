@@ -1,6 +1,6 @@
 "use client";
 
-import { Facebook, Instagram, Linkedin, ArrowRight, Mail } from "lucide-react";
+import { Facebook, Instagram, Linkedin } from "lucide-react";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { Logo } from "./Logo";

@@ -29,11 +29,9 @@ import {
   Clock,
   ExternalLink,
   ShieldCheck,
-  ShieldAlert,
   History,
   Ban,
   Search,
-  Mail,
   Globe,
   Send,
   Sparkles,
@@ -163,7 +161,7 @@ export default function AdminDashboardPage() {
   // Lead Discovery State
   const [searchCity, setSearchCity] = useState("Bangalore");
   const [searchCategory, setSearchCategory] = useState("hotel");
-  const [leads, setLeads] = useState<Array<Record<string, any>>>([]);
+  const [leads, setLeads] = useState<Array<Record<string, string | number | boolean>>>([]);
   const [searchingLeads, setSearchingLeads] = useState(false);
   const [invitingLeadId, setInvitingLeadId] = useState<string | null>(null);
   const [customEmails, setCustomEmails] = useState<Record<string, string>>({});
@@ -313,7 +311,7 @@ export default function AdminDashboardPage() {
     setOutreachNotice(null);
     try {
       const res = await searchGoogleLeads({ city: searchCity, category: searchCategory });
-      setLeads(res as Array<Record<string, any>>);
+      setLeads(res as Array<Record<string, string | number | boolean>>);
     } catch (err: unknown) {
       alert(err instanceof Error ? err.message : "Failed to search leads.");
     } finally {
@@ -375,7 +373,7 @@ export default function AdminDashboardPage() {
       setSearchCity(targetCity);
       setNewLeadForm({ title: "", propertyType: "hotel", city: targetCity, locality: "", address: "", phone: "", email: "", website: "" });
       const updatedLeads = await searchGoogleLeads({ city: targetCity, category: "all" });
-      setLeads(updatedLeads as Array<Record<string, any>>);
+      setLeads(updatedLeads as Array<Record<string, string | number | boolean>>);
     } catch (err: unknown) {
       alert(err instanceof Error ? err.message : "Failed to create lead listing.");
     } finally {
@@ -1108,14 +1106,14 @@ export default function AdminDashboardPage() {
                         <input
                           type="email"
                           placeholder="e.g. owner@hotel.com"
-                          value={customEmails[leadId] || lead.email || ""}
+                          value={customEmails[leadId] || (lead.email as string) || ""}
                           onChange={(e) => setCustomEmails({ ...customEmails, [leadId]: e.target.value })}
                           className="w-full rounded-lg border border-border bg-canvas p-2 text-xs text-ink-soft focus:border-brand focus:outline-none"
                         />
                       </div>
 
                       <button
-                        onClick={() => handleInviteLead(leadId, lead.email, lead.title)}
+                        onClick={() => handleInviteLead(leadId, lead.email as string | undefined, lead.title as string | undefined)}
                         disabled={invitingLeadId === leadId}
                         className="w-full flex items-center justify-center gap-2 rounded-xl bg-brand px-4 py-2.5 text-xs font-bold text-white transition hover:bg-brand-dark disabled:opacity-50"
                       >

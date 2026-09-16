@@ -15,8 +15,6 @@ import {
   Loader2,
   Sparkles,
   ArrowRight,
-  Shield,
-  HelpCircle,
 } from "lucide-react";
 
 interface Lead {

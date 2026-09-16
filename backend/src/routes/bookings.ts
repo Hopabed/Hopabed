@@ -4,6 +4,7 @@ import { Booking } from '../models/Booking.js';
 import { requireAuth, type AuthenticatedRequest } from '../middleware/auth.js';
 import { Payment } from '../models/Payment.js';
 import { env } from '../config/env.js';
+import { Host } from '../models/Host.js';
 import { sha512 } from 'js-sha512';
 
 const router = Router();
@@ -62,7 +63,7 @@ router.get('/:id/verify-pass', async (req, res, next) => {
   }
 });
 
-router.post('/:id/check-in', async (req, res, next) => {
+router.post('/:id/check-in', requireAuth, async (req: AuthenticatedRequest, res, next) => {
   try {
     const bookingId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
     if (!Types.ObjectId.isValid(bookingId)) {
@@ -74,6 +75,16 @@ router.post('/:id/check-in', async (req, res, next) => {
       res.status(404).json({ success: false, error: { code: 'BOOKING_NOT_FOUND', message: 'Booking not found.' } });
       return;
     }
+    
+    // Authorization check
+    if (req.auth?.role !== 'admin') {
+      const hostDoc = await Host.findOne({ user: req.auth?.userId });
+      if (!hostDoc || String(hostDoc._id) !== String(booking.host)) {
+        res.status(403).json({ success: false, error: { code: 'FORBIDDEN', message: 'You do not have permission to check-in this booking.' } });
+        return;
+      }
+    }
+
     booking.status = 'checked_in';
     await booking.save();
     res.json({ success: true, message: 'Guest checked in successfully', status: booking.status });

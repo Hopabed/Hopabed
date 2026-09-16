@@ -20,11 +20,10 @@ function SearchContent() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const params = new URLSearchParams();
-    ["destination", "checkIn", "checkOut", "guests"].forEach((key) => { const value = query.get(key); if (value) params.set(key, value); });
-    if (!params.has("checkIn") || !params.has("checkOut")) { setLoading(false); setError("Choose check-in and check-out dates to search live availability."); return; }
+    const searchParams = new URLSearchParams();
+    ["destination", "city", "checkIn", "checkOut", "guests", "propertyType", "minPrice", "maxPrice"].forEach((key) => { const value = query.get(key); if (value) searchParams.set(key, value); });
     setLoading(true); setError(null);
-    searchProperties(params).then(setResults).catch((reason: Error) => setError(reason.message)).finally(() => setLoading(false));
+    searchProperties(searchParams).then(setResults).catch((reason: Error) => setError(reason.message ?? "Failed to search stays. Please try again.")).finally(() => setLoading(false));
   }, [query]);
 
   return (
@@ -34,7 +33,13 @@ function SearchContent() {
         <h1 className="mt-8 text-2xl font-bold text-ink-soft">Search results</h1>
         {loading ? <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{[1, 2, 3].map((item) => <div key={item} className="h-80 animate-pulse rounded-2xl bg-white" />)}</div> : null}
         {!loading && error ? <div className="mt-6 rounded-2xl border border-border bg-white p-8 text-center"><Search className="mx-auto h-8 w-8 text-brand" /><p className="mt-3 text-muted">{error}</p></div> : null}
-        {!loading && !error && results.length === 0 ? <p className="mt-8 text-center text-muted">No verified stays available for these dates.</p> : null}
+        {!loading && !error && results.length === 0 ? (
+          <div className="mt-8 rounded-2xl border border-border bg-white p-8 text-center">
+            <Search className="mx-auto h-8 w-8 text-muted" />
+            <p className="mt-3 font-medium text-ink-soft">No verified stays found for your search.</p>
+            <p className="mt-1 text-sm text-muted">Try searching for a different destination or adjusting your dates.</p>
+          </div>
+        ) : null}
         {!loading && !error ? <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{results.map((property) => <PropertyResult key={property.id} property={property} />)}</div> : null}
       </div>
     </section>

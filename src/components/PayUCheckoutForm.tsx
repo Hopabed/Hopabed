@@ -23,11 +23,11 @@ export function PayUCheckoutForm({ checkoutData, bookingId }: { checkoutData: Pa
         name: "Hopebed",
         description: "Booking Payment",
         order_id: checkoutData.orderId,
-        handler: async function (response: any) {
+        handler: async function () {
           try {
             await verifyPayUPayment(bookingId);
             window.location.href = "/bookings?success=true";
-          } catch (err) {
+          } catch {
             window.location.href = "/bookings?error=payment_failed";
           }
         },
@@ -40,7 +40,8 @@ export function PayUCheckoutForm({ checkoutData, bookingId }: { checkoutData: Pa
           },
         },
       };
-      const rzp = new (window as any).Razorpay(options);
+      const RazorpayConstructor = (window as unknown as { Razorpay: new (opts: unknown) => { open: () => void } }).Razorpay;
+      const rzp = new RazorpayConstructor(options);
       rzp.open();
     };
     document.body.appendChild(script);

@@ -200,17 +200,36 @@ router.post('/properties', requireAuth, requireRole('host', 'admin'), async (req
       return;
     }
     
-    // Very basic schema for MVP. Ideally full zod validation here.
-    const propertyData = req.body;
+    const propertyCreationSchema = z.object({
+      title: z.string().trim().min(1),
+      propertyType: z.enum(['hotel', 'pg', 'hostel', 'villa', 'homestay', 'apartment']).optional(),
+      category: z.enum(['stay', 'experience']).optional(),
+      city: z.string().trim().optional(),
+      locality: z.string().trim().optional(),
+      state: z.string().trim().optional(),
+      country: z.string().trim().optional(),
+      address: z.string().trim().optional(),
+      bedrooms: z.number().int().min(0).optional(),
+      bathrooms: z.number().int().min(0).optional(),
+      maxGuests: z.number().int().min(1).optional(),
+      pricePerNight: z.number().min(0).optional(),
+      currency: z.string().optional(),
+      description: z.string().optional(),
+      amenities: z.array(z.string()).optional(),
+    });
+    
+    const validatedData = propertyCreationSchema.parse(req.body);
     
     // Generate a basic slug
-    const slug = propertyData.title.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + Date.now();
+    const slug = validatedData.title.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + Date.now();
     
     const property = await Property.create({
-      ...propertyData,
+      ...validatedData,
       host: host._id,
       slug,
-      verificationStatus: 'DRAFT'
+      verificationStatus: 'DRAFT',
+      isVerified: false,
+      isPublished: false
     });
     
     await Host.findByIdAndUpdate(host._id, { $inc: { propertyCount: 1 } });
