@@ -246,6 +246,12 @@ export function AuthModal() {
         {/* STEP 1: REQUEST OTP */}
         {step === "request_otp" && (
           <>
+            <div className="mb-4 text-xs text-gray-500 text-center px-2">
+              By proceeding, you confirm you meet the <strong>[PLACEHOLDER_AGE_POLICY]</strong> requirement and agree to Hopebed&apos;s{" "}
+              <a href="/terms" className="text-brand hover:underline" target="_blank">Terms of Service</a> and{" "}
+              <a href="/privacy" className="text-brand hover:underline" target="_blank">Privacy Policy</a>.
+            </div>
+
             {/* EXISTING GOOGLE OAUTH PROVIDER (PROTECTED/LOCKED FEATURE - DO NOT TOUCH) */}
             {googleClientId ? (
               <>

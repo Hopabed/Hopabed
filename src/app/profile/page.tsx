@@ -237,6 +237,29 @@ function ProfileContent() {
     }
   };
 
+  const [isDeleting, setIsDeleting] = useState(false);
+  const handleDeleteAccount = async () => {
+    if (!confirm("Are you sure you want to delete your account? Your personal data will be anonymized or deleted according to our privacy policy, but legally required records (like invoices) will be retained. This action is irreversible.")) return;
+    setIsDeleting(true);
+    try {
+      const res = await fetch('/api/auth/me', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert(data.message);
+        window.location.href = "/";
+      } else {
+        alert(data.error?.message || "Failed to delete account");
+      }
+    } catch (err) {
+      alert("Failed to delete account");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   if (!user) {
     return (
       <div className="mx-auto max-w-md px-6 py-20 text-center">
@@ -656,7 +679,6 @@ function ProfileContent() {
                   </div>
                 </div>
               </div>
-
               <button
                 type="submit"
                 className="mt-4 inline-flex items-center gap-2 rounded-xl bg-[#0b8f3c] px-6 py-3 text-xs font-bold text-white shadow-xs transition hover:bg-[#06752f]"
@@ -664,6 +686,25 @@ function ProfileContent() {
                 <Save className="h-4 w-4" /> Save Stay Preferences
               </button>
             </form>
+          </div>
+
+          <div className="rounded-3xl border border-red-200 bg-red-50/50 p-6 shadow-xs sm:p-8 mt-6">
+            <h2 className="text-xl font-bold text-red-700 flex items-center gap-2 mb-2">
+              <ShieldCheck className="h-5 w-5" /> Data & Privacy
+            </h2>
+            <p className="text-xs text-red-800 mb-6">
+              Manage your personal data in accordance with DPDP rules. 
+              Requesting account deletion will irreversibly anonymize or erase your profile data.
+              Records required for financial, tax, and security compliance will be retained.
+            </p>
+            <button
+              type="button"
+              onClick={handleDeleteAccount}
+              disabled={isDeleting}
+              className="inline-flex items-center gap-2 rounded-xl bg-red-600 px-6 py-3 text-xs font-bold text-white shadow-xs transition hover:bg-red-700 disabled:opacity-50"
+            >
+              {isDeleting ? "Processing..." : "Request Account Deletion"}
+            </button>
           </div>
         </div>
       )}

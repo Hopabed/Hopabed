@@ -2,52 +2,69 @@ export default function PrivacyPolicyPage() {
   return (
     <div className="container-page max-w-4xl py-16">
       <h1 className="mb-4 text-4xl font-bold text-ink-soft">Privacy Policy</h1>
+      <p className="mb-4 text-sm font-semibold text-brand">Designed to support compliance with applicable Indian data protection, consumer protection and information technology requirements.</p>
       <p className="mb-8 text-sm text-muted">Last updated: {new Date().toLocaleDateString("en-IN")}</p>
 
       <div className="prose prose-slate space-y-8 text-ink-soft">
         <section>
           <h2 className="text-xl font-bold text-ink-soft">1. Overview & Commitment to Privacy</h2>
           <p className="mt-2 leading-relaxed text-muted">
-            At Hopebed (&ldquo;Hopebed Technologies&rdquo;), we are committed to maintaining a safe, transparent, and trustworthy marketplace for guests, hotel owners, PG operators, and homestay hosts. This Privacy Policy details how we collect, handle, verify, and protect user data and verification documents.
+            At [PLACEHOLDER_LEGAL_ENTITY_NAME], maintaining a safe, transparent, and trustworthy marketplace for guests and hosts is our priority. This Privacy Policy details our data processing practices.
+          </p>
+          <p className="mt-2 leading-relaxed text-muted font-medium">
+            Based on Hopebed&apos;s current pilot-stage scale and information presently available, Hopebed does not currently appear to meet the criteria for designation as a Significant Data Fiduciary. This assessment must be reassessed if Hopebed&apos;s scale, data processing, risk profile, or applicable government designation changes.
           </p>
         </section>
 
         <section>
-          <h2 className="text-xl font-bold text-ink-soft">2. Owner Identity & Government ID Verification</h2>
+          <h2 className="text-xl font-bold text-ink-soft">2. Owner Identity & Document Handling</h2>
           <p className="mt-2 leading-relaxed text-muted">
-            To ensure the authenticity of hosts on Hopebed, property owners and operators undergo identity verification using government-issued identification (Aadhaar, Passport, Driving Licence, or Voter ID) and PAN details.
+            To ensure host authenticity, we verify government-issued identification via compliant e-KYC providers. 
+            Hopebed does <strong>NOT</strong> store raw Aadhaar numbers or images. We retain strictly required metadata.
           </p>
-          <div className="mt-3 rounded-xl border border-blue-200 bg-blue-50/70 p-4 text-sm text-blue-950">
-            <p className="font-semibold">Zero Raw Aadhaar Storage Guarantee:</p>
-            <p className="mt-1 text-xs leading-relaxed text-blue-900">
-              Hopebed does <strong>NOT</strong> store raw Aadhaar numbers or raw Aadhaar card document images in our database or storage systems. Identity verification is conducted via compliant, authorized e-KYC verification providers. Hopebed retains strictly required verification metadata (such as verification status, provider reference, verified timestamp, document type, and masked identifiers).
-            </p>
-          </div>
         </section>
 
         <section>
-          <h2 className="text-xl font-bold text-ink-soft">3. Property Verification & Document Handling</h2>
+          <h2 className="text-xl font-bold text-ink-soft">3. Data Retention</h2>
           <p className="mt-2 leading-relaxed text-muted">
-            Property owners and authorized operators submit property verification documents (such as address proofs, registered lease agreements, owner NOCs, GST, or Shop & Establishment certificates) to verify premises legitimacy.
+            We retain data only as long as necessary for the purpose it was collected or as required by law.
           </p>
-          <ul className="mt-3 list-disc space-y-1.5 pl-5 text-sm text-muted">
-            <li><strong>Access Control:</strong> Uploaded property verification documents are stored in private, encrypted access-controlled storage.</li>
-            <li><strong>Strict Privacy:</strong> Verification documents are accessible solely to authorized Hopebed compliance administrators and the property host. They are NEVER publicly accessible or exposed in public search APIs.</li>
-            <li><strong>Badging:</strong> After successful compliance review, public users only see the &ldquo;✓ Verified Property&rdquo; badge.</li>
+          <ul className="mt-2 list-disc pl-5 text-sm text-muted space-y-1">
+            <li><strong>Bookings:</strong> [LEGAL_RETENTION_PERIOD_BOOKINGS]</li>
+            <li><strong>Invoices:</strong> [LEGAL_RETENTION_PERIOD_INVOICES]</li>
+            <li><strong>Refunds:</strong> [LEGAL_RETENTION_PERIOD_REFUNDS]</li>
+            <li><strong>Host KYC Data:</strong> [PLACEHOLDER_HOST_RETENTION]</li>
+            <li><strong>Property Verification Docs:</strong> [PLACEHOLDER_DOC_RETENTION]</li>
           </ul>
         </section>
 
         <section>
-          <h2 className="text-xl font-bold text-ink-soft">4. How We Protect Your Data</h2>
+          <h2 className="text-xl font-bold text-ink-soft">4. Data Principal Rights & Account Deletion</h2>
           <p className="mt-2 leading-relaxed text-muted">
-            We implement robust administrative, technical, and physical security measures, including SSL/TLS encryption in transit, strict server-side authorization checks, role-based access control, and tokenized session management.
+            Users can access, correct, update, or request the erasure of their personal data via the Data & Privacy section in their account profile. Upon deletion, legally required operational records (like financial invoices) will be anonymised or retained according to the schedule above, while personal identifiers will be removed.
           </p>
+        </section>
+        
+        <section>
+          <h2 className="text-xl font-bold text-ink-soft">5. Grievance Officer</h2>
+          <p className="mt-2 leading-relaxed text-muted">
+            In accordance with the Consumer Protection (E-Commerce) Rules and applicable data protection laws, you may contact our Grievance Officer:
+          </p>
+          <ul className="mt-2 list-none text-sm text-muted space-y-1 bg-gray-50 p-4 rounded-xl border border-gray-100">
+            <li><strong>Name:</strong> [PLACEHOLDER_GRIEVANCE_OFFICER_NAME]</li>
+            <li><strong>Designation:</strong> [PLACEHOLDER_GRIEVANCE_OFFICER_DESIGNATION]</li>
+            <li><strong>Address:</strong> [PLACEHOLDER_GRIEVANCE_OFFICER_ADDRESS]</li>
+            <li><strong>Email:</strong> [PLACEHOLDER_GRIEVANCE_OFFICER_EMAIL]</li>
+            <li><strong>Phone:</strong> [PLACEHOLDER_GRIEVANCE_OFFICER_PHONE]</li>
+            <li><strong>Regulatory Contact:</strong> [PLACEHOLDER_REGULATORY_CONTACT]</li>
+          </ul>
         </section>
 
         <section>
-          <h2 className="text-xl font-bold text-ink-soft">5. Contact Compliance Team</h2>
+          <h2 className="text-xl font-bold text-ink-soft">6. Corporate Information</h2>
           <p className="mt-2 leading-relaxed text-muted">
-            If you have questions regarding identity verification, document privacy, or data protection rights, please contact our Compliance Officer at <a href="mailto:privacy@hopebed.in" className="text-brand font-semibold hover:underline">privacy@hopebed.in</a>.
+            <strong>Registered Entity:</strong> [PLACEHOLDER_LEGAL_ENTITY_NAME]<br />
+            <strong>Registered Address:</strong> [PLACEHOLDER_REGISTERED_ADDRESS]
           </p>
         </section>
       </div>

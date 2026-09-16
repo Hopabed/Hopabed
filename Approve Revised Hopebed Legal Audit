@@ -1,0 +1,101 @@
+Proceed with the Hopebed legal/privacy implementation, BUT first correct the audit according to the following requirements.
+
+Do not implement the previous audit blindly.
+
+Important corrections:
+
+1. Include the Digital Personal Data Protection Act, 2023 AND the Digital Personal Data Protection Rules, 2025 in the compliance analysis.
+
+2. Do not treat DPDP as requiring a blanket checkbox consenting to all processing. Map each processing activity to the appropriate legal basis/requirement and design the consent UX accordingly.
+
+3. Do not assume that every cookie requires a consent banner. First inventory the actual cookies, analytics, advertising pixels, localStorage/sessionStorage and other tracking technologies. Strictly necessary authentication/session technologies should be treated separately from optional analytics/marketing technologies.
+
+4. Do not assume that Hopebed must appoint a Data Protection Officer unless the applicable DPDP classification/threshold actually requires one.
+
+5. Do not automatically treat the IT Rules 2021 Chief Compliance Officer / Nodal Contact Person requirements for Significant Social Media Intermediaries as applicable to Hopebed. Determine whether Hopebed actually falls within that category.
+
+6. Implement the Consumer Protection (E-Commerce) Rules requirements that actually apply to Hopebed as a marketplace e-commerce entity, including:
+
+   * consumer grievance officer
+   * name/designation/contact details
+   * complaint acknowledgement workflow
+   * complaint resolution workflow
+   * seller/host information disclosure
+   * refund/cancellation information
+   * payment information
+   * applicable seller/property disclosures
+
+7. Do not hard-code a 7-year retention period unless a specific legal/accounting/tax requirement applicable to that exact category of Hopebed data supports it.
+
+Instead create a data-retention matrix:
+
+Data Category | Purpose | Retention Period | Legal/Operational Reason | Deletion/Anonymisation Method
+
+Cover:
+
+* account/profile data
+* email/mobile/OTP data
+* authentication data
+* host verification data
+* identity verification metadata
+* uploaded verification documents
+* property data
+* booking records
+* Stay Pass data
+* invoices
+* payment references
+* refund records
+* customer support records
+* security/fraud logs
+* marketing/analytics data
+
+8. Account deletion must NOT blindly delete legally required booking/payment/accounting/security records. Implement controlled deletion/anonymisation according to the retention matrix.
+
+9. Do not automatically require every user to be 18+ solely because of DPDP. Determine Hopebed's actual age policy based on the accommodation/booking service and applicable law. If Hopebed adopts an 18+ policy, implement it as a business/legal policy and state it accurately.
+
+10. Add a proper grievance mechanism. For consumer grievances, ensure the implementation supports the applicable Consumer Protection (E-Commerce) Rules requirements, including acknowledgement within 48 hours and redressal within one month.
+
+11. Add host/seller disclosures required for marketplace listings. Determine exactly which host/business/contact/address information must be displayed before booking.
+
+12. Add:
+
+* Privacy Policy
+* Terms of Service
+* Host Terms
+* Refund & Cancellation Policy
+* Grievance mechanism
+* appropriate privacy/data-rights request mechanism
+
+13. Do not claim anywhere that Hopebed is "100% legally compliant" or "fully compliant with all Indian laws."
+
+Use language such as:
+"Designed to support compliance with applicable Indian data protection, consumer protection and information technology requirements."
+
+14. Before modifying the code, produce the corrected implementation checklist and identify anything that requires information from the Hopebed legal/business team.
+
+15. Then implement only the technically determinable items.
+
+For anything requiring a legal/business decision, use clearly marked placeholders rather than inventing:
+
+* legal entity name
+* registered address
+* grievance officer name
+* grievance officer address
+* official contact number
+* host terms
+* retention periods
+* age policy
+* refund/cancellation rules
+
+16. After implementation run:
+
+npm run build
+
+and fix all TypeScript/build errors without disabling validation.
+
+Finally provide:
+A. Files changed
+B. Technical changes made
+C. Legal/business placeholders still required
+D. Remaining lawyer-review items
+E. Build result

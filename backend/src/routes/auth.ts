@@ -175,6 +175,45 @@ router.get('/me', requireAuth, async (req: AuthenticatedRequest, res, next) => {
     next(error);
   }
 });
+
+router.delete('/me', requireAuth, async (req: AuthenticatedRequest, res, next) => {
+  try {
+    const userId = req.auth?.userId;
+    if (!userId) {
+      res.status(401).json({ success: false, error: { message: 'Unauthorized' } });
+      return;
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      res.status(404).json({ success: false, error: { message: 'User not found' } });
+      return;
+    }
+
+    // Controlled anonymization (Right to Erasure)
+    // We retain the User ObjectId to preserve relational integrity in Booking, Payment, and Invoice documents.
+    user.name = '[DELETED_USER]';
+    user.email = `deleted_${userId}@anonymized.hopebed.in`;
+    user.phone = undefined;
+    user.googleId = undefined;
+    user.passwordHash = undefined;
+    user.avatarUrl = undefined;
+    user.tokenVersion += 1; // Invalidate all tokens
+
+    await user.save();
+
+    // Revoke all refresh tokens
+    await RefreshToken.updateMany({ userId }, { $set: { revokedAt: new Date() } });
+
+    // Optional: We could also update the Host profile if applicable, setting status to suspended/inactive
+    clearAuthCookies(req, res);
+
+    res.json({ success: true, message: 'Account and personal data successfully deleted or anonymized in compliance with data protection rules.' });
+  } catch (error) {
+    next(error);
+  }
+});
+
 router.post('/logout', async (req: AuthenticatedRequest, res, next) => {
   try {
     // We don't requireAuth for logout just in case access token is already expired
