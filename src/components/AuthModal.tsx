@@ -3,7 +3,7 @@
 import { X, ArrowLeft, Mail, Phone, CheckCircle2 } from "lucide-react";
 import Script from "next/script";
 import { useEffect, useRef, useState } from "react";
-import { authenticateWithGoogle, initiateGithubLogin, sendOtp, verifyOtp } from "@/lib/api";
+import { authenticateWithGoogle, sendOtp, verifyOtp } from "@/lib/api";
 
 import { useAuthModal } from "./AuthProvider";
 import { useRouter } from "next/navigation";
