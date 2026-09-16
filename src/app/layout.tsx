@@ -12,9 +12,25 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Hopebed — Find, Book & Verify Verified Stays in India",
-  description:
-    "Hopebed is building a smarter way to find, book and verify stays in India. Stay Smart. Stay Verified.",
+  metadataBase: new URL("https://hopebed.in"),
+  title: {
+    default: "Hopebed — Find, Book & Verify Stays in India",
+    template: "%s | Hopebed",
+  },
+  description: "Hopebed is building a smarter way to find, book and verify stays in India. Discover verified hotels, PGs, and homestays. Stay Smart. Stay Verified.",
+  openGraph: {
+    title: "Hopebed — Verified Stays in India",
+    description: "Discover verified hotels, PGs, and homestays across India.",
+    url: "https://hopebed.in",
+    siteName: "Hopebed",
+    locale: "en_IN",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Hopebed — Verified Stays in India",
+    description: "Discover verified hotels, PGs, and homestays across India.",
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

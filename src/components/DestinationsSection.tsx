@@ -5,27 +5,27 @@ const DESTINATIONS = [
   {
     name: "Goa",
     image: "https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?auto=format&fit=crop&w=600&q=80",
-    properties: "1,240+ properties",
+    properties: "Beaches & Nightlife",
   },
   {
     name: "Mumbai",
     image: "https://images.unsplash.com/photo-1529253355930-ddbe423a2ac7?auto=format&fit=crop&w=600&q=80",
-    properties: "850+ properties",
+    properties: "The City of Dreams",
   },
   {
     name: "Delhi",
     image: "https://images.unsplash.com/photo-1587474260584-136574528ed5?auto=format&fit=crop&w=600&q=80",
-    properties: "920+ properties",
+    properties: "Heritage & Culture",
   },
   {
     name: "Bengaluru",
     image: "https://images.unsplash.com/photo-1596176530529-78163a4f7af2?auto=format&fit=crop&w=600&q=80",
-    properties: "630+ properties",
+    properties: "The Garden City",
   },
   {
     name: "Jaipur",
     image: "https://images.unsplash.com/photo-1477587458883-47145ed94245?auto=format&fit=crop&w=600&q=80",
-    properties: "410+ properties",
+    properties: "The Pink City",
   },
 ];
 

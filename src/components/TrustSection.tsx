@@ -9,7 +9,7 @@ export function TrustSection() {
           <TrustCard
             icon={<ShieldCheck className="h-6 w-6" />}
             title="Verified Stays"
-            description="Properties reviewed for a better stay. We manually verify hosts and properties to ensure quality."
+            description="Every listed property is manually reviewed and approved by our team before receiving the Verified badge."
           />
           <TrustCard
             icon={<CreditCard className="h-6 w-6" />}
