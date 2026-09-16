@@ -34,7 +34,7 @@ export async function authenticateWithGoogle(credential: string): Promise<AuthRe
 		body: JSON.stringify({ credential }),
 		});
 	} catch {
-		throw new Error("Hopebed API is not running. Start the backend on port 4000.");
+		throw new Error("We are currently experiencing connectivity issues with our servers. Please try again later.");
 	}
 
 	const body = (await response.json()) as AuthResponse | { error?: { message?: string } };
@@ -59,7 +59,7 @@ export async function authenticateWithPassword(input: {
 		body: JSON.stringify({ name: input.name, email: input.email, password: input.password }),
 		});
 	} catch {
-		throw new Error("Hopebed API is not running. Start the backend on port 4000.");
+		throw new Error("We are currently experiencing connectivity issues with our servers. Please try again later.");
 	}
 	const body = (await response.json()) as AuthResponse | { error?: { message?: string } };
 	if (!response.ok || !("data" in body)) {
@@ -80,7 +80,7 @@ export async function sendOtp(input: {
 			body: JSON.stringify(input),
 		});
 	} catch {
-		throw new Error("Hopebed API is not running. Start the backend on port 4000.");
+		throw new Error("We are currently experiencing connectivity issues with our servers. Please try again later.");
 	}
 	const body = (await response.json()) as { data?: { message: string; resendCooldownSeconds: number }; error?: { message?: string } };
 	if (!response.ok || !body.data) {
@@ -103,7 +103,7 @@ export async function verifyOtp(input: {
 			body: JSON.stringify(input),
 		});
 	} catch {
-		throw new Error("Hopebed API is not running. Start the backend on port 4000.");
+		throw new Error("We are currently experiencing connectivity issues with our servers. Please try again later.");
 	}
 	const body = (await response.json()) as (AuthResponse & { data: AuthResponse["data"] & { firstPropertyId?: string } }) | { error?: { message?: string } };
 	if (!response.ok || !("data" in body)) {
