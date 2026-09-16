@@ -66,9 +66,15 @@ router.get('/search', async (req, res, next) => {
       propertyType: z.string().trim().optional(),
       minPrice: z.coerce.number().nonnegative().optional(),
       maxPrice: z.coerce.number().nonnegative().optional(),
-      ...dateSchema.shape,
+      checkIn: z.coerce.date().optional(),
+      checkOut: z.coerce.date().optional(),
+      guests: z.coerce.number().int().min(1).max(50).default(1),
     }).parse(req.query);
-    const nights = validateDates(query.checkIn, query.checkOut);
+    
+    let nights = 0;
+    if (query.checkIn && query.checkOut) {
+      nights = validateDates(query.checkIn, query.checkOut);
+    }
     
     // Server-Side Public Property Rule: Verified Property + Verified Host + Active Property
     const verifiedHosts = await Host.find({ verificationStatus: 'verified', isActive: true }).select('_id').lean();
@@ -92,9 +98,15 @@ router.get('/search', async (req, res, next) => {
       propertyFilter.pricePerNight = { ...(query.minPrice !== undefined ? { $gte: query.minPrice } : {}), ...(query.maxPrice !== undefined ? { $lte: query.maxPrice } : {}) };
     }
     const properties = await Property.find(propertyFilter).sort({ isFeatured: -1, createdAt: -1 }).limit(50).lean();
-    const rooms = await availableRooms(properties.map((property) => property._id), query.checkIn, query.checkOut, query.guests);
-    const availablePropertyIds = new Set(rooms.map((room) => String(room.property)));
-    res.json({ success: true, data: { nights, properties: properties.filter((property) => availablePropertyIds.has(String(property._id))) } });
+    
+    let finalProperties = properties;
+    if (query.checkIn && query.checkOut) {
+      const rooms = await availableRooms(properties.map((property) => property._id), query.checkIn, query.checkOut, query.guests);
+      const availablePropertyIds = new Set(rooms.map((room) => String(room.property)));
+      finalProperties = properties.filter((property) => availablePropertyIds.has(String(property._id)));
+    }
+    
+    res.json({ success: true, data: { nights, properties: finalProperties } });
   } catch (error) {
     if (error instanceof Error && error.message === 'DATES_INVALID') {
       res.status(400).json({ success: false, error: { code: 'DATES_INVALID', message: 'Choose a future check-in and a later check-out date.' } });

@@ -3,7 +3,8 @@
 import { X, ArrowLeft, Mail, Phone, CheckCircle2 } from "lucide-react";
 import Script from "next/script";
 import { useEffect, useRef, useState } from "react";
-import { authenticateWithGoogle, sendOtp, verifyOtp } from "@/lib/api";
+import { authenticateWithGoogle, initiateGithubLogin, sendOtp, verifyOtp } from "@/lib/api";
+
 import { useAuthModal } from "./AuthProvider";
 import { useRouter } from "next/navigation";
 
@@ -253,7 +254,7 @@ export function AuthModal() {
                   strategy="afterInteractive"
                   onLoad={() => setGoogleReady(true)}
                 />
-                <div ref={googleButtonRef} className="mb-6 flex min-h-[40px] justify-center" />
+                <div ref={googleButtonRef} className="mb-4 flex min-h-[40px] justify-center" />
                 <div className="mb-6 flex items-center gap-4 text-xs font-medium text-gray-400 uppercase tracking-wider">
                   <span className="h-px flex-1 bg-gray-200" />
                   or
@@ -262,7 +263,7 @@ export function AuthModal() {
               </>
             ) : null}
 
-            {/* Email / Mobile Selector */}
+
             <div className="mb-6 flex rounded-xl bg-gray-100/80 p-1 text-sm font-semibold text-gray-500 backdrop-blur-sm">
               <button
                 type="button"

@@ -183,3 +183,77 @@
     { code: 'invalid_date', path: [Array], message: 'Invalid date' }
   ]
 }
+2026-09-16 14:08:06 +05:30: Unhandled server error: ZodError: [
+  {
+    "code": "invalid_date",
+    "path": [
+      "checkIn"
+    ],
+    "message": "Invalid date"
+  },
+  {
+    "code": "invalid_date",
+    "path": [
+      "checkOut"
+    ],
+    "message": "Invalid date"
+  }
+]
+    at get error (file:///D:/hopebed/hopabed.in/backend/node_modules/zod/v3/types.js:39:31)
+    at ZodObject.parse (file:///D:/hopebed/hopabed.in/backend/node_modules/zod/v3/types.js:114:22)
+    at file:///D:/hopebed/hopabed.in/backend/dist/routes/properties.js:63:12
+    at Layer.handle [as handle_request] (D:\hopebed\hopabed.in\backend\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\hopebed\hopabed.in\backend\node_modules\express\lib\router\route.js:149:13)
+    at Route.dispatch (D:\hopebed\hopabed.in\backend\node_modules\express\lib\router\route.js:119:3)
+    at Layer.handle [as handle_request] (D:\hopebed\hopabed.in\backend\node_modules\express\lib\router\layer.js:95:5)
+    at D:\hopebed\hopabed.in\backend\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\hopebed\hopabed.in\backend\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\hopebed\hopabed.in\backend\node_modules\express\lib\router\index.js:280:10) {
+  issues: [
+    { code: 'invalid_date', path: [Array], message: 'Invalid date' },
+    { code: 'invalid_date', path: [Array], message: 'Invalid date' }
+  ],
+  addIssue: [Function (anonymous)],
+  addIssues: [Function (anonymous)],
+  errors: [
+    { code: 'invalid_date', path: [Array], message: 'Invalid date' },
+    { code: 'invalid_date', path: [Array], message: 'Invalid date' }
+  ]
+}
+2026-09-16 14:12:28 +05:30: Unhandled server error: ZodError: [
+  {
+    "code": "invalid_date",
+    "path": [
+      "checkIn"
+    ],
+    "message": "Invalid date"
+  },
+  {
+    "code": "invalid_date",
+    "path": [
+      "checkOut"
+    ],
+    "message": "Invalid date"
+  }
+]
+    at get error (file:///D:/hopebed/hopabed.in/backend/node_modules/zod/v3/types.js:39:31)
+    at ZodObject.parse (file:///D:/hopebed/hopabed.in/backend/node_modules/zod/v3/types.js:114:22)
+    at file:///D:/hopebed/hopabed.in/backend/dist/routes/properties.js:63:12
+    at Layer.handle [as handle_request] (D:\hopebed\hopabed.in\backend\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\hopebed\hopabed.in\backend\node_modules\express\lib\router\route.js:149:13)
+    at Route.dispatch (D:\hopebed\hopabed.in\backend\node_modules\express\lib\router\route.js:119:3)
+    at Layer.handle [as handle_request] (D:\hopebed\hopabed.in\backend\node_modules\express\lib\router\layer.js:95:5)
+    at D:\hopebed\hopabed.in\backend\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\hopebed\hopabed.in\backend\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\hopebed\hopabed.in\backend\node_modules\express\lib\router\index.js:280:10) {
+  issues: [
+    { code: 'invalid_date', path: [Array], message: 'Invalid date' },
+    { code: 'invalid_date', path: [Array], message: 'Invalid date' }
+  ],
+  addIssue: [Function (anonymous)],
+  addIssues: [Function (anonymous)],
+  errors: [
+    { code: 'invalid_date', path: [Array], message: 'Invalid date' },
+    { code: 'invalid_date', path: [Array], message: 'Invalid date' }
+  ]
+}

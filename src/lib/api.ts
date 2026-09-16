@@ -116,6 +116,7 @@ export async function authenticateWithGoogle(credential: string): Promise<AuthRe
 	return body;
 }
 
+
 export async function authenticateWithPassword(input: {
 	name?: string;
 	email: string;
