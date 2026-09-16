@@ -25,11 +25,7 @@ const envSchema = z
     R2_PUBLIC_URL: z.string().url('R2_PUBLIC_URL must be a valid URL').optional(),
     R2_REGION: z.string().default('auto'),
     CORS_ORIGIN: z.string().default('http://localhost:3000').transform((val) => val.includes(',') ? val.split(',').map(s => s.trim()) : val),
-    SMTP_HOST: z.string().optional(),
-    SMTP_PORT: z.coerce.number().optional(),
-    SMTP_USER: z.string().optional(),
-    SMTP_PASS: z.string().optional(),
-    SMTP_SECURE: z.enum(['true', 'false']).transform((v) => v === 'true').optional(),
+    RESEND_API_KEY: z.string().optional(),
     EMAIL_FROM: z.string().default('Hopebed <hello@hopebed.in>'),
     ADMIN_ALERT_EMAIL: z.string().default('admin@hopebed.in'),
   })

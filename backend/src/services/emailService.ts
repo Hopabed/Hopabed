@@ -1,18 +1,10 @@
-import nodemailer, { type Transporter } from 'nodemailer';
+import { Resend } from 'resend';
 import { env } from '../config/env.js';
 
-let transporter: Transporter | null = null;
+let resend: Resend | null = null;
 
-if (env.SMTP_HOST && env.SMTP_USER && env.SMTP_PASS) {
-  transporter = nodemailer.createTransport({
-    host: env.SMTP_HOST,
-    port: env.SMTP_PORT || 587,
-    secure: env.SMTP_SECURE ?? false,
-    auth: {
-      user: env.SMTP_USER,
-      pass: env.SMTP_PASS,
-    },
-  });
+if (env.RESEND_API_KEY) {
+  resend = new Resend(env.RESEND_API_KEY);
 }
 
 export interface EmailOptions {
@@ -26,18 +18,24 @@ export async function sendEmail(options: EmailOptions): Promise<{ success: boole
   try {
     const from = env.EMAIL_FROM;
     
-    if (transporter) {
-      const info = await transporter.sendMail({
+    if (resend) {
+      const { data, error } = await resend.emails.send({
         from,
         to: options.to,
         subject: options.subject,
         html: options.html,
         text: options.text,
       });
-      console.log(`[EmailService] Email sent to ${options.to} (MessageID: ${info.messageId})`);
-      return { success: true, messageId: info.messageId };
+
+      if (error) {
+        console.error(`[EmailService ERROR] Resend API rejected email to ${options.to}:`, error.message);
+        return { success: false, error: error.message };
+      }
+
+      console.log(`[EmailService] Email sent to ${options.to} (MessageID: ${data?.id})`);
+      return { success: true, messageId: data?.id };
     } else {
-      // Mock / Dev Console Mode when SMTP is not configured
+      // Mock / Dev Console Mode when Resend is not configured
       console.log(`\n===========================================================`);
       console.log(`🔑 [EMAIL DEV MOCK OTP] To: ${options.to}`);
       console.log(`Subject: ${options.subject}`);
