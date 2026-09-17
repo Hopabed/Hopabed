@@ -23,9 +23,6 @@ async function runAmountSecurityTests() {
     process.exit(1);
   }
 
-  process.env.NODE_ENV = 'test';
-  process.env.JWT_SECRET = 'test_jwt_secret_123456789012345678901234567890123';
-
   // Dynamic import after env loaded
   const { app } = await import('../src/index.js');
   const { Booking } = await import('../src/models/Booking.js');
@@ -47,7 +44,6 @@ async function runAmountSecurityTests() {
     await Booking.deleteMany({ notes: 'TASK3_AMOUNT_SECURITY_TEST' });
     await Payment.deleteMany({ currency: 'INR_TEST_TASK3' });
 
-    // 1. Setup Guest User
     let guest = await User.findOne({ email: 'task3_guest@example.com' });
     if (!guest) {
       guest = await User.create({
@@ -56,11 +52,15 @@ async function runAmountSecurityTests() {
         authProvider: 'password',
         role: 'guest',
         isEmailVerified: true,
-        isPhoneVerified: true
+        isPhoneVerified: true,
+        tokenVersion: 1
       });
+    } else if (typeof guest.tokenVersion !== 'number') {
+      guest.tokenVersion = 1;
+      await guest.save();
     }
 
-    const guestToken = createAccessToken(guest._id.toString(), guest.role as any);
+    const guestToken = createAccessToken(guest._id.toString(), guest.role as any, guest.tokenVersion);
 
     // 2. Setup Host, Property & Room with authoritative price ₹999/night
     let host = await Host.findOne({ businessName: 'Task3 Host Business' });
@@ -148,7 +148,7 @@ async function runAmountSecurityTests() {
 
     const res1 = await fetch(`${API_BASE}/properties/${property._id}/bookings`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${guestToken}` },
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${guestToken}`, 'x-client-type': 'mobile' },
       body: JSON.stringify(validPayload)
     });
 
@@ -185,7 +185,7 @@ async function runAmountSecurityTests() {
 
     const res2 = await fetch(`${API_BASE}/properties/${property._id}/bookings`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${guestToken}` },
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${guestToken}`, 'x-client-type': 'mobile' },
       body: JSON.stringify({
         ...validPayload,
         checkIn: checkInDate2.toISOString().split('T')[0],
@@ -218,7 +218,7 @@ async function runAmountSecurityTests() {
 
     const res3 = await fetch(`${API_BASE}/properties/${property._id}/bookings`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${guestToken}` },
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${guestToken}`, 'x-client-type': 'mobile' },
       body: JSON.stringify({
         ...validPayload,
         checkIn: checkInDate3.toISOString().split('T')[0],
@@ -248,7 +248,7 @@ async function runAmountSecurityTests() {
     console.log('--- TEST 7: INVALID DATES TEST ---');
     const res7 = await fetch(`${API_BASE}/properties/${property._id}/bookings`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${guestToken}` },
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${guestToken}`, 'x-client-type': 'mobile' },
       body: JSON.stringify({
         ...validPayload,
         checkIn: checkOutStr,
@@ -271,7 +271,7 @@ async function runAmountSecurityTests() {
 
     const res8 = await fetch(`${API_BASE}/properties/${property._id}/bookings`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${guestToken}` },
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${guestToken}`, 'x-client-type': 'mobile' },
       body: JSON.stringify({
         ...validPayload,
         checkIn: checkInDate8.toISOString().split('T')[0],
@@ -298,7 +298,7 @@ async function runAmountSecurityTests() {
     console.log('--- TEST 9: PAYU INITIALIZATION WITH AUTHORITATIVE DB AMOUNT ---');
     const payuInitRes = await fetch(`${API_BASE}/payments/payu-init`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${guestToken}` },
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${guestToken}`, 'x-client-type': 'mobile' },
       body: JSON.stringify({
         bookingId: booking1._id,
         amount: 1, // Tampered client amount attempt
