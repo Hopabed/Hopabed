@@ -1,0 +1,297 @@
+"use client";
+
+import React, { useState, useEffect } from "react";
+import { useParams, useSearchParams, useRouter } from "next/navigation";
+import { getPropertyById, formatInr } from "@/data/properties";
+import { useBooking } from "@/context/BookingContext";
+import { useAuth } from "@/context/AuthContext";
+import { ShieldCheck, Calendar, Users, MapPin, CheckCircle2, ArrowLeft, Lock, Info } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+
+export default function BookingCheckoutPage() {
+  const params = useParams<{ id: string }>();
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  const { addBooking } = useBooking();
+  const { user, openAuthModal } = useAuth();
+
+  const property = getPropertyById(params.id);
+
+  const initialCheckIn = searchParams.get("checkIn") || "";
+  const initialCheckOut = searchParams.get("checkOut") || "";
+  const initialGuests = Number(searchParams.get("guests")) || 2;
+  const initialRooms = Number(searchParams.get("rooms")) || 1;
+
+  const [checkIn, setCheckIn] = useState(initialCheckIn);
+  const [checkOut, setCheckOut] = useState(initialCheckOut);
+  const [guests, setGuests] = useState(initialGuests);
+  const [rooms, setRooms] = useState(initialRooms);
+
+  const [guestName, setGuestName] = useState(user?.name || "");
+  const [guestEmail, setGuestEmail] = useState(user?.email || "");
+  const [guestPhone, setGuestPhone] = useState(user?.phone || "+91 9876543210");
+  const [specialRequests, setSpecialRequests] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      if (!guestName) setGuestName(user.name);
+      if (!guestEmail) setGuestEmail(user.email);
+    }
+  }, [user]);
+
+  if (!property) {
+    return (
+      <main className="container-page py-16 text-center">
+        <h2 className="text-xl font-bold text-gray-900">Property not found</h2>
+        <p className="mt-2 text-sm text-gray-500">The property you are trying to book could not be found.</p>
+        <Link href="/search" className="mt-4 inline-block font-bold text-brand hover:underline">
+          Return to Search →
+        </Link>
+      </main>
+    );
+  }
+
+  const calculateNights = () => {
+    if (!checkIn || !checkOut) return 1;
+    const start = new Date(checkIn);
+    const end = new Date(checkOut);
+    const diffTime = end.getTime() - start.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays > 0 ? diffDays : 1;
+  };
+
+  const nights = calculateNights();
+  const subtotal = property.pricePerNight * nights * rooms;
+  const taxes = Math.round(subtotal * 0.12);
+  const totalPrice = subtotal + taxes;
+
+  const handleSubmitBooking = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user) {
+      openAuthModal();
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    const createdBooking = addBooking({
+      propertyId: property.id,
+      propertyName: property.name,
+      propertyImage: property.image || property.images?.[0] || "",
+      city: property.city,
+      checkIn: checkIn || new Date().toISOString().split("T")[0],
+      checkOut: checkOut || new Date(Date.now() + 86400000).toISOString().split("T")[0],
+      guests,
+      rooms,
+      totalNights: nights,
+      totalPrice,
+      guestName: guestName || "Guest User",
+      guestEmail: guestEmail || "guest@hopebed.in",
+      guestPhone: guestPhone || "+91 9876543210",
+    });
+
+    setTimeout(() => {
+      router.push(`/booking/confirmation/${createdBooking.id}`);
+    }, 600);
+  };
+
+  return (
+    <main className="bg-gray-50 min-h-screen pb-20">
+      <div className="bg-white border-b border-gray-200 py-4">
+        <div className="container-page flex items-center justify-between">
+          <Link
+            href={`/stays/${property.id}`}
+            className="flex items-center gap-2 text-sm font-bold text-gray-700 hover:text-brand transition-colors"
+          >
+            <ArrowLeft className="h-4 w-4" /> Back to Stay Details
+          </Link>
+          <span className="flex items-center gap-1 text-xs font-bold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
+            <Lock className="h-3.5 w-3.5" /> Secure Instant Booking
+          </span>
+        </div>
+      </div>
+
+      <div className="container-page py-8">
+        <h1 className="text-3xl font-extrabold text-gray-900 mb-6">Confirm and Pay for Your Stay</h1>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Main Form */}
+          <div className="lg:col-span-2 space-y-6">
+            <form onSubmit={handleSubmitBooking} className="space-y-6">
+              {/* Trip Details */}
+              <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-4">
+                <h2 className="text-lg font-bold text-gray-900 border-b border-gray-100 pb-3">1. Your Trip Dates & Guests</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-xs font-bold text-gray-700 block mb-1">Check-in Date</label>
+                    <input
+                      type="date"
+                      value={checkIn}
+                      onChange={(e) => setCheckIn(e.target.value)}
+                      required
+                      min={new Date().toISOString().split("T")[0]}
+                      className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-bold text-gray-900 outline-none focus:border-brand"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-gray-700 block mb-1">Check-out Date</label>
+                    <input
+                      type="date"
+                      value={checkOut}
+                      onChange={(e) => setCheckOut(e.target.value)}
+                      required
+                      min={checkIn || new Date().toISOString().split("T")[0]}
+                      className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-bold text-gray-900 outline-none focus:border-brand"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-gray-700 block mb-1">Number of Guests</label>
+                    <select
+                      value={guests}
+                      onChange={(e) => setGuests(Number(e.target.value))}
+                      className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-bold text-gray-900 outline-none focus:border-brand bg-white"
+                    >
+                      {[1, 2, 3, 4, 5, 6, 8, 10].map((num) => (
+                        <option key={num} value={num}>
+                          {num} Guest{num > 1 ? "s" : ""}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-gray-700 block mb-1">Rooms Needed</label>
+                    <select
+                      value={rooms}
+                      onChange={(e) => setRooms(Number(e.target.value))}
+                      className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-bold text-gray-900 outline-none focus:border-brand bg-white"
+                    >
+                      {[1, 2, 3, 4, 5].map((num) => (
+                        <option key={num} value={num}>
+                          {num} Room{num > 1 ? "s" : ""}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              {/* Guest Personal Information */}
+              <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-4">
+                <h2 className="text-lg font-bold text-gray-900 border-b border-gray-100 pb-3">2. Guest Details</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-xs font-bold text-gray-700 block mb-1">Full Name</label>
+                    <input
+                      type="text"
+                      value={guestName}
+                      onChange={(e) => setGuestName(e.target.value)}
+                      required
+                      placeholder="Enter full name"
+                      className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-medium text-gray-900 outline-none focus:border-brand"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-gray-700 block mb-1">Email Address</label>
+                    <input
+                      type="email"
+                      value={guestEmail}
+                      onChange={(e) => setGuestEmail(e.target.value)}
+                      required
+                      placeholder="your.email@example.com"
+                      className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-medium text-gray-900 outline-none focus:border-brand"
+                    />
+                  </div>
+                  <div className="sm:col-span-2">
+                    <label className="text-xs font-bold text-gray-700 block mb-1">Mobile Phone Number</label>
+                    <input
+                      type="tel"
+                      value={guestPhone}
+                      onChange={(e) => setGuestPhone(e.target.value)}
+                      required
+                      placeholder="+91 9876543210"
+                      className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-medium text-gray-900 outline-none focus:border-brand"
+                    />
+                  </div>
+                  <div className="sm:col-span-2">
+                    <label className="text-xs font-bold text-gray-700 block mb-1">Special Requests (Optional)</label>
+                    <textarea
+                      rows={2}
+                      value={specialRequests}
+                      onChange={(e) => setSpecialRequests(e.target.value)}
+                      placeholder="e.g. Early check-in requested, high floor room"
+                      className="w-full rounded-xl border border-gray-200 px-4 py-2 text-sm font-medium text-gray-900 outline-none focus:border-brand"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Payment Info Box */}
+              <div className="rounded-2xl border border-blue-100 bg-blue-50/70 p-6 space-y-2">
+                <div className="flex items-center gap-2 text-sm font-bold text-brand">
+                  <Info className="h-5 w-5" /> Hopebed Guaranteed Instant Booking
+                </div>
+                <p className="text-xs text-gray-600 leading-relaxed">
+                  Your payment is protected under Hopebed Guarantee. Free cancellation up to 48 hours prior to check-in.
+                </p>
+              </div>
+
+              {/* Submit CTA */}
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full rounded-2xl bg-brand py-4 text-center text-base font-extrabold text-white shadow-xl shadow-brand/25 transition-all hover:bg-brand-dark disabled:opacity-50"
+              >
+                {isSubmitting ? "Processing Booking..." : user ? `Confirm Booking • ${formatInr(totalPrice)}` : "Sign In & Complete Booking"}
+              </button>
+            </form>
+          </div>
+
+          {/* Right Summary Sidebar */}
+          <div className="lg:col-span-1">
+            <div className="sticky top-24 rounded-3xl border border-gray-200 bg-white p-6 shadow-xl space-y-6">
+              <div className="relative aspect-[16/10] w-full overflow-hidden rounded-2xl bg-gray-200">
+                <Image src={property.image || property.images?.[0] || ""} alt={property.name} fill className="object-cover" />
+              </div>
+
+              <div>
+                <span className="flex items-center gap-1 text-xs font-bold text-emerald-700 mb-1">
+                  <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" /> Verified Stay
+                </span>
+                <h3 className="font-extrabold text-lg text-gray-900">{property.name}</h3>
+                <p className="text-xs text-gray-500 mt-1 flex items-center gap-1">
+                  <MapPin className="h-3 w-3 text-brand" /> {property.locality}, {property.city}
+                </p>
+              </div>
+
+              <div className="border-t border-gray-100 pt-4 space-y-2 text-xs text-gray-600">
+                <div className="flex justify-between">
+                  <span>Nightly Rate</span>
+                  <span className="font-bold text-gray-900">{formatInr(property.pricePerNight)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Duration</span>
+                  <span className="font-bold text-gray-900">{nights} night{nights > 1 ? "s" : ""}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Rooms & Guests</span>
+                  <span className="font-bold text-gray-900">{rooms} Room, {guests} Guests</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Taxes & Fees (12%)</span>
+                  <span className="font-bold text-gray-900">{formatInr(taxes)}</span>
+                </div>
+                <div className="border-t border-gray-200 pt-3 flex justify-between text-lg font-extrabold text-gray-900">
+                  <span>Total Due</span>
+                  <span className="text-brand">{formatInr(totalPrice)}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  );
+}

@@ -1,44 +1,46 @@
 "use client";
 
-import { Facebook, Instagram, Linkedin } from "lucide-react";
+import { Facebook, Instagram, Linkedin, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { Logo } from "./Logo";
 
 const COMPANY = [
-  { href: "/about", label: "About Us" },
-  { href: "/blog", label: "Blog" },
-  { href: "/press", label: "Press" },
+  { href: "/stays", label: "Explore Stays" },
+  { href: "/about", label: "About Hopebed" },
   { href: "/contact", label: "Contact Us" },
+  { href: "/faq", label: "Help Center & FAQs" },
 ];
 
 const SUPPORT = [
-  { href: "/help", label: "Help Center" },
-  { href: "/cancellation", label: "Cancellation Policy" },
+  { href: "/bookings", label: "My Bookings" },
+  { href: "/contact", label: "Grievance Support" },
   { href: "/privacy", label: "Privacy Policy" },
   { href: "/terms", label: "Terms & Conditions" },
 ];
 
 const HOSTS = [
-  { href: "/host", label: "List Your Property" },
-  { href: "/host", label: "Host Login" },
-  { href: "/host/resources", label: "Resources" },
-  { href: "/host/pricing", label: "Pricing" },
-  { href: "/host", label: "Host Support" },
+  { href: "/host", label: "Become a Host" },
+  { href: "/host/dashboard", label: "Host Dashboard" },
+  { href: "/host", label: "Verification Guide" },
+  { href: "/host", label: "Host Payouts" },
 ];
 
 export function Footer() {
   return (
-    <footer className="bg-[#050505] text-white">
+    <footer className="bg-gray-900 text-white border-t border-gray-800">
       <div className="container-page py-16 lg:py-20">
         <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr_1fr]">
           {/* Brand Column */}
           <div className="flex flex-col">
             <Logo />
-            <p className="mt-6 max-w-xs text-sm leading-relaxed text-white/60">
-              Hopebed is building a smarter way to find, book and verify stays in India. Discover your perfect getaway with us.
+            <p className="mt-6 max-w-xs text-sm leading-relaxed text-gray-400">
+              Hopebed is building India&apos;s smartest verified hotel and stay booking platform. Discover hotels, villas, homestays, and apartments with guaranteed instant bookings.
             </p>
-            <div className="mt-8 flex gap-4">
+            <div className="mt-4 flex items-center gap-2 text-xs font-bold text-emerald-400">
+              <ShieldCheck className="h-4 w-4" /> 100% On-Site Property Verification
+            </div>
+            <div className="mt-6 flex gap-4">
               <Social href="https://instagram.com" label="Instagram">
                 <Instagram className="h-[18px] w-[18px]" />
               </Social>
@@ -58,18 +60,17 @@ export function Footer() {
           <FooterColumn title="Company" links={COMPANY} />
           <FooterColumn title="Support" links={SUPPORT} />
           <FooterColumn title="For Hosts" links={HOSTS} />
-
         </div>
       </div>
 
       {/* Bottom Bar */}
-      <div className="border-t border-white/10 bg-[#000000]">
-        <div className="container-page flex flex-col items-center justify-between gap-4 py-6 text-xs text-white/50 sm:flex-row">
+      <div className="border-t border-gray-800 bg-black">
+        <div className="container-page flex flex-col items-center justify-between gap-4 py-6 text-xs text-gray-500 sm:flex-row">
           <p>© {new Date().getFullYear()} Hopebed.in | All rights reserved.</p>
           <div className="flex items-center gap-2">
-            <span>Made with</span>
-            <span className="text-brand text-sm">♥</span>
-            <span>in India</span>
+            <span>Built for</span>
+            <span className="text-brand text-sm font-bold">Hopebed India</span>
+            <span>• Stay Smart. Stay Verified.</span>
           </div>
         </div>
       </div>
@@ -80,8 +81,8 @@ export function Footer() {
 function FooterColumn({ title, links }: { title: string; links: { href: string; label: string }[] }) {
   return (
     <div>
-      <h3 className="mb-6 text-sm font-bold uppercase tracking-wider text-white/90">{title}</h3>
-      <ul className="space-y-4 text-sm text-white/60">
+      <h3 className="mb-6 text-xs font-bold uppercase tracking-wider text-gray-300">{title}</h3>
+      <ul className="space-y-4 text-sm text-gray-400">
         {links.map((link) => (
           <li key={link.label}>
             <Link href={link.href} className="transition-colors hover:text-brand">
@@ -99,7 +100,7 @@ function Social({ href, label, children }: { href: string; label: string; childr
     <a
       href={href}
       aria-label={label}
-      className="flex h-10 w-10 items-center justify-center rounded-full bg-white/5 text-white/80 ring-1 ring-white/10 transition-all hover:scale-110 hover:bg-brand hover:text-white hover:ring-brand"
+      className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-800 text-gray-300 ring-1 ring-gray-700 transition-all hover:scale-110 hover:bg-brand hover:text-white hover:ring-brand"
       target="_blank"
       rel="noreferrer"
     >

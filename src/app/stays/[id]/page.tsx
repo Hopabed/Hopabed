@@ -8,7 +8,7 @@ export async function generateStaticParams() {
   }));
 }
 
-export default async function LegacyStayPage({
+export default async function StayPage({
   params,
 }: {
   params: Promise<{ id: string }>;

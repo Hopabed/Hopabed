@@ -3,11 +3,10 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState, useRef, useEffect } from "react";
-import { useAuthModal } from "@/components/AuthProvider";
+import { useAuth } from "@/context/AuthContext";
 import {
   HelpCircle,
   Briefcase,
-  Settings,
   Building2,
   Home,
   Tent,
@@ -19,14 +18,15 @@ import {
   ShieldCheck,
   LogOut,
   Sparkles,
+  Search,
+  X,
 } from "lucide-react";
-import type { ReactNode } from "react";
-import { MenuDrawer } from "./MobileHeader";
+import { AuthModal } from "./AuthModal";
 
 export default function Header() {
-  const { user, openAuth, logout } = useAuthModal();
-  const [menuOpen, setMenuOpen] = useState(false);
+  const { user, openAuthModal, logout, toggleHostMode } = useAuth();
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -40,176 +40,242 @@ export default function Header() {
   }, []);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-white/10 bg-[#000] shadow-sm transition-all duration-300">
+    <header className="sticky top-0 z-50 border-b border-gray-100 bg-white/90 backdrop-blur-xl shadow-sm transition-all duration-300">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
-        
-        {/* Left: Logo */}
-        <div className="flex shrink-0 items-center">
-          <Link href="/" className="flex items-center gap-2">
+        {/* Left: Brand Logo */}
+        <div className="flex shrink-0 items-center gap-3">
+          <Link href="/" className="flex items-center gap-2 group">
             <Image
               src="/logo.png"
               alt="HopeBed Logo"
-              width={140}
-              height={36}
-              className="object-contain"
+              width={130}
+              height={34}
+              className="object-contain transition-transform group-hover:scale-[1.02]"
               priority
             />
           </Link>
+          <span className="hidden sm:inline-flex items-center gap-1 rounded-full bg-blue-50 px-2.5 py-0.5 text-[10px] font-bold text-brand border border-blue-100">
+            <ShieldCheck className="h-3 w-3 text-brand" /> Verified
+          </span>
         </div>
 
-        {/* Center: Navigation Icons */}
-        <div className="hidden flex-1 justify-center px-4 lg:flex">
-          <div className="flex items-center gap-1 xl:gap-2">
-            <NavItem icon={<Building2 className="h-4 w-4" />} label="Hotels" href="/search?type=hotel" />
-            <NavItem icon={<Home className="h-4 w-4" />} label="Villas" href="/search?type=villa" />
-            <NavItem icon={<Tent className="h-4 w-4" />} label="Homestays" href="/search?type=homestay" />
-            <NavItem icon={<Building className="h-4 w-4" />} label="Apartments" href="/search?type=apartment" />
-          </div>
+        {/* Center: Navigation Links */}
+        <div className="hidden lg:flex items-center gap-1 xl:gap-2">
+          <Link
+            href="/stays"
+            className="flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-bold text-gray-700 hover:bg-brand/10 hover:text-brand transition-colors"
+          >
+            <Search className="h-4 w-4 text-brand" /> Explore Stays
+          </Link>
+          <Link
+            href="/stays?type=hotels"
+            className="flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-bold text-gray-700 hover:bg-gray-100 hover:text-brand transition-colors"
+          >
+            <Building2 className="h-4 w-4 text-gray-500" /> Hotels
+          </Link>
+          <Link
+            href="/stays?type=villas"
+            className="flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-bold text-gray-700 hover:bg-gray-100 hover:text-brand transition-colors"
+          >
+            <Home className="h-4 w-4 text-gray-500" /> Villas
+          </Link>
+          <Link
+            href="/stays?type=homestays"
+            className="flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-bold text-gray-700 hover:bg-gray-100 hover:text-brand transition-colors"
+          >
+            <Tent className="h-4 w-4 text-gray-500" /> Homestays
+          </Link>
+          <Link
+            href="/stays?type=apartments"
+            className="flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-bold text-gray-700 hover:bg-gray-100 hover:text-brand transition-colors"
+          >
+            <Building className="h-4 w-4 text-gray-500" /> Apartments
+          </Link>
         </div>
 
-        {/* Right: Utilities */}
-        <div className="flex shrink-0 items-center justify-end">
-          <nav className="flex items-center gap-4 text-sm font-medium text-white/90 xl:gap-6">
-            <Link href="/host" className="hidden items-center gap-2 transition-colors hover:text-brand md:flex">
-              <Briefcase className="h-4 w-4 text-white/70" />
-              <span className="hidden xl:inline">List Your Property</span>
-              <span className="hidden md:inline xl:hidden">Host</span>
-            </Link>
-            
-            <Link href="/support" className="hidden items-center gap-2 transition-colors hover:text-brand md:flex">
-              <HelpCircle className="h-4 w-4 text-white/70" />
-              <span>Support</span>
-            </Link>
+        {/* Right Actions */}
+        <div className="flex items-center gap-3">
+          <Link
+            href="/host"
+            className="hidden md:flex items-center gap-1.5 rounded-xl border border-gray-200 bg-white px-3.5 py-2 text-xs font-bold text-gray-800 hover:bg-gray-50 hover:border-brand transition-all"
+          >
+            <Briefcase className="h-3.5 w-3.5 text-brand" /> Become a Host
+          </Link>
 
-            {user?.role === "admin" && (
-              <Link href="/admin" className="hidden items-center gap-2 transition-colors hover:text-brand lg:flex">
-                <Settings className="h-4 w-4 text-white/70" />
-                <span>Admin</span>
-              </Link>
-            )}
+          <Link
+            href="/contact"
+            className="hidden xl:flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-bold text-gray-600 hover:text-brand transition-colors"
+          >
+            <HelpCircle className="h-3.5 w-3.5" /> Support
+          </Link>
 
-            {user ? (
-              <div className="relative hidden lg:block" ref={dropdownRef}>
-                <button
-                  type="button"
-                  onClick={() => setProfileDropdownOpen((prev) => !prev)}
-                  className="flex items-center gap-2.5 rounded-full border border-white/30 bg-white/10 px-3.5 py-1.5 transition-all hover:border-[#0b8f3c] hover:bg-white/20"
-                >
-                  <div className="relative h-6 w-6 overflow-hidden rounded-full border border-white/40">
-                    <Image
-                      src={user.avatarUrl || "/default-avatar.png"}
-                      alt="Profile"
-                      fill
-                      className="object-cover"
-                    />
+          {user ? (
+            <div className="relative" ref={dropdownRef}>
+              <button
+                type="button"
+                onClick={() => setProfileDropdownOpen((prev) => !prev)}
+                className="flex items-center gap-2 rounded-full border border-gray-200 bg-white p-1.5 pr-3 shadow-sm hover:border-brand transition-all"
+              >
+                <div className="relative h-7 w-7 overflow-hidden rounded-full bg-brand/10 text-brand font-bold flex items-center justify-center text-xs">
+                  {user.name.charAt(0)}
+                </div>
+                <span className="hidden sm:inline text-xs font-bold text-gray-800 truncate max-w-[100px]">
+                  {user.name.split(" ")[0]}
+                </span>
+                <ChevronDown className="h-3.5 w-3.5 text-gray-400" />
+              </button>
+
+              {/* User Dropdown */}
+              {profileDropdownOpen && (
+                <div className="absolute right-0 top-12 z-50 w-56 overflow-hidden rounded-2xl border border-gray-100 bg-white/95 backdrop-blur-xl p-2 shadow-2xl space-y-1">
+                  <div className="px-3 py-2 border-b border-gray-100">
+                    <p className="text-xs font-extrabold text-gray-900">{user.name}</p>
+                    <p className="text-[11px] text-gray-500 truncate">{user.email}</p>
+                    <span className="mt-1 inline-block rounded-full bg-blue-50 px-2 py-0.5 text-[10px] font-bold text-brand">
+                      {user.role} Account
+                    </span>
                   </div>
-                  <span className="font-semibold text-white">{user.name}</span>
-                  <ChevronDown className={`h-4 w-4 text-white/80 transition-transform duration-200 ${profileDropdownOpen ? "rotate-180" : ""}`} />
+
+                  <Link
+                    href="/bookings"
+                    onClick={() => setProfileDropdownOpen(false)}
+                    className="flex items-center gap-2 rounded-xl px-3 py-2 text-xs font-bold text-gray-700 hover:bg-brand/10 hover:text-brand transition-colors"
+                  >
+                    <Calendar className="h-4 w-4 text-brand" /> My Bookings
+                  </Link>
+
+                  <Link
+                    href="/host/dashboard"
+                    onClick={() => setProfileDropdownOpen(false)}
+                    className="flex items-center gap-2 rounded-xl px-3 py-2 text-xs font-bold text-gray-700 hover:bg-brand/10 hover:text-brand transition-colors"
+                  >
+                    <Briefcase className="h-4 w-4 text-brand" /> Host Dashboard
+                  </Link>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      toggleHostMode();
+                      setProfileDropdownOpen(false);
+                    }}
+                    className="w-full flex items-center gap-2 rounded-xl px-3 py-2 text-left text-xs font-bold text-gray-700 hover:bg-gray-100 transition-colors"
+                  >
+                    <Sparkles className="h-4 w-4 text-amber-500" /> Switch to {user.role === "HOST" ? "Guest" : "Host"} Mode
+                  </button>
+
+                  <div className="border-t border-gray-100 pt-1">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        logout();
+                        setProfileDropdownOpen(false);
+                      }}
+                      className="w-full flex items-center gap-2 rounded-xl px-3 py-2 text-left text-xs font-bold text-rose-600 hover:bg-rose-50 transition-colors"
+                    >
+                      <LogOut className="h-4 w-4" /> Sign Out
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={openAuthModal}
+              className="flex items-center gap-1.5 rounded-full bg-brand px-4 py-2 text-xs font-bold text-white shadow-md shadow-brand/20 hover:bg-brand-dark transition-all"
+            >
+              <User className="h-3.5 w-3.5" /> Sign In / Register
+            </button>
+          )}
+
+          {/* Mobile Hamburger Toggle */}
+          <button
+            type="button"
+            onClick={() => setMobileMenuOpen(true)}
+            className="lg:hidden flex h-9 w-9 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-700"
+          >
+            <Menu className="h-5 w-5" />
+          </button>
+        </div>
+      </div>
+
+      {/* Mobile Drawer */}
+      {mobileMenuOpen && (
+        <div className="fixed inset-0 z-50 flex bg-black/50 backdrop-blur-sm lg:hidden">
+          <div className="relative ml-auto h-full w-4/5 max-w-xs bg-white p-6 shadow-2xl flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between border-b pb-4 mb-4">
+                <Image src="/logo.png" alt="HopeBed Logo" width={110} height={28} />
+                <button onClick={() => setMobileMenuOpen(false)}>
+                  <X className="h-5 w-5 text-gray-500" />
                 </button>
-
-                {/* Profile Dropdown Menu */}
-                {profileDropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-64 rounded-2xl border border-gray-200 bg-white p-2 shadow-2xl z-50 text-[#111111]">
-                    {/* User Header */}
-                    <div className="rounded-xl bg-[#f7fbf8] p-3 mb-1 border border-gray-100">
-                      <p className="text-[11px] font-bold uppercase tracking-wider text-[#0b8f3c] flex items-center gap-1">
-                        <Sparkles className="h-3 w-3" /> Signed in as
-                      </p>
-                      <p className="truncate text-xs font-semibold text-[#111111] mt-0.5">{user.email}</p>
-                    </div>
-
-                    <div className="space-y-0.5">
-                      {/* MY BOOKINGS (HIGHLIGHTED) */}
-                      <Link
-                        href="/profile?tab=bookings"
-                        onClick={() => setProfileDropdownOpen(false)}
-                        className="flex items-center gap-3 rounded-xl bg-[#eaf7ef] px-3.5 py-2.5 text-xs font-bold text-[#0b8f3c] transition hover:bg-[#0b8f3c] hover:text-white group"
-                      >
-                        <Calendar className="h-4 w-4 text-[#0b8f3c] group-hover:text-white shrink-0" />
-                        <span>My Bookings</span>
-                      </Link>
-
-                      <Link
-                        href="/profile"
-                        onClick={() => setProfileDropdownOpen(false)}
-                        className="flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-xs font-medium text-[#111111] transition hover:bg-[#f5f8f6] hover:text-[#0b8f3c]"
-                      >
-                        <User className="h-4 w-4 text-[#59615c] shrink-0" />
-                        <span>My Profile & Account</span>
-                      </Link>
-
-                      <Link
-                        href="/host"
-                        onClick={() => setProfileDropdownOpen(false)}
-                        className="flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-xs font-medium text-[#111111] transition hover:bg-[#f5f8f6] hover:text-[#0b8f3c]"
-                      >
-                        <Building2 className="h-4 w-4 text-[#59615c] shrink-0" />
-                        <span>Host Hub & Dashboard</span>
-                      </Link>
-
-                      <Link
-                        href="/host/verification"
-                        onClick={() => setProfileDropdownOpen(false)}
-                        className="flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-xs font-medium text-[#111111] transition hover:bg-[#f5f8f6] hover:text-[#0b8f3c]"
-                      >
-                        <ShieldCheck className="h-4 w-4 text-[#59615c] shrink-0" />
-                        <span>Verification Center</span>
-                      </Link>
-                    </div>
-
-                    <div className="mt-1.5 border-t border-gray-100 pt-1.5">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setProfileDropdownOpen(false);
-                          logout();
-                        }}
-                        className="flex w-full items-center gap-3 rounded-xl px-3.5 py-2 text-left text-xs font-semibold text-red-600 transition hover:bg-red-50"
-                      >
-                        <LogOut className="h-4 w-4 text-red-500 shrink-0" />
-                        <span>Logout</span>
-                      </button>
-                    </div>
-                  </div>
-                )}
               </div>
+
+              <nav className="space-y-2">
+                <Link
+                  href="/stays"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-bold text-gray-800 hover:bg-brand/10 hover:text-brand"
+                >
+                  <Search className="h-4 w-4 text-brand" /> Explore All Stays
+                </Link>
+                <Link
+                  href="/bookings"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-bold text-gray-800 hover:bg-brand/10 hover:text-brand"
+                >
+                  <Calendar className="h-4 w-4 text-brand" /> My Bookings
+                </Link>
+                <Link
+                  href="/host"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-bold text-gray-800 hover:bg-brand/10 hover:text-brand"
+                >
+                  <Briefcase className="h-4 w-4 text-brand" /> Become a Host
+                </Link>
+                <Link
+                  href="/contact"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-bold text-gray-800 hover:bg-brand/10 hover:text-brand"
+                >
+                  <HelpCircle className="h-4 w-4 text-gray-500" /> Contact Support
+                </Link>
+                <Link
+                  href="/faq"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-bold text-gray-800 hover:bg-brand/10 hover:text-brand"
+                >
+                  <Sparkles className="h-4 w-4 text-amber-500" /> FAQs
+                </Link>
+              </nav>
+            </div>
+
+            {!user ? (
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  openAuthModal();
+                }}
+                className="w-full rounded-2xl bg-brand py-3 text-center text-sm font-bold text-white shadow-lg"
+              >
+                Sign In / Register
+              </button>
             ) : (
               <button
-                onClick={() => openAuth()}
-                className="hidden shrink-0 items-center gap-2 rounded-full bg-brand px-5 py-2 text-sm font-semibold text-white transition-all hover:bg-brand-dark lg:flex"
+                onClick={() => {
+                  logout();
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full rounded-2xl bg-rose-50 py-3 text-center text-sm font-bold text-rose-700"
               >
-                Login / Sign Up
+                Sign Out
               </button>
             )}
-
-            {/* Mobile Menu Toggle (Only visible < lg) */}
-            <button className="flex items-center justify-center p-2 text-white/90 lg:hidden" onClick={() => setMenuOpen(true)}>
-              <Menu className="h-6 w-6" />
-            </button>
-          </nav>
+          </div>
         </div>
-      </div>
-      {menuOpen && <MenuDrawer onClose={() => setMenuOpen(false)} />}
-    </header>
-  );
-}
+      )}
 
-function NavItem({ icon, label, href, active = false }: { icon: ReactNode; label: string; href: string; active?: boolean }) {
-  return (
-    <Link
-      href={href}
-      className={`group flex items-center justify-center gap-2 rounded-full px-4 py-2 transition-all ${
-        active 
-          ? "bg-brand/20 text-brand" 
-          : "text-white/70 hover:bg-white/10 hover:text-white"
-      }`}
-    >
-      <div className={`transition-transform duration-200 group-hover:scale-110 ${active ? "text-brand" : "text-white/70 group-hover:text-white"}`}>
-        {icon}
-      </div>
-      <span className={`text-sm font-semibold ${active ? "text-brand" : "text-white/90"}`}>
-        {label}
-      </span>
-    </Link>
+      <AuthModal />
+    </header>
   );
 }

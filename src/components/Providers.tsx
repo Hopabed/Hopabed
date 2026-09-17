@@ -1,17 +1,21 @@
 "use client";
 
-import { AuthProvider } from "./AuthProvider";
-import { AuthModal } from "./AuthModal";
+import { AuthProvider as AppAuthProvider } from "@/context/AuthContext";
+import { BookingProvider } from "@/context/BookingContext";
+import { AuthProvider as LegacyAuthProvider } from "./AuthProvider";
 import { WishlistProvider } from "./WishlistProvider";
 import type { ReactNode } from "react";
 
 export function Providers({ children }: { children: ReactNode }) {
   return (
-    <AuthProvider>
-      <WishlistProvider>
-        {children}
-        <AuthModal />
-      </WishlistProvider>
-    </AuthProvider>
+    <LegacyAuthProvider>
+      <AppAuthProvider>
+        <BookingProvider>
+          <WishlistProvider>
+            {children}
+          </WishlistProvider>
+        </BookingProvider>
+      </AppAuthProvider>
+    </LegacyAuthProvider>
   );
 }

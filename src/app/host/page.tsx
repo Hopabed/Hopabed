@@ -1,302 +1,120 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import Image from "next/image";
+import React from "react";
 import Link from "next/link";
-import { Plus, ShieldCheck, CheckCircle2, AlertCircle, Clock, ShieldAlert, ScanLine } from "lucide-react";
-import { useAuthModal } from "@/components/AuthProvider";
-import { getHostProperties, getHostStats, getOwnerVerificationStatus, createAutoDraftProperty } from "@/lib/api";
+import { useAuth } from "@/context/AuthContext";
+import { Building, ShieldCheck, TrendingUp, Users, CheckCircle2, ArrowRight, Sparkles } from "lucide-react";
+import { AuthModal } from "@/components/AuthModal";
 
-interface HostProperty {
-  _id: string;
-  id?: string;
-  title: string;
-  primaryImage?: string;
-  coverImage?: string;
-  verificationStatus: "DRAFT" | "PENDING_REVIEW" | "CHANGES_REQUESTED" | "VERIFIED" | "REJECTED";
-  isVerified: boolean;
-  isPublished: boolean;
-  rejectionReason?: string;
-}
+export default function HostLandingPage() {
+  const { user, toggleHostMode, openAuthModal } = useAuth();
 
-interface HostStats {
-  totalProperties: number;
-  totalBookings: number;
-  totalEarnings: number;
-}
-
-interface OwnerVerificationData {
-  governmentIdStatus: string;
-  panStatus: string;
-  verificationStatus: string;
-  mobileVerified: boolean;
-}
-
-export default function HostDashboardPage() {
-  const { user, openAuth } = useAuthModal();
-  const [properties, setProperties] = useState<HostProperty[]>([]);
-  const [stats, setStats] = useState<HostStats | null>(null);
-  const [verifStatus, setVerifStatus] = useState<OwnerVerificationData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [registering, setRegistering] = useState(false);
-  const [registerError, setRegisterError] = useState("");
-
-  const handleRegister = async () => {
-    setRegistering(true);
-    setRegisterError("");
-    try {
-      const res = await createAutoDraftProperty();
-      const propObj = res.property as { _id?: string; id?: string } | undefined;
-      const propId = propObj?._id || propObj?.id;
-      if (propId) {
-        window.location.href = `/host/properties/${propId}/verification`;
-      } else {
-        window.location.reload();
-      }
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        setRegisterError(err.message || "Failed to register as host.");
-      }
-    } finally {
-      setRegistering(false);
+  const handleStartHosting = () => {
+    if (!user) {
+      openAuthModal();
+      return;
+    }
+    if (user.role !== "HOST") {
+      toggleHostMode();
     }
   };
 
-  useEffect(() => {
-    if (!user) {
-      setLoading(false);
-      return;
-    }
-
-    if (user.role !== "host") {
-      setLoading(false);
-      return;
-    }
-
-    Promise.all([
-      getHostProperties(),
-      getHostStats(),
-      getOwnerVerificationStatus().catch(() => null),
-    ])
-      .then(([props, stats, verif]) => {
-        setProperties(props as unknown as HostProperty[]);
-        setStats(stats as HostStats);
-        setVerifStatus((verif as unknown) as OwnerVerificationData);
-      })
-      .finally(() => setLoading(false));
-  }, [user]);
-
-  if (loading) return <p className="px-6 py-10 text-center text-muted">Loading dashboard...</p>;
-
-  if (user?.role !== "host") {
-    return (
-      <div className="mx-auto max-w-4xl px-6 py-20 text-center">
-        <h1 className="mb-4 text-3xl font-bold text-ink-soft">Become a Host</h1>
-        <p className="mb-8 text-lg text-muted">Join Hopebed and start earning by listing your properties today.</p>
-
-        {registerError && (
-          <div className="mb-6 rounded-lg bg-red-100 p-3 text-sm text-red-700">{registerError}</div>
-        )}
-
-        <button
-          onClick={() => {
-            if (!user) {
-              openAuth({ isOwnerFlow: true });
-            } else {
-              handleRegister();
-            }
-          }}
-          disabled={registering}
-          className="inline-flex items-center gap-2 rounded-xl bg-brand px-8 py-3 font-semibold text-white transition hover:bg-brand-dark disabled:opacity-70"
-        >
-          {registering ? "Registering..." : "Register as Host"}
-        </button>
-      </div>
-    );
-  }
-
   return (
-    <div className="mx-auto max-w-6xl px-6 py-10">
-      <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-        <div>
-          <h1 className="text-2xl font-bold text-ink-soft">Host Dashboard</h1>
-          <p className="text-sm text-muted">Manage your listings, verification status and bookings.</p>
-        </div>
+    <main className="bg-gray-50 min-h-screen pb-20">
+      {/* Hero Section */}
+      <section className="bg-gradient-to-r from-brand-dark via-brand to-blue-600 py-20 text-white relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-white/10 via-transparent to-transparent pointer-events-none" />
+        <div className="container-page relative z-10 text-center max-w-3xl">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-white/20 px-4 py-1.5 text-xs font-extrabold uppercase tracking-wider backdrop-blur-md text-amber-300">
+            <Sparkles className="h-4 w-4" /> Become a Hopebed Host
+          </span>
+          <h1 className="mt-6 text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl">
+            Turn Your Property into a Thriving Verified Stay
+          </h1>
+          <p className="mt-4 text-base sm:text-lg text-blue-100 leading-relaxed max-w-2xl mx-auto">
+            Join thousands of hotel owners, villa hosts, and homestay proprietors across India. List your stay, reach millions of travelers, and enjoy guaranteed payouts.
+          </p>
 
-        <div className="flex flex-wrap gap-3">
-          <Link
-            href="/host/scan"
-            className="inline-flex items-center gap-2 rounded-xl border-2 border-brand bg-white px-5 py-2.5 text-sm font-semibold text-brand transition hover:bg-brand/5"
-          >
-            <ScanLine className="h-4 w-4" />
-            Scan Stay Pass
-          </Link>
-          <Link
-            href="/host/properties/new"
-            className="inline-flex items-center gap-2 rounded-xl bg-brand px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-dark"
-          >
-            <Plus className="h-4 w-4" />
-            Add New Property
-          </Link>
-        </div>
-      </div>
-
-      {/* Owner Identity & Verification Status Widget */}
-      <div className="mb-10 rounded-2xl border border-border bg-white p-6 shadow-sm">
-        <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand/10 text-brand">
-              <ShieldCheck className="h-6 w-6" />
-            </div>
-            <div>
-              <h2 className="text-lg font-bold text-ink-soft">Host Identity Verification</h2>
-              <p className="text-xs text-muted">Verification state: <strong className="uppercase font-bold text-brand">{verifStatus?.verificationStatus || "unverified"}</strong></p>
-            </div>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-4 text-xs font-semibold">
-            <span className="flex items-center gap-1 text-green-600 bg-green-50 px-3 py-1 rounded-full border border-green-200">
-              <CheckCircle2 className="h-3.5 w-3.5" /> Mobile Verified
-            </span>
-
-            {verifStatus?.governmentIdStatus === "verified" ? (
-              <span className="flex items-center gap-1 text-green-600 bg-green-50 px-3 py-1 rounded-full border border-green-200">
-                <CheckCircle2 className="h-3.5 w-3.5" /> Gov ID Verified
-              </span>
-            ) : (
-              <span className="flex items-center gap-1 text-amber-700 bg-amber-50 px-3 py-1 rounded-full border border-amber-200">
-                <Clock className="h-3.5 w-3.5" /> Gov ID Pending
-              </span>
-            )}
-
-            {verifStatus?.panStatus === "verified" ? (
-              <span className="flex items-center gap-1 text-green-600 bg-green-50 px-3 py-1 rounded-full border border-green-200">
-                <CheckCircle2 className="h-3.5 w-3.5" /> PAN Verified
-              </span>
-            ) : (
-              <span className="flex items-center gap-1 text-amber-700 bg-amber-50 px-3 py-1 rounded-full border border-amber-200">
-                <Clock className="h-3.5 w-3.5" /> PAN Pending
-              </span>
-            )}
-
-            <Link
-              href="/host/verification"
-              className="inline-flex items-center gap-1.5 rounded-xl bg-brand/10 px-4 py-2 text-xs font-semibold text-brand transition hover:bg-brand hover:text-white"
-            >
-              Manage Verification →
-            </Link>
-          </div>
-        </div>
-      </div>
-
-      {stats && (
-        <div className="mb-12 grid gap-6 sm:grid-cols-3">
-          <div className="rounded-2xl border border-border bg-white p-6 shadow-sm">
-            <p className="text-xs font-medium text-muted uppercase">Properties</p>
-            <p className="mt-2 text-3xl font-bold text-ink-soft">{stats.totalProperties}</p>
-          </div>
-          <div className="rounded-2xl border border-border bg-white p-6 shadow-sm">
-            <p className="text-xs font-medium text-muted uppercase">Total Bookings</p>
-            <p className="mt-2 text-3xl font-bold text-ink-soft">{stats.totalBookings}</p>
-          </div>
-          <div className="rounded-2xl border border-border bg-white p-6 shadow-sm">
-            <p className="text-xs font-medium text-muted uppercase">Total Earnings</p>
-            <p className="mt-2 text-3xl font-bold text-ink-soft">₹{stats.totalEarnings}</p>
-          </div>
-        </div>
-      )}
-
-      <div className="mb-6 flex items-center justify-between">
-        <h2 className="text-xl font-semibold text-ink-soft">My Properties</h2>
-      </div>
-
-      {properties.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-border bg-white/50 p-12 text-center">
-          <p className="mb-4 text-muted">You haven&apos;t listed any properties yet.</p>
-          <Link
-            href="/host/properties/new"
-            className="inline-flex items-center gap-2 rounded-xl bg-brand px-5 py-2.5 font-semibold text-white transition hover:bg-brand-dark"
-          >
-            <Plus className="h-5 w-5" />
-            Create Your First Property Draft
-          </Link>
-        </div>
-      ) : (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {properties.map((property) => {
-            const propId = property._id || property.id;
-            const status = property.verificationStatus || "DRAFT";
-
-            return (
-              <div
-                key={propId}
-                className="group flex flex-col justify-between overflow-hidden rounded-2xl border border-border bg-white shadow-sm transition hover:border-brand/30 hover:shadow-md"
+          <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
+            {user?.role === "HOST" ? (
+              <Link
+                href="/host/dashboard"
+                className="w-full sm:w-auto rounded-2xl bg-amber-400 px-8 py-4 text-base font-extrabold text-gray-900 shadow-xl hover:bg-amber-300 transition-all flex items-center justify-center gap-2"
               >
-                <div>
-                  <div className="relative">
-                    <Image
-                      src={property.primaryImage || property.coverImage || "/placeholder-property.jpg"}
-                      alt={property.title}
-                      width={400}
-                      height={250}
-                      className="h-48 w-full object-cover transition duration-500 group-hover:scale-105"
-                    />
-                    <div className="absolute right-3 top-3">
-                      {status === "VERIFIED" && property.isPublished ? (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-green-600 px-3 py-1 text-xs font-semibold text-white shadow-sm">
-                          <CheckCircle2 className="h-3.5 w-3.5" /> LIVE & Verified
-                        </span>
-                      ) : status === "PENDING_REVIEW" ? (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-amber-500 px-3 py-1 text-xs font-semibold text-white shadow-sm">
-                          <Clock className="h-3.5 w-3.5" /> Under Review
-                        </span>
-                      ) : status === "CHANGES_REQUESTED" ? (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-orange-600 px-3 py-1 text-xs font-semibold text-white shadow-sm">
-                          <AlertCircle className="h-3.5 w-3.5" /> Changes Needed
-                        </span>
-                      ) : status === "REJECTED" ? (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-red-600 px-3 py-1 text-xs font-semibold text-white shadow-sm">
-                          <ShieldAlert className="h-3.5 w-3.5" /> Rejected
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-gray-700 px-3 py-1 text-xs font-semibold text-white shadow-sm">
-                          Draft
-                        </span>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="p-5">
-                    <h3 className="font-semibold text-ink-soft transition group-hover:text-brand">{property.title}</h3>
-
-                    {property.rejectionReason && (
-                      <div className="mt-3 rounded-lg bg-amber-50 p-2.5 text-xs text-amber-800 border border-amber-200">
-                        <span className="font-semibold">Reason:</span> &ldquo;{property.rejectionReason}&rdquo;
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between border-t border-border bg-canvas/40 px-5 py-3.5">
-                  <Link
-                    href={`/host/properties/${propId}/verification`}
-                    className="text-xs font-semibold text-brand hover:underline"
-                  >
-                    Complete Verification →
-                  </Link>
-
-                  <Link
-                    href={`/host/properties/${propId}`}
-                    className="text-xs font-medium text-muted hover:text-ink-soft"
-                  >
-                    Edit Listing
-                  </Link>
-                </div>
-              </div>
-            );
-          })}
+                Go to Host Dashboard <ArrowRight className="h-5 w-5" />
+              </Link>
+            ) : (
+              <button
+                onClick={handleStartHosting}
+                className="w-full sm:w-auto rounded-2xl bg-amber-400 px-8 py-4 text-base font-extrabold text-gray-900 shadow-xl hover:bg-amber-300 transition-all flex items-center justify-center gap-2"
+              >
+                {user ? "Enable Host Features" : "Register as Host"} <ArrowRight className="h-5 w-5" />
+              </button>
+            )}
+          </div>
         </div>
-      )}
-    </div>
+      </section>
+
+      {/* Feature Cards */}
+      <section className="container-page py-16">
+        <div className="text-center max-w-xl mx-auto mb-12">
+          <h2 className="text-3xl font-extrabold text-gray-900">Why Host on Hopebed?</h2>
+          <p className="mt-2 text-sm text-gray-500">
+            Everything you need to list, market, and manage your properties with confidence.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="rounded-3xl border border-gray-200 bg-white p-8 shadow-sm space-y-4">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600">
+              <ShieldCheck className="h-8 w-8" />
+            </div>
+            <h3 className="text-xl font-bold text-gray-900">Hopebed Verified Badge</h3>
+            <p className="text-sm text-gray-600 leading-relaxed">
+              Get your property physically verified by our team. Verified listings receive 3x more bookings and higher trust.
+            </p>
+          </div>
+
+          <div className="rounded-3xl border border-gray-200 bg-white p-8 shadow-sm space-y-4">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-50 text-brand">
+              <TrendingUp className="h-8 w-8" />
+            </div>
+            <h3 className="text-xl font-bold text-gray-900">Guaranteed Instant Payouts</h3>
+            <p className="text-sm text-gray-600 leading-relaxed">
+              Receive payouts directly into your bank account via UPI or Razorpay on check-in day without delays.
+            </p>
+          </div>
+
+          <div className="rounded-3xl border border-gray-200 bg-white p-8 shadow-sm space-y-4">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-50 text-amber-600">
+              <Users className="h-8 w-8" />
+            </div>
+            <h3 className="text-xl font-bold text-gray-900">Host Dashboard Tools</h3>
+            <p className="text-sm text-gray-600 leading-relaxed">
+              Add new properties, edit nightly rates, manage photo galleries, and update room availability in real time.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="container-page">
+        <div className="rounded-3xl bg-gray-900 p-10 text-white flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div>
+            <h3 className="text-2xl font-extrabold">Ready to welcome your first guest?</h3>
+            <p className="text-sm text-gray-400 mt-1">Setup takes less than 5 minutes. No upfront fees.</p>
+          </div>
+          <Link
+            href="/host/dashboard"
+            onClick={handleStartHosting}
+            className="shrink-0 rounded-2xl bg-brand px-8 py-4 text-center text-sm font-extrabold text-white shadow-lg hover:bg-brand-dark transition-all"
+          >
+            Access Host Dashboard →
+          </Link>
+        </div>
+      </section>
+
+      <AuthModal />
+    </main>
   );
 }

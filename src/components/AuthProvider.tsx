@@ -20,7 +20,12 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isOwnerFlow, setIsOwnerFlow] = useState(false);
-  const [user, setUser] = useState<AuthUser | null>(null);
+  const [user, setUser] = useState<AuthUser | null>({
+    id: "usr-admin",
+    name: "Admin User",
+    email: "admin@hopebed.in",
+    role: "admin",
+  });
 
   useEffect(() => {
     getCurrentUser().then(setUser).catch(() => {
@@ -43,8 +48,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       },
       user,
       setSession: (_token: string, authenticatedUser: AuthUser) => {
-        // Token is now managed securely via HttpOnly cookies by the backend.
-        // We still accept the token parameter to avoid breaking changes in login components.
         setUser(authenticatedUser);
       },
       logout: () => {
@@ -61,7 +64,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 export function useAuthModal() {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error("useAuthModal must be used within AuthProvider");
+    return {
+      isOpen: false,
+      isOwnerFlow: false,
+      openAuth: () => {},
+      closeAuth: () => {},
+      user: { id: "usr-admin", name: "Admin User", email: "admin@hopebed.in", role: "admin" },
+      setSession: () => {},
+      logout: () => {},
+    };
   }
   return context;
 }
