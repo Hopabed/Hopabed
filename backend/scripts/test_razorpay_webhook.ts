@@ -101,7 +101,7 @@ async function runRazorpayWebhookTests() {
     console.log('--- TEST 1: INITIALIZE RAZORPAY PAYMENT ---');
     const initRes = await fetch(`${API_BASE}/payments/razorpay-init`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${guestToken}` },
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${guestToken}`, 'x-client-type': 'mobile' },
       body: JSON.stringify({ bookingId })
     });
     const initBody: any = await initRes.json();
