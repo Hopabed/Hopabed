@@ -48,13 +48,16 @@ export async function requireAuth(req: AuthenticatedRequest, res: Response, next
     }
 
     const user = await User.findById(payload.sub).select('tokenVersion').lean();
-    if (!user || user.tokenVersion !== payload.tokenVersion) {
+    const currentVersion = user?.tokenVersion ?? 0;
+    if (!user || currentVersion !== payload.tokenVersion) {
+      console.error(`[Auth] User tokenVersion: ${currentVersion}, Payload tokenVersion: ${payload.tokenVersion}`);
       throw new Error('Session expired or user not found.');
     }
 
     req.auth = { userId: payload.sub, role: payload.role };
     requireCsrf(req, res, next);
-  } catch {
+  } catch (err) {
+    console.error('[requireAuth Error]', err);
     res.status(401).json({
       success: false,
       error: { code: 'INVALID_TOKEN', message: 'The authentication token is invalid or expired.' },

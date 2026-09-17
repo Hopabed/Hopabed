@@ -257,3 +257,1168 @@
     { code: 'invalid_date', path: [Array], message: 'Invalid date' }
   ]
 }
+2026-09-17 10:58:29 +05:30: MongoDB connection failed: MongoServerError: bad auth : authentication failed
+    at Connection.sendCommand (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:559:17)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Connection.command (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:633:22)
+    at async continueScramConversation (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:187:13)
+    at async executeScram (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:114:3)
+    at async ScramSHA1.auth (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:60:12)
+    at async performInitialHandshake (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:164:7)
+    at async connect (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:43:5) {
+  errorLabelSet: Set(2) { 'HandshakeError', 'ResetPool' },
+  errorResponse: {
+    ok: 0,
+    errmsg: 'bad auth : authentication failed',
+    code: 8000,
+    codeName: 'AtlasError'
+  },
+  ok: 0,
+  code: 8000,
+  codeName: 'AtlasError',
+  connectionGeneration: 0
+}
+2026-09-17 10:58:31 +05:30: MongoDB connection failed: MongoServerError: bad auth : authentication failed
+    at Connection.sendCommand (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:559:17)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Connection.command (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:633:22)
+    at async continueScramConversation (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:187:13)
+    at async executeScram (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:114:3)
+    at async ScramSHA1.auth (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:60:12)
+    at async performInitialHandshake (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:164:7)
+    at async connect (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:43:5) {
+  errorLabelSet: Set(2) { 'HandshakeError', 'ResetPool' },
+  errorResponse: {
+    ok: 0,
+    errmsg: 'bad auth : authentication failed',
+    code: 8000,
+    codeName: 'AtlasError'
+  },
+  ok: 0,
+  code: 8000,
+  codeName: 'AtlasError',
+  connectionGeneration: 0
+}
+2026-09-17 10:58:33 +05:30: MongoDB connection failed: MongoServerError: bad auth : authentication failed
+    at Connection.sendCommand (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:559:17)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Connection.command (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:633:22)
+    at async continueScramConversation (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:187:13)
+    at async executeScram (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:114:3)
+    at async ScramSHA1.auth (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:60:12)
+    at async performInitialHandshake (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:164:7)
+    at async connect (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:43:5) {
+  errorLabelSet: Set(2) { 'HandshakeError', 'ResetPool' },
+  errorResponse: {
+    ok: 0,
+    errmsg: 'bad auth : authentication failed',
+    code: 8000,
+    codeName: 'AtlasError'
+  },
+  ok: 0,
+  code: 8000,
+  codeName: 'AtlasError',
+  connectionGeneration: 0
+}
+2026-09-17 10:58:35 +05:30: MongoDB connection failed: MongoServerError: bad auth : authentication failed
+    at Connection.sendCommand (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:559:17)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Connection.command (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:633:22)
+    at async continueScramConversation (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:187:13)
+    at async executeScram (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:114:3)
+    at async ScramSHA1.auth (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:60:12)
+    at async performInitialHandshake (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:164:7)
+    at async connect (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:43:5) {
+  errorLabelSet: Set(2) { 'HandshakeError', 'ResetPool' },
+  errorResponse: {
+    ok: 0,
+    errmsg: 'bad auth : authentication failed',
+    code: 8000,
+    codeName: 'AtlasError'
+  },
+  ok: 0,
+  code: 8000,
+  codeName: 'AtlasError',
+  connectionGeneration: 0
+}
+2026-09-17 10:58:37 +05:30: MongoDB connection failed: MongoServerError: bad auth : authentication failed
+    at Connection.sendCommand (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:559:17)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Connection.command (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:633:22)
+    at async continueScramConversation (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:187:13)
+    at async executeScram (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:114:3)
+    at async ScramSHA1.auth (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:60:12)
+    at async performInitialHandshake (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:164:7)
+    at async connect (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:43:5) {
+  errorLabelSet: Set(2) { 'HandshakeError', 'ResetPool' },
+  errorResponse: {
+    ok: 0,
+    errmsg: 'bad auth : authentication failed',
+    code: 8000,
+    codeName: 'AtlasError'
+  },
+  ok: 0,
+  code: 8000,
+  codeName: 'AtlasError',
+  connectionGeneration: 0
+}
+2026-09-17 10:58:39 +05:30: MongoDB connection failed: MongoServerError: bad auth : authentication failed
+    at Connection.sendCommand (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:559:17)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Connection.command (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:633:22)
+    at async continueScramConversation (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:187:13)
+    at async executeScram (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:114:3)
+    at async ScramSHA1.auth (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:60:12)
+    at async performInitialHandshake (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:164:7)
+    at async connect (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:43:5) {
+  errorLabelSet: Set(2) { 'HandshakeError', 'ResetPool' },
+  errorResponse: {
+    ok: 0,
+    errmsg: 'bad auth : authentication failed',
+    code: 8000,
+    codeName: 'AtlasError'
+  },
+  ok: 0,
+  code: 8000,
+  codeName: 'AtlasError',
+  connectionGeneration: 0
+}
+2026-09-17 10:58:41 +05:30: MongoDB connection failed: MongoServerError: bad auth : authentication failed
+    at Connection.sendCommand (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:559:17)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Connection.command (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:633:22)
+    at async continueScramConversation (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:187:13)
+    at async executeScram (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:114:3)
+    at async ScramSHA1.auth (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:60:12)
+    at async performInitialHandshake (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:164:7)
+    at async connect (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:43:5) {
+  errorLabelSet: Set(2) { 'HandshakeError', 'ResetPool' },
+  errorResponse: {
+    ok: 0,
+    errmsg: 'bad auth : authentication failed',
+    code: 8000,
+    codeName: 'AtlasError'
+  },
+  ok: 0,
+  code: 8000,
+  codeName: 'AtlasError',
+  connectionGeneration: 0
+}
+2026-09-17 10:58:43 +05:30: MongoDB connection failed: MongoServerError: bad auth : authentication failed
+    at Connection.sendCommand (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:559:17)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Connection.command (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:633:22)
+    at async continueScramConversation (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:187:13)
+    at async executeScram (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:114:3)
+    at async ScramSHA1.auth (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:60:12)
+    at async performInitialHandshake (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:164:7)
+    at async connect (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:43:5) {
+  errorLabelSet: Set(2) { 'HandshakeError', 'ResetPool' },
+  errorResponse: {
+    ok: 0,
+    errmsg: 'bad auth : authentication failed',
+    code: 8000,
+    codeName: 'AtlasError'
+  },
+  ok: 0,
+  code: 8000,
+  codeName: 'AtlasError',
+  connectionGeneration: 0
+}
+2026-09-17 10:58:45 +05:30: MongoDB connection failed: MongoServerError: bad auth : authentication failed
+    at Connection.sendCommand (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:559:17)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Connection.command (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:633:22)
+    at async continueScramConversation (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:187:13)
+    at async executeScram (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:114:3)
+    at async ScramSHA1.auth (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:60:12)
+    at async performInitialHandshake (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:164:7)
+    at async connect (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:43:5) {
+  errorLabelSet: Set(2) { 'HandshakeError', 'ResetPool' },
+  errorResponse: {
+    ok: 0,
+    errmsg: 'bad auth : authentication failed',
+    code: 8000,
+    codeName: 'AtlasError'
+  },
+  ok: 0,
+  code: 8000,
+  codeName: 'AtlasError',
+  connectionGeneration: 0
+}
+2026-09-17 10:58:47 +05:30: MongoDB connection failed: MongoServerError: bad auth : authentication failed
+    at Connection.sendCommand (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:559:17)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Connection.command (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:633:22)
+    at async continueScramConversation (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:187:13)
+    at async executeScram (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:114:3)
+    at async ScramSHA1.auth (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:60:12)
+    at async performInitialHandshake (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:164:7)
+    at async connect (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:43:5) {
+  errorLabelSet: Set(2) { 'HandshakeError', 'ResetPool' },
+  errorResponse: {
+    ok: 0,
+    errmsg: 'bad auth : authentication failed',
+    code: 8000,
+    codeName: 'AtlasError'
+  },
+  ok: 0,
+  code: 8000,
+  codeName: 'AtlasError',
+  connectionGeneration: 0
+}
+2026-09-17 10:58:48 +05:30: MongoDB connection failed: MongoServerError: bad auth : authentication failed
+    at Connection.sendCommand (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:559:17)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Connection.command (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:633:22)
+    at async continueScramConversation (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:187:13)
+    at async executeScram (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:114:3)
+    at async ScramSHA1.auth (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:60:12)
+    at async performInitialHandshake (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:164:7)
+    at async connect (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:43:5) {
+  errorLabelSet: Set(2) { 'HandshakeError', 'ResetPool' },
+  errorResponse: {
+    ok: 0,
+    errmsg: 'bad auth : authentication failed',
+    code: 8000,
+    codeName: 'AtlasError'
+  },
+  ok: 0,
+  code: 8000,
+  codeName: 'AtlasError',
+  connectionGeneration: 0
+}
+2026-09-17 10:58:50 +05:30: MongoDB connection failed: MongoServerError: bad auth : authentication failed
+    at Connection.sendCommand (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:559:17)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Connection.command (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:633:22)
+    at async continueScramConversation (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:187:13)
+    at async executeScram (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:114:3)
+    at async ScramSHA1.auth (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:60:12)
+    at async performInitialHandshake (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:164:7)
+    at async connect (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:43:5) {
+  errorLabelSet: Set(2) { 'HandshakeError', 'ResetPool' },
+  errorResponse: {
+    ok: 0,
+    errmsg: 'bad auth : authentication failed',
+    code: 8000,
+    codeName: 'AtlasError'
+  },
+  ok: 0,
+  code: 8000,
+  codeName: 'AtlasError',
+  connectionGeneration: 0
+}
+2026-09-17 10:58:52 +05:30: MongoDB connection failed: MongoServerError: bad auth : authentication failed
+    at Connection.sendCommand (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:559:17)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Connection.command (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:633:22)
+    at async continueScramConversation (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:187:13)
+    at async executeScram (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:114:3)
+    at async ScramSHA1.auth (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:60:12)
+    at async performInitialHandshake (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:164:7)
+    at async connect (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:43:5) {
+  errorLabelSet: Set(2) { 'HandshakeError', 'ResetPool' },
+  errorResponse: {
+    ok: 0,
+    errmsg: 'bad auth : authentication failed',
+    code: 8000,
+    codeName: 'AtlasError'
+  },
+  ok: 0,
+  code: 8000,
+  codeName: 'AtlasError',
+  connectionGeneration: 0
+}
+2026-09-17 10:58:54 +05:30: MongoDB connection failed: MongoServerError: bad auth : authentication failed
+    at Connection.sendCommand (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:559:17)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Connection.command (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:633:22)
+    at async continueScramConversation (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:187:13)
+    at async executeScram (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:114:3)
+    at async ScramSHA1.auth (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:60:12)
+    at async performInitialHandshake (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:164:7)
+    at async connect (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:43:5) {
+  errorLabelSet: Set(2) { 'HandshakeError', 'ResetPool' },
+  errorResponse: {
+    ok: 0,
+    errmsg: 'bad auth : authentication failed',
+    code: 8000,
+    codeName: 'AtlasError'
+  },
+  ok: 0,
+  code: 8000,
+  codeName: 'AtlasError',
+  connectionGeneration: 0
+}
+2026-09-17 10:58:56 +05:30: MongoDB connection failed: MongoServerError: bad auth : authentication failed
+    at Connection.sendCommand (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:559:17)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Connection.command (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:633:22)
+    at async continueScramConversation (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:187:13)
+    at async executeScram (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:114:3)
+    at async ScramSHA1.auth (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:60:12)
+    at async performInitialHandshake (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:164:7)
+    at async connect (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:43:5) {
+  errorLabelSet: Set(2) { 'HandshakeError', 'ResetPool' },
+  errorResponse: {
+    ok: 0,
+    errmsg: 'bad auth : authentication failed',
+    code: 8000,
+    codeName: 'AtlasError'
+  },
+  ok: 0,
+  code: 8000,
+  codeName: 'AtlasError',
+  connectionGeneration: 0
+}
+2026-09-17 10:58:58 +05:30: MongoDB connection failed: MongoServerError: bad auth : authentication failed
+    at Connection.sendCommand (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:559:17)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Connection.command (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:633:22)
+    at async continueScramConversation (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:187:13)
+    at async executeScram (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:114:3)
+    at async ScramSHA1.auth (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:60:12)
+    at async performInitialHandshake (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:164:7)
+    at async connect (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:43:5) {
+  errorLabelSet: Set(2) { 'HandshakeError', 'ResetPool' },
+  errorResponse: {
+    ok: 0,
+    errmsg: 'bad auth : authentication failed',
+    code: 8000,
+    codeName: 'AtlasError'
+  },
+  ok: 0,
+  code: 8000,
+  codeName: 'AtlasError',
+  connectionGeneration: 0
+}
+2026-09-17 10:59:00 +05:30: MongoDB connection failed: MongoServerError: bad auth : authentication failed
+    at Connection.sendCommand (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:559:17)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Connection.command (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:633:22)
+    at async continueScramConversation (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:187:13)
+    at async executeScram (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:114:3)
+    at async ScramSHA1.auth (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:60:12)
+    at async performInitialHandshake (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:164:7)
+    at async connect (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:43:5) {
+  errorLabelSet: Set(2) { 'HandshakeError', 'ResetPool' },
+  errorResponse: {
+    ok: 0,
+    errmsg: 'bad auth : authentication failed',
+    code: 8000,
+    codeName: 'AtlasError'
+  },
+  ok: 0,
+  code: 8000,
+  codeName: 'AtlasError',
+  connectionGeneration: 0
+}
+2026-09-17 10:59:02 +05:30: MongoDB connection failed: MongoServerError: bad auth : authentication failed
+    at Connection.sendCommand (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:559:17)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Connection.command (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:633:22)
+    at async continueScramConversation (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:187:13)
+    at async executeScram (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:114:3)
+    at async ScramSHA1.auth (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:60:12)
+    at async performInitialHandshake (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:164:7)
+    at async connect (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:43:5) {
+  errorLabelSet: Set(2) { 'HandshakeError', 'ResetPool' },
+  errorResponse: {
+    ok: 0,
+    errmsg: 'bad auth : authentication failed',
+    code: 8000,
+    codeName: 'AtlasError'
+  },
+  ok: 0,
+  code: 8000,
+  codeName: 'AtlasError',
+  connectionGeneration: 0
+}
+2026-09-17 10:59:05 +05:30: MongoDB connection failed: MongoServerError: bad auth : authentication failed
+    at Connection.sendCommand (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:559:17)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Connection.command (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:633:22)
+    at async continueScramConversation (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:187:13)
+    at async executeScram (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:114:3)
+    at async ScramSHA1.auth (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:60:12)
+    at async performInitialHandshake (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:164:7)
+    at async connect (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:43:5) {
+  errorLabelSet: Set(2) { 'HandshakeError', 'ResetPool' },
+  errorResponse: {
+    ok: 0,
+    errmsg: 'bad auth : authentication failed',
+    code: 8000,
+    codeName: 'AtlasError'
+  },
+  ok: 0,
+  code: 8000,
+  codeName: 'AtlasError',
+  connectionGeneration: 0
+}
+2026-09-17 10:59:08 +05:30: MongoDB connection failed: MongoServerError: bad auth : authentication failed
+    at Connection.sendCommand (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:559:17)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Connection.command (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:633:22)
+    at async continueScramConversation (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:187:13)
+    at async executeScram (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:114:3)
+    at async ScramSHA1.auth (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:60:12)
+    at async performInitialHandshake (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:164:7)
+    at async connect (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:43:5) {
+  errorLabelSet: Set(2) { 'HandshakeError', 'ResetPool' },
+  errorResponse: {
+    ok: 0,
+    errmsg: 'bad auth : authentication failed',
+    code: 8000,
+    codeName: 'AtlasError'
+  },
+  ok: 0,
+  code: 8000,
+  codeName: 'AtlasError',
+  connectionGeneration: 0
+}
+2026-09-17 10:59:09 +05:30: MongoDB connection failed: MongoServerError: bad auth : authentication failed
+    at Connection.sendCommand (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:559:17)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Connection.command (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:633:22)
+    at async continueScramConversation (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:187:13)
+    at async executeScram (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:114:3)
+    at async ScramSHA1.auth (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:60:12)
+    at async performInitialHandshake (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:164:7)
+    at async connect (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:43:5) {
+  errorLabelSet: Set(2) { 'HandshakeError', 'ResetPool' },
+  errorResponse: {
+    ok: 0,
+    errmsg: 'bad auth : authentication failed',
+    code: 8000,
+    codeName: 'AtlasError'
+  },
+  ok: 0,
+  code: 8000,
+  codeName: 'AtlasError',
+  connectionGeneration: 0
+}
+2026-09-17 10:59:11 +05:30: MongoDB connection failed: MongoServerError: bad auth : authentication failed
+    at Connection.sendCommand (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:559:17)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Connection.command (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:633:22)
+    at async continueScramConversation (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:187:13)
+    at async executeScram (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:114:3)
+    at async ScramSHA1.auth (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:60:12)
+    at async performInitialHandshake (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:164:7)
+    at async connect (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:43:5) {
+  errorLabelSet: Set(2) { 'HandshakeError', 'ResetPool' },
+  errorResponse: {
+    ok: 0,
+    errmsg: 'bad auth : authentication failed',
+    code: 8000,
+    codeName: 'AtlasError'
+  },
+  ok: 0,
+  code: 8000,
+  codeName: 'AtlasError',
+  connectionGeneration: 0
+}
+2026-09-17 10:59:13 +05:30: MongoDB connection failed: MongoServerError: bad auth : authentication failed
+    at Connection.sendCommand (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:559:17)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Connection.command (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:633:22)
+    at async continueScramConversation (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:187:13)
+    at async executeScram (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:114:3)
+    at async ScramSHA1.auth (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:60:12)
+    at async performInitialHandshake (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:164:7)
+    at async connect (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:43:5) {
+  errorLabelSet: Set(2) { 'HandshakeError', 'ResetPool' },
+  errorResponse: {
+    ok: 0,
+    errmsg: 'bad auth : authentication failed',
+    code: 8000,
+    codeName: 'AtlasError'
+  },
+  ok: 0,
+  code: 8000,
+  codeName: 'AtlasError',
+  connectionGeneration: 0
+}
+2026-09-17 10:59:15 +05:30: MongoDB connection failed: MongoServerError: bad auth : authentication failed
+    at Connection.sendCommand (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:559:17)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Connection.command (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:633:22)
+    at async continueScramConversation (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:187:13)
+    at async executeScram (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:114:3)
+    at async ScramSHA1.auth (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:60:12)
+    at async performInitialHandshake (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:164:7)
+    at async connect (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:43:5) {
+  errorLabelSet: Set(2) { 'HandshakeError', 'ResetPool' },
+  errorResponse: {
+    ok: 0,
+    errmsg: 'bad auth : authentication failed',
+    code: 8000,
+    codeName: 'AtlasError'
+  },
+  ok: 0,
+  code: 8000,
+  codeName: 'AtlasError',
+  connectionGeneration: 0
+}
+2026-09-17 10:59:17 +05:30: MongoDB connection failed: MongoServerError: bad auth : authentication failed
+    at Connection.sendCommand (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:559:17)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Connection.command (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:633:22)
+    at async continueScramConversation (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:187:13)
+    at async executeScram (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:114:3)
+    at async ScramSHA1.auth (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:60:12)
+    at async performInitialHandshake (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:164:7)
+    at async connect (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:43:5) {
+  errorLabelSet: Set(2) { 'HandshakeError', 'ResetPool' },
+  errorResponse: {
+    ok: 0,
+    errmsg: 'bad auth : authentication failed',
+    code: 8000,
+    codeName: 'AtlasError'
+  },
+  ok: 0,
+  code: 8000,
+  codeName: 'AtlasError',
+  connectionGeneration: 0
+}
+2026-09-17 10:59:18 +05:30: MongoDB connection failed: MongoServerError: bad auth : authentication failed
+    at Connection.sendCommand (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:559:17)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Connection.command (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:633:22)
+    at async continueScramConversation (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:187:13)
+    at async executeScram (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:114:3)
+    at async ScramSHA1.auth (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:60:12)
+    at async performInitialHandshake (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:164:7)
+    at async connect (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:43:5) {
+  errorLabelSet: Set(2) { 'HandshakeError', 'ResetPool' },
+  errorResponse: {
+    ok: 0,
+    errmsg: 'bad auth : authentication failed',
+    code: 8000,
+    codeName: 'AtlasError'
+  },
+  ok: 0,
+  code: 8000,
+  codeName: 'AtlasError',
+  connectionGeneration: 0
+}
+2026-09-17 10:59:20 +05:30: MongoDB connection failed: MongoServerError: bad auth : authentication failed
+    at Connection.sendCommand (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:559:17)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Connection.command (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:633:22)
+    at async continueScramConversation (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:187:13)
+    at async executeScram (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:114:3)
+    at async ScramSHA1.auth (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:60:12)
+    at async performInitialHandshake (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:164:7)
+    at async connect (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:43:5) {
+  errorLabelSet: Set(2) { 'HandshakeError', 'ResetPool' },
+  errorResponse: {
+    ok: 0,
+    errmsg: 'bad auth : authentication failed',
+    code: 8000,
+    codeName: 'AtlasError'
+  },
+  ok: 0,
+  code: 8000,
+  codeName: 'AtlasError',
+  connectionGeneration: 0
+}
+2026-09-17 10:59:22 +05:30: MongoDB connection failed: MongoServerError: bad auth : authentication failed
+    at Connection.sendCommand (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:559:17)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Connection.command (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:633:22)
+    at async continueScramConversation (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:187:13)
+    at async executeScram (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:114:3)
+    at async ScramSHA1.auth (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:60:12)
+    at async performInitialHandshake (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:164:7)
+    at async connect (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:43:5) {
+  errorLabelSet: Set(2) { 'HandshakeError', 'ResetPool' },
+  errorResponse: {
+    ok: 0,
+    errmsg: 'bad auth : authentication failed',
+    code: 8000,
+    codeName: 'AtlasError'
+  },
+  ok: 0,
+  code: 8000,
+  codeName: 'AtlasError',
+  connectionGeneration: 0
+}
+2026-09-17 10:59:24 +05:30: MongoDB connection failed: MongoServerError: bad auth : authentication failed
+    at Connection.sendCommand (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:559:17)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Connection.command (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:633:22)
+    at async continueScramConversation (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:187:13)
+    at async executeScram (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:114:3)
+    at async ScramSHA1.auth (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:60:12)
+    at async performInitialHandshake (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:164:7)
+    at async connect (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:43:5) {
+  errorLabelSet: Set(2) { 'HandshakeError', 'ResetPool' },
+  errorResponse: {
+    ok: 0,
+    errmsg: 'bad auth : authentication failed',
+    code: 8000,
+    codeName: 'AtlasError'
+  },
+  ok: 0,
+  code: 8000,
+  codeName: 'AtlasError',
+  connectionGeneration: 0
+}
+2026-09-17 10:59:26 +05:30: MongoDB connection failed: MongoServerError: bad auth : authentication failed
+    at Connection.sendCommand (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:559:17)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Connection.command (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:633:22)
+    at async continueScramConversation (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:187:13)
+    at async executeScram (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:114:3)
+    at async ScramSHA1.auth (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:60:12)
+    at async performInitialHandshake (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:164:7)
+    at async connect (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:43:5) {
+  errorLabelSet: Set(2) { 'HandshakeError', 'ResetPool' },
+  errorResponse: {
+    ok: 0,
+    errmsg: 'bad auth : authentication failed',
+    code: 8000,
+    codeName: 'AtlasError'
+  },
+  ok: 0,
+  code: 8000,
+  codeName: 'AtlasError',
+  connectionGeneration: 0
+}
+2026-09-17 10:59:28 +05:30: MongoDB connection failed: MongoServerError: bad auth : authentication failed
+    at Connection.sendCommand (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:559:17)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Connection.command (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:633:22)
+    at async continueScramConversation (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:187:13)
+    at async executeScram (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:114:3)
+    at async ScramSHA1.auth (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:60:12)
+    at async performInitialHandshake (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:164:7)
+    at async connect (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:43:5) {
+  errorLabelSet: Set(2) { 'HandshakeError', 'ResetPool' },
+  errorResponse: {
+    ok: 0,
+    errmsg: 'bad auth : authentication failed',
+    code: 8000,
+    codeName: 'AtlasError'
+  },
+  ok: 0,
+  code: 8000,
+  codeName: 'AtlasError',
+  connectionGeneration: 0
+}
+2026-09-17 10:59:30 +05:30: MongoDB connection failed: MongoServerError: bad auth : authentication failed
+    at Connection.sendCommand (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:559:17)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Connection.command (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:633:22)
+    at async continueScramConversation (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:187:13)
+    at async executeScram (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:114:3)
+    at async ScramSHA1.auth (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:60:12)
+    at async performInitialHandshake (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:164:7)
+    at async connect (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:43:5) {
+  errorLabelSet: Set(2) { 'HandshakeError', 'ResetPool' },
+  errorResponse: {
+    ok: 0,
+    errmsg: 'bad auth : authentication failed',
+    code: 8000,
+    codeName: 'AtlasError'
+  },
+  ok: 0,
+  code: 8000,
+  codeName: 'AtlasError',
+  connectionGeneration: 0
+}
+2026-09-17 10:59:31 +05:30: MongoDB connection failed: MongoServerError: bad auth : authentication failed
+    at Connection.sendCommand (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:559:17)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Connection.command (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:633:22)
+    at async continueScramConversation (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:187:13)
+    at async executeScram (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:114:3)
+    at async ScramSHA1.auth (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:60:12)
+    at async performInitialHandshake (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:164:7)
+    at async connect (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:43:5) {
+  errorLabelSet: Set(2) { 'HandshakeError', 'ResetPool' },
+  errorResponse: {
+    ok: 0,
+    errmsg: 'bad auth : authentication failed',
+    code: 8000,
+    codeName: 'AtlasError'
+  },
+  ok: 0,
+  code: 8000,
+  codeName: 'AtlasError',
+  connectionGeneration: 0
+}
+2026-09-17 10:59:33 +05:30: MongoDB connection failed: MongoServerError: bad auth : authentication failed
+    at Connection.sendCommand (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:559:17)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Connection.command (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:633:22)
+    at async continueScramConversation (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:187:13)
+    at async executeScram (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:114:3)
+    at async ScramSHA1.auth (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:60:12)
+    at async performInitialHandshake (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:164:7)
+    at async connect (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:43:5) {
+  errorLabelSet: Set(2) { 'HandshakeError', 'ResetPool' },
+  errorResponse: {
+    ok: 0,
+    errmsg: 'bad auth : authentication failed',
+    code: 8000,
+    codeName: 'AtlasError'
+  },
+  ok: 0,
+  code: 8000,
+  codeName: 'AtlasError',
+  connectionGeneration: 0
+}
+2026-09-17 10:59:35 +05:30: MongoDB connection failed: MongoServerError: bad auth : authentication failed
+    at Connection.sendCommand (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:559:17)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Connection.command (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:633:22)
+    at async continueScramConversation (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:187:13)
+    at async executeScram (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:114:3)
+    at async ScramSHA1.auth (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:60:12)
+    at async performInitialHandshake (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:164:7)
+    at async connect (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:43:5) {
+  errorLabelSet: Set(2) { 'HandshakeError', 'ResetPool' },
+  errorResponse: {
+    ok: 0,
+    errmsg: 'bad auth : authentication failed',
+    code: 8000,
+    codeName: 'AtlasError'
+  },
+  ok: 0,
+  code: 8000,
+  codeName: 'AtlasError',
+  connectionGeneration: 0
+}
+2026-09-17 10:59:36 +05:30: MongoDB connection failed: MongoServerError: bad auth : authentication failed
+    at Connection.sendCommand (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:559:17)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Connection.command (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:633:22)
+    at async continueScramConversation (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:187:13)
+    at async executeScram (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:114:3)
+    at async ScramSHA1.auth (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:60:12)
+    at async performInitialHandshake (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:164:7)
+    at async connect (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:43:5) {
+  errorLabelSet: Set(2) { 'HandshakeError', 'ResetPool' },
+  errorResponse: {
+    ok: 0,
+    errmsg: 'bad auth : authentication failed',
+    code: 8000,
+    codeName: 'AtlasError'
+  },
+  ok: 0,
+  code: 8000,
+  codeName: 'AtlasError',
+  connectionGeneration: 0
+}
+2026-09-17 10:59:38 +05:30: MongoDB connection failed: MongoServerError: bad auth : authentication failed
+    at Connection.sendCommand (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:559:17)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Connection.command (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:633:22)
+    at async continueScramConversation (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:187:13)
+    at async executeScram (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:114:3)
+    at async ScramSHA1.auth (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:60:12)
+    at async performInitialHandshake (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:164:7)
+    at async connect (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:43:5) {
+  errorLabelSet: Set(2) { 'HandshakeError', 'ResetPool' },
+  errorResponse: {
+    ok: 0,
+    errmsg: 'bad auth : authentication failed',
+    code: 8000,
+    codeName: 'AtlasError'
+  },
+  ok: 0,
+  code: 8000,
+  codeName: 'AtlasError',
+  connectionGeneration: 0
+}
+2026-09-17 10:59:40 +05:30: MongoDB connection failed: MongoServerError: bad auth : authentication failed
+    at Connection.sendCommand (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:559:17)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Connection.command (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:633:22)
+    at async continueScramConversation (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:187:13)
+    at async executeScram (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:114:3)
+    at async ScramSHA1.auth (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:60:12)
+    at async performInitialHandshake (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:164:7)
+    at async connect (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:43:5) {
+  errorLabelSet: Set(2) { 'HandshakeError', 'ResetPool' },
+  errorResponse: {
+    ok: 0,
+    errmsg: 'bad auth : authentication failed',
+    code: 8000,
+    codeName: 'AtlasError'
+  },
+  ok: 0,
+  code: 8000,
+  codeName: 'AtlasError',
+  connectionGeneration: 0
+}
+2026-09-17 10:59:42 +05:30: MongoDB connection failed: MongoServerError: bad auth : authentication failed
+    at Connection.sendCommand (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:559:17)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Connection.command (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:633:22)
+    at async continueScramConversation (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:187:13)
+    at async executeScram (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:114:3)
+    at async ScramSHA1.auth (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:60:12)
+    at async performInitialHandshake (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:164:7)
+    at async connect (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:43:5) {
+  errorLabelSet: Set(2) { 'HandshakeError', 'ResetPool' },
+  errorResponse: {
+    ok: 0,
+    errmsg: 'bad auth : authentication failed',
+    code: 8000,
+    codeName: 'AtlasError'
+  },
+  ok: 0,
+  code: 8000,
+  codeName: 'AtlasError',
+  connectionGeneration: 0
+}
+2026-09-17 10:59:44 +05:30: MongoDB connection failed: MongoServerError: bad auth : authentication failed
+    at Connection.sendCommand (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:559:17)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Connection.command (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:633:22)
+    at async continueScramConversation (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:187:13)
+    at async executeScram (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:114:3)
+    at async ScramSHA1.auth (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:60:12)
+    at async performInitialHandshake (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:164:7)
+    at async connect (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:43:5) {
+  errorLabelSet: Set(2) { 'HandshakeError', 'ResetPool' },
+  errorResponse: {
+    ok: 0,
+    errmsg: 'bad auth : authentication failed',
+    code: 8000,
+    codeName: 'AtlasError'
+  },
+  ok: 0,
+  code: 8000,
+  codeName: 'AtlasError',
+  connectionGeneration: 0
+}
+2026-09-17 10:59:45 +05:30: MongoDB connection failed: MongoServerError: bad auth : authentication failed
+    at Connection.sendCommand (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:559:17)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Connection.command (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:633:22)
+    at async continueScramConversation (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:187:13)
+    at async executeScram (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:114:3)
+    at async ScramSHA1.auth (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:60:12)
+    at async performInitialHandshake (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:164:7)
+    at async connect (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:43:5) {
+  errorLabelSet: Set(2) { 'HandshakeError', 'ResetPool' },
+  errorResponse: {
+    ok: 0,
+    errmsg: 'bad auth : authentication failed',
+    code: 8000,
+    codeName: 'AtlasError'
+  },
+  ok: 0,
+  code: 8000,
+  codeName: 'AtlasError',
+  connectionGeneration: 0
+}
+2026-09-17 10:59:48 +05:30: MongoDB connection failed: MongoServerError: bad auth : authentication failed
+    at Connection.sendCommand (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:559:17)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Connection.command (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:633:22)
+    at async continueScramConversation (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:187:13)
+    at async executeScram (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:114:3)
+    at async ScramSHA1.auth (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:60:12)
+    at async performInitialHandshake (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:164:7)
+    at async connect (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:43:5) {
+  errorLabelSet: Set(2) { 'HandshakeError', 'ResetPool' },
+  errorResponse: {
+    ok: 0,
+    errmsg: 'bad auth : authentication failed',
+    code: 8000,
+    codeName: 'AtlasError'
+  },
+  ok: 0,
+  code: 8000,
+  codeName: 'AtlasError',
+  connectionGeneration: 0
+}
+2026-09-17 10:59:50 +05:30: MongoDB connection failed: MongoServerError: bad auth : authentication failed
+    at Connection.sendCommand (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:559:17)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Connection.command (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:633:22)
+    at async continueScramConversation (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:187:13)
+    at async executeScram (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:114:3)
+    at async ScramSHA1.auth (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:60:12)
+    at async performInitialHandshake (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:164:7)
+    at async connect (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:43:5) {
+  errorLabelSet: Set(2) { 'HandshakeError', 'ResetPool' },
+  errorResponse: {
+    ok: 0,
+    errmsg: 'bad auth : authentication failed',
+    code: 8000,
+    codeName: 'AtlasError'
+  },
+  ok: 0,
+  code: 8000,
+  codeName: 'AtlasError',
+  connectionGeneration: 0
+}
+2026-09-17 10:59:52 +05:30: MongoDB connection failed: MongoServerError: bad auth : authentication failed
+    at Connection.sendCommand (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:559:17)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Connection.command (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:633:22)
+    at async continueScramConversation (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:187:13)
+    at async executeScram (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:114:3)
+    at async ScramSHA1.auth (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:60:12)
+    at async performInitialHandshake (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:164:7)
+    at async connect (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:43:5) {
+  errorLabelSet: Set(2) { 'HandshakeError', 'ResetPool' },
+  errorResponse: {
+    ok: 0,
+    errmsg: 'bad auth : authentication failed',
+    code: 8000,
+    codeName: 'AtlasError'
+  },
+  ok: 0,
+  code: 8000,
+  codeName: 'AtlasError',
+  connectionGeneration: 0
+}
+2026-09-17 10:59:54 +05:30: MongoDB connection failed: MongoServerError: bad auth : authentication failed
+    at Connection.sendCommand (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:559:17)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Connection.command (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:633:22)
+    at async continueScramConversation (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:187:13)
+    at async executeScram (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:114:3)
+    at async ScramSHA1.auth (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:60:12)
+    at async performInitialHandshake (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:164:7)
+    at async connect (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:43:5) {
+  errorLabelSet: Set(2) { 'HandshakeError', 'ResetPool' },
+  errorResponse: {
+    ok: 0,
+    errmsg: 'bad auth : authentication failed',
+    code: 8000,
+    codeName: 'AtlasError'
+  },
+  ok: 0,
+  code: 8000,
+  codeName: 'AtlasError',
+  connectionGeneration: 0
+}
+2026-09-17 10:59:56 +05:30: MongoDB connection failed: MongoServerError: bad auth : authentication failed
+    at Connection.sendCommand (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:559:17)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Connection.command (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:633:22)
+    at async continueScramConversation (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:187:13)
+    at async executeScram (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:114:3)
+    at async ScramSHA1.auth (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:60:12)
+    at async performInitialHandshake (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:164:7)
+    at async connect (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:43:5) {
+  errorLabelSet: Set(2) { 'HandshakeError', 'ResetPool' },
+  errorResponse: {
+    ok: 0,
+    errmsg: 'bad auth : authentication failed',
+    code: 8000,
+    codeName: 'AtlasError'
+  },
+  ok: 0,
+  code: 8000,
+  codeName: 'AtlasError',
+  connectionGeneration: 0
+}
+2026-09-17 10:59:58 +05:30: MongoDB connection failed: MongoServerError: bad auth : authentication failed
+    at Connection.sendCommand (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:559:17)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Connection.command (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:633:22)
+    at async continueScramConversation (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:187:13)
+    at async executeScram (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:114:3)
+    at async ScramSHA1.auth (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:60:12)
+    at async performInitialHandshake (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:164:7)
+    at async connect (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:43:5) {
+  errorLabelSet: Set(2) { 'HandshakeError', 'ResetPool' },
+  errorResponse: {
+    ok: 0,
+    errmsg: 'bad auth : authentication failed',
+    code: 8000,
+    codeName: 'AtlasError'
+  },
+  ok: 0,
+  code: 8000,
+  codeName: 'AtlasError',
+  connectionGeneration: 0
+}
+2026-09-17 11:00:00 +05:30: MongoDB connection failed: MongoServerError: bad auth : authentication failed
+    at Connection.sendCommand (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:559:17)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Connection.command (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:633:22)
+    at async continueScramConversation (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:187:13)
+    at async executeScram (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:114:3)
+    at async ScramSHA1.auth (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:60:12)
+    at async performInitialHandshake (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:164:7)
+    at async connect (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:43:5) {
+  errorLabelSet: Set(2) { 'HandshakeError', 'ResetPool' },
+  errorResponse: {
+    ok: 0,
+    errmsg: 'bad auth : authentication failed',
+    code: 8000,
+    codeName: 'AtlasError'
+  },
+  ok: 0,
+  code: 8000,
+  codeName: 'AtlasError',
+  connectionGeneration: 0
+}
+2026-09-17 11:00:02 +05:30: MongoDB connection failed: MongoServerError: bad auth : authentication failed
+    at Connection.sendCommand (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:559:17)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Connection.command (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:633:22)
+    at async continueScramConversation (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:187:13)
+    at async executeScram (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:114:3)
+    at async ScramSHA1.auth (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:60:12)
+    at async performInitialHandshake (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:164:7)
+    at async connect (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:43:5) {
+  errorLabelSet: Set(2) { 'HandshakeError', 'ResetPool' },
+  errorResponse: {
+    ok: 0,
+    errmsg: 'bad auth : authentication failed',
+    code: 8000,
+    codeName: 'AtlasError'
+  },
+  ok: 0,
+  code: 8000,
+  codeName: 'AtlasError',
+  connectionGeneration: 0
+}
+2026-09-17 11:00:05 +05:30: MongoDB connection failed: MongoServerError: bad auth : authentication failed
+    at Connection.sendCommand (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:559:17)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Connection.command (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:633:22)
+    at async continueScramConversation (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:187:13)
+    at async executeScram (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:114:3)
+    at async ScramSHA1.auth (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:60:12)
+    at async performInitialHandshake (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:164:7)
+    at async connect (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:43:5) {
+  errorLabelSet: Set(2) { 'HandshakeError', 'ResetPool' },
+  errorResponse: {
+    ok: 0,
+    errmsg: 'bad auth : authentication failed',
+    code: 8000,
+    codeName: 'AtlasError'
+  },
+  ok: 0,
+  code: 8000,
+  codeName: 'AtlasError',
+  connectionGeneration: 0
+}
+2026-09-17 11:00:07 +05:30: MongoDB connection failed: MongoServerError: bad auth : authentication failed
+    at Connection.sendCommand (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:559:17)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Connection.command (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:633:22)
+    at async continueScramConversation (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:187:13)
+    at async executeScram (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:114:3)
+    at async ScramSHA1.auth (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:60:12)
+    at async performInitialHandshake (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:164:7)
+    at async connect (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:43:5) {
+  errorLabelSet: Set(2) { 'HandshakeError', 'ResetPool' },
+  errorResponse: {
+    ok: 0,
+    errmsg: 'bad auth : authentication failed',
+    code: 8000,
+    codeName: 'AtlasError'
+  },
+  ok: 0,
+  code: 8000,
+  codeName: 'AtlasError',
+  connectionGeneration: 0
+}
+2026-09-17 11:00:10 +05:30: MongoDB connection failed: MongoServerError: bad auth : authentication failed
+    at Connection.sendCommand (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:559:17)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Connection.command (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:633:22)
+    at async continueScramConversation (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:187:13)
+    at async executeScram (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:114:3)
+    at async ScramSHA1.auth (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:60:12)
+    at async performInitialHandshake (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:164:7)
+    at async connect (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:43:5) {
+  errorLabelSet: Set(2) { 'HandshakeError', 'ResetPool' },
+  errorResponse: {
+    ok: 0,
+    errmsg: 'bad auth : authentication failed',
+    code: 8000,
+    codeName: 'AtlasError'
+  },
+  ok: 0,
+  code: 8000,
+  codeName: 'AtlasError',
+  connectionGeneration: 0
+}
+2026-09-17 11:00:13 +05:30: MongoDB connection failed: MongoServerError: bad auth : authentication failed
+    at Connection.sendCommand (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:559:17)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Connection.command (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:633:22)
+    at async continueScramConversation (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:187:13)
+    at async executeScram (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:114:3)
+    at async ScramSHA1.auth (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:60:12)
+    at async performInitialHandshake (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:164:7)
+    at async connect (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:43:5) {
+  errorLabelSet: Set(2) { 'HandshakeError', 'ResetPool' },
+  errorResponse: {
+    ok: 0,
+    errmsg: 'bad auth : authentication failed',
+    code: 8000,
+    codeName: 'AtlasError'
+  },
+  ok: 0,
+  code: 8000,
+  codeName: 'AtlasError',
+  connectionGeneration: 0
+}
+2026-09-17 11:00:16 +05:30: MongoDB connection failed: MongoServerError: bad auth : authentication failed
+    at Connection.sendCommand (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:559:17)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Connection.command (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:633:22)
+    at async continueScramConversation (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:187:13)
+    at async executeScram (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:114:3)
+    at async ScramSHA1.auth (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:60:12)
+    at async performInitialHandshake (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:164:7)
+    at async connect (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:43:5) {
+  errorLabelSet: Set(2) { 'HandshakeError', 'ResetPool' },
+  errorResponse: {
+    ok: 0,
+    errmsg: 'bad auth : authentication failed',
+    code: 8000,
+    codeName: 'AtlasError'
+  },
+  ok: 0,
+  code: 8000,
+  codeName: 'AtlasError',
+  connectionGeneration: 0
+}
+2026-09-17 11:00:19 +05:30: MongoDB connection failed: MongoServerError: bad auth : authentication failed
+    at Connection.sendCommand (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:559:17)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Connection.command (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connection.ts:633:22)
+    at async continueScramConversation (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:187:13)
+    at async executeScram (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:114:3)
+    at async ScramSHA1.auth (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\auth\scram.ts:60:12)
+    at async performInitialHandshake (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:164:7)
+    at async connect (D:\hopebed\hopabed.in\backend\node_modules\mongodb\src\cmap\connect.ts:43:5) {
+  errorLabelSet: Set(2) { 'HandshakeError', 'ResetPool' },
+  errorResponse: {
+    ok: 0,
+    errmsg: 'bad auth : authentication failed',
+    code: 8000,
+    codeName: 'AtlasError'
+  },
+  ok: 0,
+  code: 8000,
+  codeName: 'AtlasError',
+  connectionGeneration: 0
+}
+2026-09-17 14:02:03 +05:30: ValidationError: The 'X-Forwarded-For' header is set but the Express 'trust proxy' setting is false (default). This could indicate a misconfiguration which would prevent express-rate-limit from accurately identifying users. See https://express-rate-limit.github.io/ERR_ERL_UNEXPECTED_X_FORWARDED_FOR/ for more information.
+    at Object.xForwardedForHeader (file:///D:/hopebed/hopabed.in/backend/node_modules/express-rate-limit/dist/index.mjs:358:13)
+    at wrappedValidations.<computed> [as xForwardedForHeader] (file:///D:/hopebed/hopabed.in/backend/node_modules/express-rate-limit/dist/index.mjs:683:22)
+    at Object.keyGenerator (file:///D:/hopebed/hopabed.in/backend/node_modules/express-rate-limit/dist/index.mjs:793:20)
+    at file:///D:/hopebed/hopabed.in/backend/node_modules/express-rate-limit/dist/index.mjs:883:32
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async file:///D:/hopebed/hopabed.in/backend/node_modules/express-rate-limit/dist/index.mjs:836:5 {
+  code: 'ERR_ERL_UNEXPECTED_X_FORWARDED_FOR',
+  help: 'https://express-rate-limit.github.io/ERR_ERL_UNEXPECTED_X_FORWARDED_FOR/'
+}
