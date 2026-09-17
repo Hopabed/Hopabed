@@ -14,11 +14,17 @@ export type User = {
   isHostApproved?: boolean;
 };
 
+type CustomUserDetails = {
+  name?: string;
+  avatarUrl?: string;
+  phone?: string;
+};
+
 type AuthContextType = {
   user: User | null;
   isAuthenticated: boolean;
-  login: (email: string, role?: UserRole) => void;
-  signup: (name: string, email: string, role?: UserRole) => void;
+  login: (email: string, role?: UserRole, customDetails?: CustomUserDetails) => void;
+  signup: (name: string, email: string, role?: UserRole, avatarUrl?: string) => void;
   logout: () => void;
   toggleHostMode: () => void;
   isAuthModalOpen: boolean;
@@ -49,7 +55,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (stored) {
         setUser(JSON.parse(stored));
       } else {
-        // Initialize with default demo user so reviewer can test auth/user state directly
         setUser(DEMO_USER);
         localStorage.setItem("hopebed_user", JSON.stringify(DEMO_USER));
       }
@@ -68,30 +73,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
-  function login(email: string, role: UserRole = "GUEST") {
+  function login(email: string, role: UserRole = "GUEST", customDetails?: CustomUserDetails) {
     const nameFromEmail = email.split("@")[0];
     const capitalizedName = nameFromEmail.charAt(0).toUpperCase() + nameFromEmail.slice(1);
     const loggedInUser: User = {
       id: `usr-${Date.now()}`,
-      name: capitalizedName || "Demo User",
+      name: customDetails?.name || capitalizedName || "Demo User",
       email,
       role,
-      phone: "+91 98765 43210",
-      avatarUrl: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&q=80",
+      phone: customDetails?.phone || "+91 98765 43210",
+      avatarUrl: customDetails?.avatarUrl || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&q=80",
       isHostApproved: role === "HOST",
     };
     saveUser(loggedInUser);
     setIsAuthModalOpen(false);
   }
 
-  function signup(name: string, email: string, role: UserRole = "GUEST") {
+  function signup(name: string, email: string, role: UserRole = "GUEST", avatarUrl?: string) {
     const newUser: User = {
       id: `usr-${Date.now()}`,
       name,
       email,
       role,
       phone: "+91 98765 43210",
-      avatarUrl: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&q=80",
+      avatarUrl: avatarUrl || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&q=80",
       isHostApproved: role === "HOST",
     };
     saveUser(newUser);
