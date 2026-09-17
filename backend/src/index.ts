@@ -97,4 +97,6 @@ const startServer = async (): Promise<void> => {
   }
 };
 
-void startServer();
+if (env.NODE_ENV !== 'test') {
+  void startServer();
+}

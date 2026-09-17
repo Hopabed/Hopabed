@@ -157,36 +157,65 @@ router.post('/:id/cancel', requireAuth, async (req: AuthenticatedRequest, res, n
       if (payment) {
         const refundAmount = Number((booking.totalAmount * refundPercentage).toFixed(2));
         
-        const txnid = payment.paymentId || payment.orderId;
-        const cancelRefundToken = 'REF_' + Math.random().toString(36).substring(2, 10).toUpperCase() + '_' + Date.now();
-        const key = env.PAYU_MERCHANT_KEY;
-        const salt = env.PAYU_MERCHANT_SALT;
-        const command = 'cancel_refund_transaction';
-        const hashStr = `${key}|${command}|${txnid}|${salt}`;
-        const hash = sha512(hashStr);
-
-        const url = env.PAYU_ENV !== 'production' ? 'https://test.payu.in/merchant/postservice?form=2' : 'https://info.payu.in/merchant/postservice.php?form=2';
-        const params = new URLSearchParams();
-        params.append('key', key);
-        params.append('command', command);
-        params.append('hash', hash);
-        if(txnid) params.append('var1', txnid);
-        params.append('var2', cancelRefundToken);
-        params.append('var3', refundAmount.toString());
-
-        try {
-          const refundRes = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: params.toString() });
-          const refundBody = (await refundRes.json()) as any;
-          if (refundBody.status === 1) {
-            payment.status = 'refunded';
-            payment.metadata = { ...payment.metadata, refundResponse: refundBody };
-            await payment.save();
-            booking.paymentStatus = 'REFUNDED';
-          } else {
-             console.error('[BookingRoute] PayU Refund Failed:', refundBody);
+        if (payment.paymentGateway === 'razorpay') {
+          try {
+            const authStr = Buffer.from(`${env.RAZORPAY_KEY_ID}:${env.RAZORPAY_KEY_SECRET}`).toString('base64');
+            const refundRes = await fetch(`https://api.razorpay.com/v1/payments/${payment.paymentId}/refund`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Basic ${authStr}`
+              },
+              body: JSON.stringify({
+                amount: Math.round(refundAmount * 100), // Razorpay expects paise
+                speed: 'normal'
+              })
+            });
+            const refundBody = (await refundRes.json()) as any;
+            if (refundRes.ok && (refundBody.status === 'processed' || refundBody.status === 'pending')) {
+              payment.status = 'refunded';
+              payment.metadata = { ...payment.metadata, refundResponse: refundBody };
+              await payment.save();
+              booking.paymentStatus = 'REFUNDED';
+            } else {
+              console.error('[BookingRoute] Razorpay Refund Failed:', refundBody);
+            }
+          } catch(err) {
+            console.error('[BookingRoute] Razorpay Refund Request Error:', err);
           }
-        } catch(err) {
-          console.error('[BookingRoute] PayU Refund Request Error:', err);
+        } else {
+          // Legacy PayU fallback
+          const txnid = payment.paymentId || payment.orderId;
+          const cancelRefundToken = 'REF_' + Math.random().toString(36).substring(2, 10).toUpperCase() + '_' + Date.now();
+          const key = env.PAYU_MERCHANT_KEY;
+          const salt = env.PAYU_MERCHANT_SALT;
+          const command = 'cancel_refund_transaction';
+          const hashStr = `${key}|${command}|${txnid}|${salt}`;
+          const hash = sha512(hashStr);
+
+          const url = env.PAYU_ENV !== 'production' ? 'https://test.payu.in/merchant/postservice?form=2' : 'https://info.payu.in/merchant/postservice.php?form=2';
+          const params = new URLSearchParams();
+          params.append('key', key);
+          params.append('command', command);
+          params.append('hash', hash);
+          if(txnid) params.append('var1', txnid);
+          params.append('var2', cancelRefundToken);
+          params.append('var3', refundAmount.toString());
+
+          try {
+            const refundRes = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: params.toString() });
+            const refundBody = (await refundRes.json()) as any;
+            if (refundBody.status === 1) {
+              payment.status = 'refunded';
+              payment.metadata = { ...payment.metadata, refundResponse: refundBody };
+              await payment.save();
+              booking.paymentStatus = 'REFUNDED';
+            } else {
+              console.error('[BookingRoute] PayU Refund Failed:', refundBody);
+            }
+          } catch(err) {
+            console.error('[BookingRoute] PayU Refund Request Error:', err);
+          }
         }
       }
     }

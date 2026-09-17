@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Plus, ShieldCheck, CheckCircle2, AlertCircle, Clock, ShieldAlert } from "lucide-react";
+import { Plus, ShieldCheck, CheckCircle2, AlertCircle, Clock, ShieldAlert, ScanLine } from "lucide-react";
 import { useAuthModal } from "@/components/AuthProvider";
 import { getHostProperties, getHostStats, getOwnerVerificationStatus, createAutoDraftProperty } from "@/lib/api";
 
@@ -123,13 +123,22 @@ export default function HostDashboardPage() {
           <p className="text-sm text-muted">Manage your listings, verification status and bookings.</p>
         </div>
 
-        <Link
-          href="/host/properties/new"
-          className="inline-flex items-center gap-2 rounded-xl bg-brand px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-dark"
-        >
-          <Plus className="h-4 w-4" />
-          Add New Property
-        </Link>
+        <div className="flex flex-wrap gap-3">
+          <Link
+            href="/host/scan"
+            className="inline-flex items-center gap-2 rounded-xl border-2 border-brand bg-white px-5 py-2.5 text-sm font-semibold text-brand transition hover:bg-brand/5"
+          >
+            <ScanLine className="h-4 w-4" />
+            Scan Stay Pass
+          </Link>
+          <Link
+            href="/host/properties/new"
+            className="inline-flex items-center gap-2 rounded-xl bg-brand px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-dark"
+          >
+            <Plus className="h-4 w-4" />
+            Add New Property
+          </Link>
+        </div>
       </div>
 
       {/* Owner Identity & Verification Status Widget */}
