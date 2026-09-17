@@ -16,6 +16,7 @@ const envSchema = z
     PAYU_MERCHANT_SALT: z.string().default('eCwWELxi'),
     RAZORPAY_KEY_ID: z.string().optional(),
     RAZORPAY_KEY_SECRET: z.string().optional(),
+    RAZORPAY_WEBHOOK_SECRET: z.string().optional(),
     API_URL: z.string().default('http://localhost:4000'),
     FRONTEND_URL: z.string().default('http://localhost:3000'),
     R2_ACCOUNT_ID: z.string().min(1).optional(),

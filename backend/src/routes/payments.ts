@@ -559,4 +559,160 @@ router.post('/razorpay-verify', requireAuth, async (req: AuthenticatedRequest, r
   }
 });
 
+// Razorpay Webhook - The real source of truth for Razorpay payments
+router.post('/razorpay-webhook', async (req: any, res, next) => {
+  try {
+    const signature = req.headers['x-razorpay-signature'] as string;
+    const rawBody = req.rawBody; // Captured via express.json verify in index.ts
+    const secret = env.RAZORPAY_WEBHOOK_SECRET || env.RAZORPAY_KEY_SECRET;
+
+    if (!signature || !rawBody || !secret) {
+      res.status(400).send('Missing signature, body, or secret configuration');
+      return;
+    }
+
+    const expectedSignature = crypto.createHmac('sha256', secret).update(rawBody).digest('hex');
+
+    if (expectedSignature !== signature) {
+      console.error('Razorpay Webhook Signature mismatch');
+      res.status(400).send('Invalid signature');
+      return;
+    }
+
+    const { event, payload } = req.body;
+    let orderId: string | undefined;
+    let paymentId: string | undefined;
+    let amount: number | undefined;
+
+    if (event === 'payment.captured' || event === 'payment.authorized') {
+      orderId = payload.payment?.entity?.order_id;
+      paymentId = payload.payment?.entity?.id;
+      amount = payload.payment?.entity?.amount ? payload.payment.entity.amount / 100 : undefined;
+    } else if (event === 'order.paid') {
+      orderId = payload.order?.entity?.id;
+      paymentId = payload.payment?.entity?.id; // Note: 'order.paid' payload may have payment entity nested
+      amount = payload.order?.entity?.amount ? payload.order.entity.amount / 100 : undefined;
+    } else if (event === 'payment.failed') {
+      orderId = payload.payment?.entity?.order_id;
+      paymentId = payload.payment?.entity?.id;
+      amount = payload.payment?.entity?.amount ? payload.payment.entity.amount / 100 : undefined;
+    } else {
+      res.status(200).send('Event ignored');
+      return;
+    }
+
+    if (!orderId) {
+      res.status(400).send('Order ID missing in payload');
+      return;
+    }
+
+    const payment = await Payment.findOne({ orderId });
+    if (!payment) {
+      res.status(404).send('Payment not found');
+      return;
+    }
+
+    if (amount !== undefined && amount !== payment.amount) {
+      console.error(`Amount mismatch in Razorpay webhook for order: ${orderId}`);
+      res.status(400).send('Amount mismatch');
+      return;
+    }
+
+    const isSuccess = event === 'payment.captured' || event === 'order.paid';
+    const targetStatus = isSuccess ? 'captured' : 'failed';
+
+    // Atomic idempotency guard
+    const updatedPayment = await Payment.findOneAndUpdate(
+      {
+        _id: payment._id,
+        status: { $nin: ['captured', 'failed', 'refunded'] },
+      },
+      {
+        $set: {
+          status: targetStatus,
+          paymentId: paymentId || payment.paymentId,
+          'metadata.razorpayWebhookResponse': req.body,
+        },
+      },
+      { new: true }
+    );
+
+    if (!updatedPayment) {
+      res.status(200).send('Already processed');
+      return;
+    }
+
+    if (isSuccess) {
+      const booking = await Booking.findById(payment.booking)
+        .populate<{ guest: { name: string; email: string } }>('guest', 'name email')
+        .populate<{ property: { title: string } }>('property', 'title')
+        .populate<{ room: { name: string; type?: string } }>('room', 'name type')
+        .populate<{ host: { user: { name: string; email: string } } }>({
+          path: 'host',
+          populate: { path: 'user', select: 'name email' },
+        });
+
+      if (booking && booking.paymentStatus !== 'PAID') {
+        booking.paymentStatus = 'PAID';
+        booking.status = 'confirmed';
+        await booking.save();
+
+        const guestName = booking.guest?.name || 'Guest';
+        const guestEmail = booking.guest?.email;
+        const propertyTitle = booking.property?.title || 'Hopebed Property';
+        const roomName = (booking.room as any)?.name || (booking.room as any)?.type || 'Standard Room';
+        const stayPassUrl = `${env.FRONTEND_URL}/bookings`;
+
+        if (guestEmail) {
+          sendBookingConfirmationEmail({
+            guestName,
+            guestEmail,
+            bookingId: String(booking._id),
+            propertyTitle,
+            roomName,
+            checkIn: booking.checkIn.toISOString(),
+            checkOut: booking.checkOut.toISOString(),
+            totalAmount: booking.totalAmount,
+            stayPassUrl,
+          }).catch((err) => console.error('[Webhook] Guest confirmation email error:', err));
+        }
+
+        const hostUser = (booking.host as any)?.user;
+        if (hostUser?.email) {
+          sendHostBookingAlertEmail({
+            hostName: hostUser.name || 'Host',
+            hostEmail: hostUser.email,
+            bookingId: String(booking._id),
+            propertyTitle,
+            roomName,
+            guestName,
+            checkIn: booking.checkIn.toISOString(),
+            checkOut: booking.checkOut.toISOString(),
+            totalAmount: booking.totalAmount,
+          }).catch((err) => console.error('[Webhook] Host booking alert email error:', err));
+        }
+      }
+    } else {
+      const booking = await Booking.findById(payment.booking)
+        .populate<{ guest: { name: string; email: string } }>('guest', 'name email')
+        .populate<{ property: { title: string } }>('property', 'title');
+
+      if (booking && booking.guest?.email) {
+        sendPaymentFailureEmail({
+          guestName: booking.guest.name || 'Guest',
+          guestEmail: booking.guest.email,
+          bookingId: String(booking._id),
+          propertyTitle: booking.property?.title || 'Hopebed Property',
+          amount: payment.amount,
+        }).catch((err) => console.error('[Webhook] Payment failure email error:', err));
+      }
+    }
+
+    res.status(200).send('Webhook processed');
+  } catch (error) {
+    console.error('Razorpay webhook error:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
 export default router;
