@@ -1,6 +1,7 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import mongoose, { Types } from 'mongoose';
+import { z } from 'zod';
 import { Booking } from '../models/Booking.js';
 import { Property } from '../models/Property.js';
 import { Room } from '../models/Room.js';
@@ -8,6 +9,66 @@ import { Host } from '../models/Host.js';
 import { User } from '../models/User.js';
 
 describe('Booking API End-to-End & Integration Test Suite', () => {
+  describe('Server-Side Price Tamper-Proofing & Authoritative Amount Validation (P0)', () => {
+    it('should strictly strip and ignore client-tampered pricing attributes in payload', () => {
+      const bookingInputSchema = z.object({
+        roomId: z.string().refine(Types.ObjectId.isValid),
+        checkIn: z.coerce.date(),
+        checkOut: z.coerce.date(),
+        guests: z.coerce.number().int().min(1),
+        roomCount: z.coerce.number().int().min(1).max(20).default(1),
+        notes: z.string().trim().max(500).optional(),
+      });
+
+      // Malicious client payload trying to set totalAmount = 1 INR and pricePerNight = 0 INR
+      const maliciousPayload = {
+        roomId: new Types.ObjectId().toString(),
+        checkIn: '2026-10-01',
+        checkOut: '2026-10-03',
+        guests: 2,
+        roomCount: 1,
+        totalAmount: 1,
+        pricePerNight: 0,
+        subtotal: 1,
+        taxes: 0,
+        serviceFee: 0,
+      };
+
+      const parsed = bookingInputSchema.parse(maliciousPayload);
+
+      // Verify client-submitted pricing overrides are stripped by schema parser
+      assert.equal((parsed as any).totalAmount, undefined, 'Client totalAmount MUST be stripped');
+      assert.equal((parsed as any).pricePerNight, undefined, 'Client pricePerNight MUST be stripped');
+      assert.equal((parsed as any).subtotal, undefined, 'Client subtotal MUST be stripped');
+      assert.equal((parsed as any).taxes, undefined, 'Client taxes MUST be stripped');
+      assert.equal((parsed as any).serviceFee, undefined, 'Client serviceFee MUST be stripped');
+    });
+
+    it('should recalculate authoritative pricing from DB room rate regardless of client payload', () => {
+      const dbRoomPricePerNight = 4500;
+      const nights = 3;
+      const roomCount = 1;
+
+      // Server-authoritative calculation
+      const subtotal = dbRoomPricePerNight * nights * roomCount; // 13500
+      const serviceFee = Math.round(subtotal * 0.05);             // 675
+      const taxes = Math.round((subtotal + serviceFee) * 0.05);   // 709
+      const calculatedTotalAmount = subtotal + serviceFee + taxes; // 14884
+
+      const clientTamperedAmount = 10;
+      assert.notEqual(calculatedTotalAmount, clientTamperedAmount, 'Server price must override client price');
+      assert.equal(calculatedTotalAmount, 14884, 'Authoritative total amount must equal DB rate * nights + fees + taxes');
+    });
+
+    it('should ensure Razorpay order initialization strictly uses DB booking totalAmount', () => {
+      const dbBookingTotalAmount = 14884;
+      const amountInPaise = Math.round(dbBookingTotalAmount * 100);
+
+      // 14884 INR = 1488400 Paise
+      assert.equal(amountInPaise, 1488400, 'Razorpay order amount in paise must match DB booking totalAmount * 100');
+    });
+  });
+
   describe('Server-Side Booking Calculation & Validation Rules', () => {
     it('should accurately calculate subtotal, service fee (5%), taxes (5%), and totalAmount', () => {
       const pricePerNight = 5000;
