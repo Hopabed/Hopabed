@@ -824,14 +824,4 @@ export async function uploadPropertyImage(propertyId: string, input: { originalF
 	return body.data;
 }
 
-export async function verifyStayPass(bookingId: string) {
-	const response = await apiFetch(`${API_BASE_URL}/api/hosts/verify-pass`, {
-		method: "POST",
-		headers: { "Content-Type": "application/json" },
-		body: JSON.stringify({ bookingId })
-	});
-	const body = (await response.json()) as { data?: Record<string, unknown>; error?: { message?: string } };
-	if (!response.ok || !body.data) throw new Error(body.error?.message ?? "Stay Pass verification failed.");
-	return body.data;
-}
 
