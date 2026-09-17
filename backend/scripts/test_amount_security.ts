@@ -6,6 +6,9 @@ if (!process.env.MONGODB_URI) {
   dotenv.config({ path: path.join(process.cwd(), '.env') });
 }
 
+process.env.NODE_ENV = 'test';
+process.env.JWT_SECRET = 'test_jwt_secret_123456789012345678901234567890123';
+
 import mongoose from 'mongoose';
 import jwt from 'jsonwebtoken';
 
@@ -21,6 +24,7 @@ async function runAmountSecurityTests() {
   }
 
   process.env.NODE_ENV = 'test';
+  process.env.JWT_SECRET = 'test_jwt_secret_123456789012345678901234567890123';
 
   // Dynamic import after env loaded
   const { app } = await import('../src/index.js');
