@@ -1,4 +1,4 @@
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "https://hopebed-api.mithagaris.workers.dev";
+﻿export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "https://hopebed-api.mithagaris.workers.dev";
 
 let isRefreshing = false;
 let refreshSubscribers: ((error: Error | null) => void)[] = [];
@@ -834,3 +834,4 @@ export async function verifyStayPass(bookingId: string) {
 	if (!response.ok || !body.data) throw new Error(body.error?.message ?? "Stay Pass verification failed.");
 	return body.data;
 }
+
