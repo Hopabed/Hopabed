@@ -199,7 +199,6 @@ export default function UserBookingsDashboard() {
         )}
       </div>
 
-      <AuthModal />
     </main>
   );
 }

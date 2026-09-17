@@ -114,7 +114,6 @@ export default function HostLandingPage() {
         </div>
       </section>
 
-      <AuthModal />
     </main>
   );
 }

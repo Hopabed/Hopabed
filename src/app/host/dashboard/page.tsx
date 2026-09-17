@@ -322,7 +322,6 @@ export default function HostDashboardPage() {
         </div>
       )}
 
-      <AuthModal />
     </main>
   );
 }
