@@ -6,7 +6,7 @@ import { getPropertyById, formatInr } from "@/data/properties";
 import { useBooking } from "@/context/BookingContext";
 import { useAuth } from "@/context/AuthContext";
 import { initRazorpayPayment, initRazorpayCheckout, verifyRazorpayPayment } from "@/lib/api";
-import { ShieldCheck, Calendar, Users, MapPin, CheckCircle2, ArrowLeft, Lock, Info } from "lucide-react";
+import { ShieldCheck, Calendar, Users, MapPin, CheckCircle2, ArrowLeft, Lock, Info, XCircle, RefreshCw, AlertTriangle } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -36,12 +36,27 @@ export default function BookingCheckoutPage() {
   const [specialRequests, setSpecialRequests] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Payment Error State & 5-Second Countdown
+  const [paymentStatus, setPaymentStatus] = useState<"IDLE" | "PROCESSING" | "REJECTED">("IDLE");
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [countdown, setCountdown] = useState<number>(5);
+
   useEffect(() => {
     if (user) {
       if (!guestName) setGuestName(user.name);
       if (user.email) setGuestEmail(user.email);
     }
   }, [user]);
+
+  useEffect(() => {
+    let timer: ReturnType<typeof setInterval>;
+    if (paymentStatus === "REJECTED" && countdown > 0) {
+      timer = setInterval(() => {
+        setCountdown((prev) => prev - 1);
+      }, 1000);
+    }
+    return () => clearInterval(timer);
+  }, [paymentStatus, countdown]);
 
   if (!property) {
     return (
@@ -69,6 +84,13 @@ export default function BookingCheckoutPage() {
   const taxes = Math.round(subtotal * 0.12);
   const totalPrice = subtotal + taxes;
 
+  const triggerPaymentRejection = (reason: string) => {
+    setIsSubmitting(false);
+    setPaymentStatus("REJECTED");
+    setErrorMessage(reason);
+    setCountdown(5);
+  };
+
   const handleSubmitBooking = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) {
@@ -77,6 +99,8 @@ export default function BookingCheckoutPage() {
     }
 
     setIsSubmitting(true);
+    setPaymentStatus("PROCESSING");
+    setErrorMessage(null);
 
     try {
       const checkoutInit = await initRazorpayCheckout({
@@ -95,8 +119,7 @@ export default function BookingCheckoutPage() {
       const RazorpayConstructor = (window as unknown as { Razorpay: new (opts: unknown) => { on: (evt: string, fn: (resp?: unknown) => void) => void; open: () => void } }).Razorpay;
 
       if (!RazorpayConstructor) {
-        alert("Razorpay payment gateway SDK failed to load. Please check your internet connection.");
-        setIsSubmitting(false);
+        triggerPaymentRejection("Razorpay payment gateway SDK failed to load. Please check your connection.");
         return;
       }
 
@@ -146,26 +169,25 @@ export default function BookingCheckoutPage() {
           });
 
           setIsSubmitting(false);
+          setPaymentStatus("IDLE");
           router.push(`/booking/confirmation/${checkoutInit.bookingId}`);
         },
         modal: {
           ondismiss: function () {
-            setIsSubmitting(false);
+            triggerPaymentRejection("Payment Rejected: You closed the Razorpay payment window before completing payment.");
           },
         },
       };
 
       const rzp = new RazorpayConstructor(options);
-      rzp.on("payment.failed", function (resp: unknown) {
-        setIsSubmitting(false);
-        console.error("Payment failed on Razorpay:", resp);
-        alert("Payment failed or was declined. Please try again.");
+      rzp.on("payment.failed", function (resp: any) {
+        const failureReason = resp?.error?.description || "Payment was rejected or declined by bank.";
+        triggerPaymentRejection(`Payment Rejected: ${failureReason}`);
       });
       rzp.open();
     } catch (err: any) {
       console.error("Failed to initialize Razorpay checkout:", err);
-      alert(err.message || "Failed to initialize payment gateway.");
-      setIsSubmitting(false);
+      triggerPaymentRejection(err.message || "Unable to reach Razorpay gateway server.");
     }
   };
 
@@ -187,6 +209,46 @@ export default function BookingCheckoutPage() {
 
       <div className="container-page py-8">
         <h1 className="text-3xl font-extrabold text-gray-900 mb-6">Confirm and Pay for Your Stay</h1>
+
+        {/* PAYMENT REJECTED / EXITED ERROR BANNER */}
+        {paymentStatus === "REJECTED" && (
+          <div className="mb-6 rounded-3xl border-2 border-rose-200 bg-rose-50/90 p-6 shadow-lg transition-all animate-in fade-in duration-300">
+            <div className="flex items-start gap-4">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-rose-600 text-white shadow-md">
+                <XCircle className="h-7 w-7" />
+              </div>
+              <div className="flex-1 space-y-2">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <h3 className="text-lg font-extrabold text-rose-950">Payment Rejected / Transaction Cancelled</h3>
+                  <span className="rounded-full bg-rose-200 px-3 py-1 text-xs font-bold text-rose-900">
+                    Status Active {countdown > 0 ? `(Auto-dismiss: ${countdown}s)` : ""}
+                  </span>
+                </div>
+                <p className="text-xs font-semibold text-rose-800 leading-relaxed">
+                  {errorMessage || "The Razorpay payment process was exited or rejected before completion. No funds have been debited from your account."}
+                </p>
+                <div className="pt-2 flex flex-wrap items-center gap-3">
+                  <button
+                    onClick={handleSubmitBooking}
+                    disabled={isSubmitting}
+                    className="flex items-center gap-2 rounded-xl bg-rose-600 px-5 py-2.5 text-xs font-extrabold text-white shadow-md hover:bg-rose-700 transition-all active:scale-95 disabled:opacity-50"
+                  >
+                    <RefreshCw className={`h-4 w-4 ${isSubmitting ? "animate-spin" : ""}`} /> Retry Razorpay Payment Now
+                  </button>
+                  <button
+                    onClick={() => {
+                      setPaymentStatus("IDLE");
+                      setErrorMessage(null);
+                    }}
+                    className="rounded-xl border border-rose-300 bg-white px-4 py-2.5 text-xs font-bold text-rose-900 hover:bg-rose-100 transition-colors"
+                  >
+                    Dismiss Error
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Form */}
