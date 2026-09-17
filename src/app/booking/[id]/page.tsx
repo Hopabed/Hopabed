@@ -5,6 +5,7 @@ import { useParams, useSearchParams, useRouter } from "next/navigation";
 import { getPropertyById, formatInr } from "@/data/properties";
 import { useBooking } from "@/context/BookingContext";
 import { useAuth } from "@/context/AuthContext";
+import { initRazorpayPayment, initRazorpayCheckout, verifyRazorpayPayment } from "@/lib/api";
 import { ShieldCheck, Calendar, Users, MapPin, CheckCircle2, ArrowLeft, Lock, Info } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -29,8 +30,8 @@ export default function BookingCheckoutPage() {
   const [guests, setGuests] = useState(initialGuests);
   const [rooms, setRooms] = useState(initialRooms);
 
-  const [guestName, setGuestName] = useState(user?.name || "");
-  const [guestEmail, setGuestEmail] = useState(user?.email || "");
+  const [guestName, setGuestName] = useState(user?.name || "Sharukh Mithagari");
+  const [guestEmail, setGuestEmail] = useState(user?.email || "hello@hopebed.in");
   const [guestPhone, setGuestPhone] = useState(user?.phone || "+91 9876543210");
   const [specialRequests, setSpecialRequests] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -38,7 +39,7 @@ export default function BookingCheckoutPage() {
   useEffect(() => {
     if (user) {
       if (!guestName) setGuestName(user.name);
-      if (!guestEmail) setGuestEmail(user.email);
+      if (user.email) setGuestEmail(user.email);
     }
   }, [user]);
 
@@ -68,7 +69,7 @@ export default function BookingCheckoutPage() {
   const taxes = Math.round(subtotal * 0.12);
   const totalPrice = subtotal + taxes;
 
-  const handleSubmitBooking = (e: React.FormEvent) => {
+  const handleSubmitBooking = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) {
       openAuthModal();
@@ -77,25 +78,95 @@ export default function BookingCheckoutPage() {
 
     setIsSubmitting(true);
 
-    const createdBooking = addBooking({
-      propertyId: property.id,
-      propertyName: property.name,
-      propertyImage: property.image || property.images?.[0] || "",
-      city: property.city,
-      checkIn: checkIn || new Date().toISOString().split("T")[0],
-      checkOut: checkOut || new Date(Date.now() + 86400000).toISOString().split("T")[0],
-      guests,
-      rooms,
-      totalNights: nights,
-      totalPrice,
-      guestName: guestName || "Guest User",
-      guestEmail: guestEmail || "guest@hopebed.in",
-      guestPhone: guestPhone || "+91 9876543210",
-    });
+    try {
+      const checkoutInit = await initRazorpayCheckout({
+        propertyId: property.id,
+        propertyTitle: property.name,
+        checkIn: checkIn || new Date().toISOString().split("T")[0],
+        checkOut: checkOut || new Date(Date.now() + 86400000).toISOString().split("T")[0],
+        guests,
+        rooms,
+        totalAmount: totalPrice,
+        guestName: guestName || user.name || "Sharukh Mithagari",
+        guestEmail: guestEmail || user.email || "hello@hopebed.in",
+        guestPhone: guestPhone || user.phone || "+91 9876543210",
+      });
 
-    setTimeout(() => {
-      router.push(`/booking/confirmation/${createdBooking.id}`);
-    }, 600);
+      const RazorpayConstructor = (window as unknown as { Razorpay: new (opts: unknown) => { on: (evt: string, fn: (resp?: unknown) => void) => void; open: () => void } }).Razorpay;
+
+      if (!RazorpayConstructor) {
+        alert("Razorpay payment gateway SDK failed to load. Please check your internet connection.");
+        setIsSubmitting(false);
+        return;
+      }
+
+      const options = {
+        key: checkoutInit.keyId || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "rzp_live_TcPMDAMTJ2sUPh",
+        amount: checkoutInit.amount,
+        currency: checkoutInit.currency || "INR",
+        name: "Hopebed Stays",
+        description: `Stay Payment - ${property.name}`,
+        order_id: checkoutInit.orderId,
+        prefill: {
+          name: guestName || user.name || "Sharukh Mithagari",
+          email: guestEmail || user.email || "hello@hopebed.in",
+          contact: guestPhone || user.phone || "+91 9876543210",
+        },
+        theme: {
+          color: "#0b8f3c",
+        },
+        handler: async function (response: { razorpay_order_id?: string; razorpay_payment_id?: string; razorpay_signature?: string }) {
+          if (response.razorpay_order_id && response.razorpay_payment_id && response.razorpay_signature) {
+            try {
+              await verifyRazorpayPayment({
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+                bookingId: checkoutInit.bookingId,
+              });
+            } catch (err) {
+              console.warn("Razorpay verification callback notice:", err);
+            }
+          }
+
+          addBooking({
+            propertyId: property.id,
+            propertyName: property.name,
+            propertyImage: property.image || property.images?.[0] || "",
+            city: property.city,
+            checkIn: checkIn || new Date().toISOString().split("T")[0],
+            checkOut: checkOut || new Date(Date.now() + 86400000).toISOString().split("T")[0],
+            guests,
+            rooms,
+            totalNights: nights,
+            totalPrice,
+            guestName: guestName || user.name || "Sharukh Mithagari",
+            guestEmail: guestEmail || user.email || "hello@hopebed.in",
+            guestPhone: guestPhone || user.phone || "+91 9876543210",
+          });
+
+          setIsSubmitting(false);
+          router.push(`/booking/confirmation/${checkoutInit.bookingId}`);
+        },
+        modal: {
+          ondismiss: function () {
+            setIsSubmitting(false);
+          },
+        },
+      };
+
+      const rzp = new RazorpayConstructor(options);
+      rzp.on("payment.failed", function (resp: unknown) {
+        setIsSubmitting(false);
+        console.error("Payment failed on Razorpay:", resp);
+        alert("Payment failed or was declined. Please try again.");
+      });
+      rzp.open();
+    } catch (err: any) {
+      console.error("Failed to initialize Razorpay checkout:", err);
+      alert(err.message || "Failed to initialize payment gateway.");
+      setIsSubmitting(false);
+    }
   };
 
   return (

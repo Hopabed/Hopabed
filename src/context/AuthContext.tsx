@@ -37,7 +37,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 const DEMO_USER: User = {
   id: "usr-demo-101",
   name: "Sharukh Mithagari",
-  email: "demo@hopebed.in",
+  email: "hello@hopebed.in",
   role: "GUEST",
   phone: "+91 98765 43210",
   avatarUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80",
@@ -53,7 +53,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const stored = localStorage.getItem("hopebed_user");
       if (stored) {
-        setUser(JSON.parse(stored));
+        const parsed = JSON.parse(stored);
+        if (parsed.email === "demo@hopebed.in" || !parsed.email) {
+          parsed.email = "hello@hopebed.in";
+          localStorage.setItem("hopebed_user", JSON.stringify(parsed));
+        }
+        setUser(parsed);
       } else {
         setUser(DEMO_USER);
         localStorage.setItem("hopebed_user", JSON.stringify(DEMO_USER));

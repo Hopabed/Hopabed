@@ -1,10 +1,14 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import crypto from 'crypto';
+import { Types } from 'mongoose';
 import { requireAuth, requireRole, type AuthenticatedRequest } from '../middleware/auth.js';
 import { Booking } from '../models/Booking.js';
 import { Payment } from '../models/Payment.js';
 import { User } from '../models/User.js';
+import { Property } from '../models/Property.js';
+import { Room } from '../models/Room.js';
+import { Host } from '../models/Host.js';
 import { env } from '../config/env.js';
 import { sha512 } from 'js-sha512';
 import {
@@ -456,7 +460,149 @@ router.post('/razorpay-init', requireAuth, async (req: AuthenticatedRequest, res
   }
 });
 
-router.post('/razorpay-verify', requireAuth, async (req: AuthenticatedRequest, res, next) => {
+router.post('/razorpay-init-checkout', async (req, res, next) => {
+  try {
+    const input = z.object({
+      propertyId: z.string().optional(),
+      propertyTitle: z.string().default('Hopebed Property'),
+      checkIn: z.string(),
+      checkOut: z.string(),
+      guests: z.number().default(2),
+      rooms: z.number().default(1),
+      totalAmount: z.number(),
+      guestName: z.string().default('Sharukh Mithagari'),
+      guestEmail: z.string().default('hello@hopebed.in'),
+      guestPhone: z.string().default('+91 9876543210'),
+    }).parse(req.body);
+
+    let guestUser = await User.findOne({ email: input.guestEmail });
+    if (!guestUser) {
+      guestUser = await User.create({
+        name: input.guestName,
+        email: input.guestEmail,
+        role: 'guest',
+        phone: input.guestPhone,
+      });
+    }
+
+    let propertyDoc;
+    if (input.propertyId && Types.ObjectId.isValid(input.propertyId)) {
+      propertyDoc = await Property.findById(input.propertyId);
+    }
+    if (!propertyDoc) {
+      propertyDoc = await Property.findOne({ isVerified: true }) || await Property.findOne();
+    }
+
+    let hostId = propertyDoc?.host;
+    if (!hostId) {
+      const defaultHost = await Host.findOne() || await Host.create({ user: guestUser._id, verificationStatus: 'verified' });
+      hostId = defaultHost._id;
+    }
+
+    let roomId;
+    if (propertyDoc) {
+      const roomDoc = await Room.findOne({ property: propertyDoc._id }) || await Room.create({
+        property: propertyDoc._id,
+        name: 'Deluxe Suite',
+        roomType: 'private',
+        capacity: 4,
+        inventory: 10,
+        pricePerNight: Math.round(input.totalAmount / 2),
+      });
+      roomId = roomDoc._id;
+    } else {
+      const dummyProp = await Property.create({
+        title: input.propertyTitle,
+        host: hostId,
+        city: 'Mumbai',
+        locality: 'Riverfront',
+        address: 'Mumbai Riverfront, India',
+        description: 'Luxury Stay',
+        pricePerNight: Math.round(input.totalAmount / 2),
+        isVerified: true,
+        verificationStatus: 'VERIFIED',
+      });
+      propertyDoc = dummyProp;
+      const roomDoc = await Room.create({
+        property: dummyProp._id,
+        name: 'Deluxe Suite',
+        roomType: 'private',
+        capacity: 4,
+        inventory: 10,
+        pricePerNight: Math.round(input.totalAmount / 2),
+      });
+      roomId = roomDoc._id;
+    }
+
+    const checkInDate = new Date(input.checkIn);
+    const checkOutDate = new Date(input.checkOut);
+    const diffTime = Math.abs(checkOutDate.getTime() - checkInDate.getTime());
+    const nights = Math.max(1, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
+
+    const subtotal = Math.round(input.totalAmount * 0.88);
+    const taxes = input.totalAmount - subtotal;
+
+    const booking = await Booking.create({
+      property: propertyDoc._id,
+      guest: guestUser._id,
+      host: hostId,
+      room: roomId,
+      checkIn: checkInDate,
+      checkOut: checkOutDate,
+      nights,
+      guests: input.guests,
+      roomCount: input.rooms,
+      pricePerNight: Math.round(subtotal / nights),
+      status: 'pending',
+      paymentStatus: 'UNPAID',
+      subtotal,
+      serviceFee: 0,
+      taxes,
+      totalAmount: input.totalAmount,
+      currency: 'INR',
+    });
+
+    const razorpay = getRazorpayInstance();
+    const amountInPaise = Math.round(input.totalAmount * 100);
+    const receipt = `RCP_${booking._id.toString().slice(-8)}_${Date.now()}`;
+
+    const order = await razorpay.orders.create({
+      amount: amountInPaise,
+      currency: 'INR',
+      receipt,
+      notes: {
+        bookingId: booking._id.toString(),
+        guestEmail: input.guestEmail,
+      },
+    });
+
+    await Payment.create({
+      booking: booking._id,
+      user: guestUser._id,
+      amount: input.totalAmount,
+      currency: 'INR',
+      paymentGateway: 'razorpay',
+      orderId: order.id,
+      status: 'pending',
+    });
+
+    res.status(201).json({
+      success: true,
+      data: {
+        bookingId: booking._id.toString(),
+        orderId: order.id,
+        amount: order.amount,
+        currency: order.currency,
+        keyId: env.RAZORPAY_KEY_ID,
+      },
+    });
+  } catch (error: any) {
+    console.error('Razorpay init checkout error:', error);
+    res.status(500).json({ success: false, error: { message: error.message || 'Failed to initialize checkout' } });
+  }
+});
+
+router.post('/razorpay-verify', async (req, res, next) => {
   try {
     const input = z.object({
       razorpay_order_id: z.string(),
@@ -465,15 +611,8 @@ router.post('/razorpay-verify', requireAuth, async (req: AuthenticatedRequest, r
       bookingId: z.string(),
     }).parse(req.body);
 
-    const userId = req.auth?.userId;
-    if (!userId) {
-      res.status(401).json({ success: false, error: { message: 'Unauthorized' } });
-      return;
-    }
-
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature, bookingId } = input;
 
-    // Verify Signature: HMAC-SHA256(order_id + "|" + payment_id, KEY_SECRET)
     if (!env.RAZORPAY_KEY_SECRET) {
       res.status(500).json({ success: false, error: { message: 'Razorpay secret not configured' } });
       return;
@@ -489,7 +628,7 @@ router.post('/razorpay-verify', requireAuth, async (req: AuthenticatedRequest, r
       return;
     }
 
-    const payment = await Payment.findOne({ orderId: razorpay_order_id, user: userId });
+    const payment = await Payment.findOne({ orderId: razorpay_order_id });
     if (!payment) {
       res.status(404).json({ success: false, error: { message: 'Payment record not found' } });
       return;

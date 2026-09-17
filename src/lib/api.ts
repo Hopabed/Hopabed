@@ -1,4 +1,4 @@
-﻿export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "https://hopebed-api.mithagaris.workers.dev";
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "https://hopebed-api.mithagaris.workers.dev";
 
 let isRefreshing = false;
 let refreshSubscribers: ((error: Error | null) => void)[] = [];
@@ -383,14 +383,37 @@ export async function verifyPayUPayment(bookingId: string) {
 }
 
 export async function initRazorpayPayment(bookingId: string) {
-
-
 	const response = await apiFetch(`${API_BASE_URL}/api/payments/razorpay-init`, {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },
 		body: JSON.stringify({ bookingId })});
 	const body = (await response.json()) as { data?: { orderId: string, amount: number, currency: string, keyId: string }; error?: { message?: string } };
 	if (!response.ok || !body.data) throw new Error(body.error?.message ?? "Failed to initialize payment.");
+	return body.data;
+}
+
+export async function initRazorpayCheckout(data: {
+	propertyId?: string;
+	propertyTitle: string;
+	checkIn: string;
+	checkOut: string;
+	guests: number;
+	rooms: number;
+	totalAmount: number;
+	guestName: string;
+	guestEmail: string;
+	guestPhone: string;
+}) {
+	const response = await fetch(`${API_BASE_URL}/api/payments/razorpay-init-checkout`, {
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify(data),
+	});
+	const body = (await response.json()) as {
+		data?: { bookingId: string; orderId: string; amount: number; currency: string; keyId: string };
+		error?: { message?: string };
+	};
+	if (!response.ok || !body.data) throw new Error(body.error?.message ?? "Failed to initialize payment checkout.");
 	return body.data;
 }
 
