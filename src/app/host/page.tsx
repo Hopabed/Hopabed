@@ -5,17 +5,33 @@ import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { Building, ShieldCheck, TrendingUp, Users, CheckCircle2, ArrowRight, Sparkles } from "lucide-react";
 import { AuthModal } from "@/components/AuthModal";
+import { registerHost } from "@/lib/api";
+import { useRouter } from "next/navigation";
 
 export default function HostLandingPage() {
   const { user, toggleHostMode, openAuthModal } = useAuth();
+  const router = useRouter();
 
-  const handleStartHosting = () => {
+  const handleStartHosting = async () => {
     if (!user) {
       openAuthModal();
       return;
     }
-    if (user.role !== "HOST") {
-      toggleHostMode();
+    
+    try {
+      if (user.role !== "HOST" && user.role !== "host") {
+        await registerHost({ businessName: user.name + " Properties" });
+        toggleHostMode(); // Update local frontend state
+      }
+      router.push("/host/dashboard");
+    } catch (error: any) {
+      console.error("Failed to register as host", error);
+      if (error.message?.includes("already registered")) {
+        toggleHostMode();
+        router.push("/host/dashboard");
+      } else {
+        alert(error.message || "Failed to register as host. Please try again later.");
+      }
     }
   };
 
@@ -29,10 +45,12 @@ export default function HostLandingPage() {
             <Sparkles className="h-4 w-4" /> Become a Hopebed Host
           </span>
           <h1 className="mt-6 text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl">
-            Turn Your Property into a Thriving Verified Stay
+            List your property
           </h1>
           <p className="mt-4 text-base sm:text-lg text-blue-100 leading-relaxed max-w-2xl mx-auto">
-            Join thousands of hotel owners, villa hosts, and homestay proprietors across India. List your stay, reach millions of travelers, and enjoy guaranteed payouts.
+            <span className="block sm:inline text-xl text-white font-bold mb-2 sm:mb-0">Start earning in 25 mins in just 2 clicks.</span>
+            <br className="hidden sm:block" />
+            Join thousands of hotel owners, villa hosts, and homestay proprietors across India to reach millions of travelers and enjoy guaranteed payouts.
           </p>
 
           <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">

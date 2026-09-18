@@ -1,31 +1,25 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from "react";
+import { getCurrentUser, authenticateWithPassword, authenticateWithGoogle, logoutUser } from "@/lib/api";
 
-export type UserRole = "GUEST" | "HOST" | "ADMIN";
+export type UserRole = "GUEST" | "HOST" | "ADMIN" | "guest" | "host" | "admin";
 
 export type User = {
   id: string;
   name: string;
   email: string;
   role: UserRole;
-  phone?: string;
   avatarUrl?: string;
-  isHostApproved?: boolean;
-};
-
-type CustomUserDetails = {
-  name?: string;
-  avatarUrl?: string;
-  phone?: string;
 };
 
 type AuthContextType = {
   user: User | null;
   isAuthenticated: boolean;
-  login: (email: string, role?: UserRole, customDetails?: CustomUserDetails) => void;
-  signup: (name: string, email: string, role?: UserRole, avatarUrl?: string) => void;
-  logout: () => void;
+  login: (email: string, password: string) => Promise<void>;
+  signup: (name: string, email: string, password: string) => Promise<void>;
+  googleLogin: (credential: string) => Promise<void>;
+  logout: () => Promise<void>;
   toggleHostMode: () => void;
   isAuthModalOpen: boolean;
   openAuthModal: () => void;
@@ -34,88 +28,44 @@ type AuthContextType = {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const DEMO_USER: User = {
-  id: "usr-demo-101",
-  name: "Sharukh Mithagari",
-  email: "hello@hopebed.in",
-  role: "GUEST",
-  phone: "+91 98765 43210",
-  avatarUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80",
-  isHostApproved: true,
-};
-
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [initialized, setInitialized] = useState(false);
 
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem("hopebed_user");
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (parsed.email === "demo@hopebed.in" || !parsed.email) {
-          parsed.email = "hello@hopebed.in";
-          localStorage.setItem("hopebed_user", JSON.stringify(parsed));
-        }
-        setUser(parsed);
-      } else {
-        setUser(null);
-      }
-    } catch {
-      setUser(null);
-    }
-    setInitialized(true);
+    getCurrentUser()
+      .then((u) => setUser(u as User))
+      .catch(() => setUser(null))
+      .finally(() => setInitialized(true));
   }, []);
 
-  function saveUser(newUser: User | null) {
-    setUser(newUser);
-    if (newUser) {
-      localStorage.setItem("hopebed_user", JSON.stringify(newUser));
-    } else {
-      localStorage.removeItem("hopebed_user");
-    }
-  }
-
-  function login(email: string, role: UserRole = "GUEST", customDetails?: CustomUserDetails) {
-    const nameFromEmail = email.split("@")[0];
-    const capitalizedName = nameFromEmail.charAt(0).toUpperCase() + nameFromEmail.slice(1);
-    const loggedInUser: User = {
-      id: `usr-${Date.now()}`,
-      name: customDetails?.name || capitalizedName || "Guest User",
-      email,
-      role,
-      phone: customDetails?.phone || "+91 98765 43210",
-      avatarUrl: customDetails?.avatarUrl || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&q=80",
-      isHostApproved: role === "HOST",
-    };
-    saveUser(loggedInUser);
+  async function login(email: string, password: string) {
+    const res = await authenticateWithPassword({ email, password, mode: "login" });
+    setUser(res.data.user as User);
     setIsAuthModalOpen(false);
   }
 
-  function signup(name: string, email: string, role: UserRole = "GUEST", avatarUrl?: string) {
-    const newUser: User = {
-      id: `usr-${Date.now()}`,
-      name,
-      email,
-      role,
-      phone: "+91 98765 43210",
-      avatarUrl: avatarUrl || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&q=80",
-      isHostApproved: role === "HOST",
-    };
-    saveUser(newUser);
+  async function signup(name: string, email: string, password: string) {
+    const res = await authenticateWithPassword({ name, email, password, mode: "signup" });
+    setUser(res.data.user as User);
     setIsAuthModalOpen(false);
   }
 
-  function logout() {
-    saveUser(null);
+  async function googleLogin(credential: string) {
+    const res = await authenticateWithGoogle(credential);
+    setUser(res.data.user as User);
+    setIsAuthModalOpen(false);
+  }
+
+  async function logout() {
+    await logoutUser();
+    setUser(null);
   }
 
   function toggleHostMode() {
     if (!user) return;
-    const newRole: UserRole = user.role === "HOST" ? "GUEST" : "HOST";
-    const updated = { ...user, role: newRole, isHostApproved: true };
-    saveUser(updated);
+    setUser({ ...user, role: String(user.role).toUpperCase() === "HOST" ? "GUEST" : "HOST" });
   }
 
   return (
@@ -125,6 +75,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         isAuthenticated: !!user,
         login,
         signup,
+        googleLogin,
         logout,
         toggleHostMode,
         isAuthModalOpen,

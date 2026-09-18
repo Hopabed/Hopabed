@@ -35,7 +35,7 @@ function parseGoogleJwt(token: string) {
 }
 
 export function AuthModal() {
-  const { isAuthModalOpen, closeAuthModal, login, signup } = useAuth();
+  const { isAuthModalOpen, closeAuthModal, login, signup, googleLogin } = useAuth();
   const [mode, setMode] = useState<"login" | "signup">("login");
 
   const [name, setName] = useState("");
@@ -59,17 +59,9 @@ export function AuthModal() {
         callback: async ({ credential }) => {
           try {
             setError(null);
-            const payload = parseGoogleJwt(credential);
-            if (payload && payload.email) {
-              login(payload.email, "GUEST", {
-                name: payload.name || payload.given_name || payload.email.split("@")[0],
-                avatarUrl: payload.picture || undefined,
-              });
-            } else {
-              login("user@gmail.com", "GUEST");
-            }
-          } catch {
-            login("user@gmail.com", "GUEST");
+            await googleLogin(credential);
+          } catch (err: any) {
+            setError(err.message || "Google sign-in failed");
           }
         },
       });
@@ -83,7 +75,7 @@ export function AuthModal() {
 
   if (!isAuthModalOpen) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
@@ -91,23 +83,28 @@ export function AuthModal() {
       setError("Please enter your email address");
       return;
     }
+    if (!password) {
+      setError("Please enter your password");
+      return;
+    }
 
-    if (mode === "signup") {
-      if (!name) {
-        setError("Please enter your full name");
-        return;
+    try {
+      if (mode === "signup") {
+        if (!name) {
+          setError("Please enter your full name");
+          return;
+        }
+        await signup(name, email, password);
+      } else {
+        await login(email, password);
       }
-      signup(name, email, "GUEST");
-    } else {
-      login(email, "GUEST");
+    } catch (err: any) {
+      setError(err.message || "Authentication failed");
     }
   };
 
   const handleGoogleMockLogin = () => {
-    login("user@gmail.com", "GUEST", {
-      name: "Sharukh Mithagari",
-      avatarUrl: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&q=80",
-    });
+    setError("Please wait for Google Sign-In to initialize.");
   };
 
   return (

@@ -1,39 +1,50 @@
 "use client";
 
-import React, { useState } from "react";
-import { useBooking } from "@/context/BookingContext";
+import React, { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { formatInr, Property } from "@/data/properties";
+import { formatInr } from "@/data/properties";
 import { CITIES } from "@/data/cities";
+import { getHostProperties, createProperty, uploadPropertyImage } from "@/lib/api";
 import {
   Building,
   PlusCircle,
   ShieldCheck,
   Trash2,
-  CheckCircle2,
   TrendingUp,
   MapPin,
   X,
-  Sparkles,
   UserCheck,
 } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
 import { AuthModal } from "@/components/AuthModal";
 
 export default function HostDashboardPage() {
-  const { hostProperties, addHostProperty, toggleVerifyProperty, deleteHostProperty } = useBooking();
   const { user, openAuthModal } = useAuth();
+
+  const [properties, setProperties] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [name, setName] = useState("");
   const [city, setCity] = useState("Mumbai");
   const [state, setState] = useState("Maharashtra");
-  const [type, setType] = useState<Property["type"]>("hotels");
+  const [type, setType] = useState("hotel");
   const [pricePerNight, setPricePerNight] = useState(3500);
   const [description, setDescription] = useState("");
-  const [image, setImage] = useState("https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80");
+  const [imageFile, setImageFile] = useState<File | null>(null);
   const [amenitiesInput, setAmenitiesInput] = useState("WiFi, AC, Breakfast, Parking");
+
+  useEffect(() => {
+    if (user?.role === "HOST") {
+      getHostProperties()
+        .then((data) => setProperties(data || []))
+        .catch((err) => console.error("Failed to load properties", err))
+        .finally(() => setIsLoading(false));
+    } else {
+      setIsLoading(false);
+    }
+  }, [user]);
 
   if (!user) {
     return (
@@ -56,39 +67,61 @@ export default function HostDashboardPage() {
     );
   }
 
-  const handleAddPropertySubmit = (e: React.FormEvent) => {
+  const handleAddPropertySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const amenitiesArr = amenitiesInput.split(",").map((s) => s.trim()).filter(Boolean);
-    addHostProperty({
-      name,
-      location: `${city}, ${state}`,
-      locality: city,
-      city,
-      state,
-      rating: 4.8,
-      reviewCount: 1,
-      pricePerNight: Number(pricePerNight),
-      type,
-      propertyType: type,
-      image,
-      images: [image],
-      isVerified: false,
-      description,
-      address: `${city} City Center, ${state}`,
-      amenities: amenitiesArr,
-      maxGuests: 4,
-      roomsCount: 2,
-      hostName: user.name,
-      hostAvatar: user.avatarUrl,
-      houseRules: ["Check-in at 2 PM", "Government ID required"],
-    });
+    setIsSubmitting(true);
+    
+    try {
+      const amenitiesArr = amenitiesInput.split(",").map((s) => s.trim()).filter(Boolean);
+      
+      const newProperty = await createProperty({
+        title: name,
+        propertyType: type,
+        city,
+        state,
+        pricePerNight: Number(pricePerNight),
+        description,
+        amenities: amenitiesArr,
+      });
 
-    setIsAddModalOpen(false);
-    setName("");
-    setDescription("");
+      if (imageFile && newProperty._id) {
+        const reader = new FileReader();
+        reader.readAsDataURL(imageFile);
+        reader.onload = async () => {
+          const base64 = reader.result as string;
+          try {
+            await uploadPropertyImage(newProperty._id, {
+              originalFilename: imageFile.name,
+              mimeType: imageFile.type,
+              fileBase64: base64,
+              isPrimary: true
+            });
+            // Refresh properties after image upload
+            const updated = await getHostProperties();
+            setProperties(updated || []);
+          } catch (imgErr) {
+            console.error("Image upload failed", imgErr);
+            alert("Property created, but image upload failed.");
+            setProperties(prev => [newProperty, ...prev]);
+          }
+        };
+      } else {
+        setProperties(prev => [newProperty, ...prev]);
+      }
+
+      setIsAddModalOpen(false);
+      setName("");
+      setDescription("");
+      setImageFile(null);
+    } catch (error) {
+      console.error("Failed to create property", error);
+      alert("Failed to create property. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  const totalVerifiedCount = hostProperties.filter((p) => p.isVerified).length;
+  const totalVerifiedCount = properties.filter((p) => p.isVerified).length;
 
   return (
     <main className="bg-gray-50 min-h-screen py-10">
@@ -118,7 +151,7 @@ export default function HostDashboardPage() {
           <div className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm flex items-center justify-between">
             <div>
               <p className="text-xs font-bold uppercase tracking-wider text-gray-400">Total Listings</p>
-              <p className="text-3xl font-extrabold text-gray-900 mt-1">{hostProperties.length}</p>
+              <p className="text-3xl font-extrabold text-gray-900 mt-1">{properties.length}</p>
             </div>
             <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50 text-brand">
               <Building className="h-6 w-6" />
@@ -138,7 +171,7 @@ export default function HostDashboardPage() {
           <div className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm flex items-center justify-between">
             <div>
               <p className="text-xs font-bold uppercase tracking-wider text-gray-400">Estimated Monthly Earnings</p>
-              <p className="text-3xl font-extrabold text-brand mt-1">{formatInr(128500)}</p>
+              <p className="text-3xl font-extrabold text-brand mt-1">{formatInr(0)}</p>
             </div>
             <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-50 text-amber-600">
               <TrendingUp className="h-6 w-6" />
@@ -150,62 +183,52 @@ export default function HostDashboardPage() {
         <div className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm space-y-6">
           <div className="flex items-center justify-between border-b border-gray-100 pb-4">
             <h2 className="text-xl font-extrabold text-gray-900">Your Property Inventory</h2>
-            <span className="text-xs text-gray-500 font-medium">Click &quot;Toggle Verify&quot; to test Admin Verification</span>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {hostProperties.map((property) => (
-              <div
-                key={property.id}
-                className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm flex flex-col justify-between"
-              >
-                <div>
-                  <div className="relative aspect-[16/10] w-full bg-gray-100">
-                    <Image src={property.image} alt={property.name} fill className="object-cover" />
-                    {property.isVerified ? (
-                      <span className="absolute left-3 top-3 flex items-center gap-1 rounded-full bg-emerald-600 px-2.5 py-1 text-[10px] font-bold text-white shadow-sm">
-                        <ShieldCheck className="h-3.5 w-3.5" /> Verified
-                      </span>
-                    ) : (
-                      <span className="absolute left-3 top-3 flex items-center gap-1 rounded-full bg-amber-500 px-2.5 py-1 text-[10px] font-bold text-white shadow-sm">
-                        Pending Verification
-                      </span>
-                    )}
-                  </div>
+          {isLoading ? (
+            <p className="text-sm text-gray-500 py-10 text-center">Loading properties...</p>
+          ) : properties.length === 0 ? (
+            <p className="text-sm text-gray-500 py-10 text-center">You haven't listed any properties yet.</p>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {properties.map((property) => (
+                <div
+                  key={property._id || property.id}
+                  className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm flex flex-col justify-between"
+                >
+                  <div>
+                    <div className="relative aspect-[16/10] w-full bg-gray-100">
+                      {property.primaryImage || property.image ? (
+                        <Image src={property.primaryImage || property.image} alt={property.title || property.name} fill className="object-cover" />
+                      ) : (
+                        <div className="absolute inset-0 flex items-center justify-center bg-gray-200 text-gray-400">
+                          <Building className="h-10 w-10" />
+                        </div>
+                      )}
+                      
+                      {property.isVerified ? (
+                        <span className="absolute left-3 top-3 flex items-center gap-1 rounded-full bg-emerald-600 px-2.5 py-1 text-[10px] font-bold text-white shadow-sm">
+                          <ShieldCheck className="h-3.5 w-3.5" /> Verified
+                        </span>
+                      ) : (
+                        <span className="absolute left-3 top-3 flex items-center gap-1 rounded-full bg-amber-500 px-2.5 py-1 text-[10px] font-bold text-white shadow-sm">
+                          {property.verificationStatus || 'Pending Verification'}
+                        </span>
+                      )}
+                    </div>
 
-                  <div className="p-4 space-y-2">
-                    <h3 className="font-bold text-gray-900 line-clamp-1">{property.name}</h3>
-                    <p className="text-xs text-gray-500 flex items-center gap-1">
-                      <MapPin className="h-3 w-3 text-brand" /> {property.city}, {property.state}
-                    </p>
-                    <p className="text-sm font-extrabold text-brand">{formatInr(property.pricePerNight)} / night</p>
+                    <div className="p-4 space-y-2">
+                      <h3 className="font-bold text-gray-900 line-clamp-1">{property.title || property.name}</h3>
+                      <p className="text-xs text-gray-500 flex items-center gap-1">
+                        <MapPin className="h-3 w-3 text-brand" /> {property.city}, {property.state}
+                      </p>
+                      <p className="text-sm font-extrabold text-brand">{formatInr(property.pricePerNight || 0)} / night</p>
+                    </div>
                   </div>
                 </div>
-
-                {/* Card Actions */}
-                <div className="border-t border-gray-100 p-3 bg-gray-50 flex items-center justify-between gap-2">
-                  <button
-                    onClick={() => toggleVerifyProperty(property.id)}
-                    className={`rounded-xl px-3 py-1.5 text-xs font-bold transition-all ${
-                      property.isVerified
-                        ? "bg-emerald-100 text-emerald-800 hover:bg-emerald-200"
-                        : "bg-amber-100 text-amber-800 hover:bg-amber-200"
-                    }`}
-                  >
-                    {property.isVerified ? "Mark Unverified" : "Simulate Admin Verification"}
-                  </button>
-
-                  <button
-                    onClick={() => deleteHostProperty(property.id)}
-                    className="rounded-xl p-2 text-gray-400 hover:bg-rose-50 hover:text-rose-600 transition-colors"
-                    title="Delete Property"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
@@ -254,14 +277,14 @@ export default function HostDashboardPage() {
                   <label className="text-xs font-bold text-gray-700 block mb-1">Property Type</label>
                   <select
                     value={type}
-                    onChange={(e) => setType(e.target.value as Property["type"])}
+                    onChange={(e) => setType(e.target.value)}
                     className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm font-medium outline-none bg-white"
                   >
-                    <option value="hotels">Hotel</option>
-                    <option value="villas">Villa</option>
-                    <option value="apartments">Apartment</option>
-                    <option value="homestays">Homestay</option>
-                    <option value="resorts">Resort</option>
+                    <option value="hotel">Hotel</option>
+                    <option value="villa">Villa</option>
+                    <option value="apartment">Apartment</option>
+                    <option value="homestay">Homestay</option>
+                    <option value="resort">Resort</option>
                   </select>
                 </div>
               </div>
@@ -279,11 +302,11 @@ export default function HostDashboardPage() {
               </div>
 
               <div>
-                <label className="text-xs font-bold text-gray-700 block mb-1">Image URL</label>
+                <label className="text-xs font-bold text-gray-700 block mb-1">Property Image</label>
                 <input
-                  type="url"
-                  value={image}
-                  onChange={(e) => setImage(e.target.value)}
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => setImageFile(e.target.files?.[0] || null)}
                   required
                   className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-medium outline-none focus:border-brand"
                 />
@@ -313,9 +336,10 @@ export default function HostDashboardPage() {
 
               <button
                 type="submit"
-                className="w-full rounded-2xl bg-brand py-3.5 text-center text-sm font-extrabold text-white shadow-lg hover:bg-brand-dark transition-all"
+                disabled={isSubmitting}
+                className="w-full rounded-2xl bg-brand py-3.5 text-center text-sm font-extrabold text-white shadow-lg hover:bg-brand-dark transition-all disabled:opacity-50"
               >
-                Create Listing Now
+                {isSubmitting ? "Creating Listing..." : "Create Listing Now"}
               </button>
             </form>
           </div>

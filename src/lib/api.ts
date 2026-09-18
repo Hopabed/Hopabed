@@ -851,5 +851,3 @@ export async function uploadPropertyImage(propertyId: string, input: { originalF
 	if (!response.ok || !body.data) throw new Error(body.error?.message ?? "Image upload failed.");
 	return body.data;
 }
-
-

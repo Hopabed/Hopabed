@@ -102,10 +102,13 @@ export default function Header() {
         <div className="flex items-center gap-2.5 sm:gap-3 shrink-0">
           <Link
             href="/host"
-            className="hidden md:flex items-center gap-1.5 rounded-full border border-blue-500/80 bg-blue-600 px-4 py-2 text-xs xl:text-sm font-bold text-white shadow-md shadow-blue-600/40 hover:bg-blue-500 transition-all whitespace-nowrap shrink-0"
+            className="hidden md:flex items-center gap-2 rounded-full border border-blue-500/80 bg-blue-600 px-4 py-1.5 shadow-md shadow-blue-600/40 hover:bg-blue-500 transition-all shrink-0"
           >
-            <Briefcase className="h-4 w-4 text-white shrink-0" />
-            <span className="text-white whitespace-nowrap">Become a Host</span>
+            <Briefcase className="h-5 w-5 text-white shrink-0" />
+            <div className="flex flex-col text-left">
+              <span className="text-white font-bold text-xs xl:text-sm leading-tight">List your property</span>
+              <span className="text-blue-100 font-medium text-[9px] xl:text-[10px] leading-tight mt-0.5">Start earning in 25 mins in just 2 clicks</span>
+            </div>
           </Link>
 
           <Link
@@ -268,10 +271,13 @@ export default function Header() {
                 <Link
                   href="/host"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-2 rounded-xl px-3.5 py-2.5 text-sm font-bold text-white hover:bg-white/15"
+                  className="flex items-center gap-2 rounded-xl px-3.5 py-2.5 hover:bg-white/15"
                 >
-                  <Briefcase className="h-4 w-4 text-white" />
-                  <span className="text-white">Become a Host</span>
+                  <Briefcase className="h-5 w-5 text-white" />
+                  <div className="flex flex-col text-left">
+                    <span className="text-sm font-bold text-white">List your property</span>
+                    <span className="text-[10px] font-medium text-white/70 mt-0.5">Start earning in 25 mins in just 2 clicks</span>
+                  </div>
                 </Link>
                 <Link
                   href="/contact"
