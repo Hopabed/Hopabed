@@ -1,18 +1,70 @@
 "use client";
 
-import React, { useState } from "react";
-import { useBooking } from "@/context/BookingContext";
+import React, { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { formatInr } from "@/data/properties";
-import { Calendar, MapPin, Printer, ShieldCheck, UserCheck, XCircle, ArrowRight, Building } from "lucide-react";
+import { getBookings, cancelBookingApi } from "@/lib/api";
+import { Calendar, MapPin, Printer, ShieldCheck, UserCheck, XCircle, ArrowRight, Building, Loader2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { AuthModal } from "@/components/AuthModal";
 
+interface LiveBooking {
+  id: string;
+  propertyName: string;
+  propertyImage: string;
+  city: string;
+  checkIn: string;
+  checkOut: string;
+  guests: number;
+  rooms: number;
+  totalPrice: number;
+  status: string;
+  createdAt: string;
+}
+
 export default function UserBookingsDashboard() {
-  const { bookings, cancelBooking } = useBooking();
   const { user, openAuthModal, logout } = useAuth();
+  const [bookings, setBookings] = useState<LiveBooking[]>([]);
+  const [loading, setLoading] = useState(true);
   const [filterTab, setFilterTab] = useState<"ALL" | "CONFIRMED" | "COMPLETED" | "CANCELLED">("ALL");
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.removeItem("hopebed_bookings");
+      } catch {}
+    }
+
+    if (!user) {
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
+    getBookings()
+      .then((data) => {
+        const normalized = ((data as Array<Record<string, unknown>>) || []).map((b) => ({
+          id: String(b.id || b._id),
+          propertyName: String((b.property as any)?.title || b.propertyTitle || "Hopebed Stay"),
+          propertyImage: String((b.property as any)?.primaryImage || b.propertyImage || "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1200&q=80"),
+          city: String((b.property as any)?.city || b.city || "India"),
+          checkIn: String(b.checkIn).slice(0, 10),
+          checkOut: String(b.checkOut).slice(0, 10),
+          guests: Number(b.guests || 1),
+          rooms: Number(b.roomCount || b.rooms || 1),
+          totalPrice: Number(b.totalAmount || b.totalPrice || 0),
+          status: String(b.status || "CONFIRMED").toUpperCase(),
+          createdAt: String(b.createdAt || new Date().toISOString()).slice(0, 10),
+        }));
+        setBookings(normalized);
+      })
+      .catch((err) => {
+        console.error("Failed to fetch live bookings:", err);
+        setBookings([]);
+      })
+      .finally(() => setLoading(false));
+  }, [user]);
 
   if (!user) {
     return (
@@ -34,6 +86,16 @@ export default function UserBookingsDashboard() {
       </main>
     );
   }
+
+  const handleCancel = async (bookingId: string) => {
+    if (!confirm("Are you sure you want to cancel this reservation?")) return;
+    try {
+      await cancelBookingApi(bookingId);
+      setBookings((prev) => prev.map((b) => (b.id === bookingId ? { ...b, status: "CANCELLED" } : b)));
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Failed to cancel booking");
+    }
+  };
 
   const filteredBookings = bookings.filter((b) => {
     if (filterTab === "ALL") return true;
@@ -185,7 +247,7 @@ export default function UserBookingsDashboard() {
 
                     {booking.status === "CONFIRMED" && (
                       <button
-                        onClick={() => cancelBooking(booking.id)}
+                        onClick={() => handleCancel(booking.id)}
                         className="flex items-center justify-center gap-1.5 rounded-xl border border-rose-200 bg-rose-50 px-4 py-2 text-xs font-bold text-rose-700 hover:bg-rose-100 transition-colors"
                       >
                         <XCircle className="h-3.5 w-3.5" /> Cancel

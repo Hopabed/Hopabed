@@ -230,12 +230,17 @@ export async function createBooking(input: { propertyId: string; roomId: string;
 }
 
 export async function getBookings() {
-
-
 	const response = await apiFetch(`${API_BASE_URL}/api/bookings`, { cache: "no-store" });
 	const body = (await response.json()) as { data?: { bookings: Array<Record<string, unknown>> }; error?: { message?: string } };
 	if (!response.ok || !body.data) throw new Error(body.error?.message ?? "We couldn't load your bookings.");
 	return body.data.bookings;
+}
+
+export async function cancelBookingApi(bookingId: string) {
+	const response = await apiFetch(`${API_BASE_URL}/api/bookings/${bookingId}/cancel`, { method: "POST" });
+	const body = (await response.json()) as { success?: boolean; error?: { message?: string } };
+	if (!response.ok || !body.success) throw new Error(body.error?.message ?? "Failed to cancel booking.");
+	return body;
 }
 
 export type VerifiedStayPass = {

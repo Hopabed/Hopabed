@@ -23,22 +23,11 @@ export function BookingProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     try {
-      const storedBookings = localStorage.getItem("hopebed_bookings");
-      if (storedBookings) {
-        setBookings(JSON.parse(storedBookings));
-      } else {
-        localStorage.setItem("hopebed_bookings", JSON.stringify([]));
-      }
-
-      const storedProperties = localStorage.getItem("hopebed_host_properties");
-      if (storedProperties) {
-        setHostProperties(JSON.parse(storedProperties));
-      } else {
-        localStorage.setItem("hopebed_host_properties", JSON.stringify([]));
-      }
-    } catch {
-      // Fall back to empty memory states
-    }
+      localStorage.removeItem("hopebed_bookings");
+      localStorage.removeItem("hopebed_host_properties");
+    } catch {}
+    setBookings([]);
+    setHostProperties([]);
     setInitialized(true);
   }, []);
 
