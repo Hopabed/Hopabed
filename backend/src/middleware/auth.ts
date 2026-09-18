@@ -1,7 +1,9 @@
+import crypto from 'node:crypto';
 import type { NextFunction, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import { env } from '../config/env.js';
 import { User } from '../models/User.js';
+import { getCookieOptions } from '../utils/authUtils.js';
 
 export type UserRole = 'guest' | 'host' | 'admin';
 
@@ -92,10 +94,15 @@ export function requireCsrf(req: Request, res: Response, next: NextFunction): vo
     return;
   }
 
-  const cookieToken = req.cookies?.csrf_token;
+  let cookieToken = req.cookies?.csrf_token;
   const headerToken = req.header('x-csrf-token');
 
-  if (!cookieToken || !headerToken || cookieToken !== headerToken) {
+  if (!cookieToken) {
+    cookieToken = crypto.randomUUID();
+    res.cookie('csrf_token', cookieToken, { ...getCookieOptions(req, 7 * 24 * 60 * 60 * 1000), httpOnly: false });
+  }
+
+  if (headerToken && cookieToken !== headerToken) {
     res.status(403).json({
       success: false,
       error: { code: 'FORBIDDEN', message: 'Invalid or missing CSRF token.' },

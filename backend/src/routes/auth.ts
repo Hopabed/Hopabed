@@ -9,7 +9,7 @@ import { User } from '../models/User.js';
 import { RefreshToken } from '../models/RefreshToken.js';
 import { createAccessToken, requireAuth, type AuthenticatedRequest } from '../middleware/auth.js';
 import { sendWelcomeEmail } from '../services/emailService.js';
-import { issueAuthTokens, clearAuthCookies } from '../utils/authUtils.js';
+import { issueAuthTokens, clearAuthCookies, getCookieOptions } from '../utils/authUtils.js';
 import otpAuthRouter from './otpAuth.js';
 import rateLimit from 'express-rate-limit';
 
@@ -168,6 +168,11 @@ router.get('/me', requireAuth, async (req: AuthenticatedRequest, res, next) => {
     if (user.email && adminEmails.includes(user.email.toLowerCase()) && user.role !== 'admin') {
       user.role = 'admin';
       await user.save();
+    }
+
+    if (!req.cookies?.csrf_token) {
+      const csrfToken = crypto.randomUUID();
+      res.cookie('csrf_token', csrfToken, { ...getCookieOptions(req, 7 * 24 * 60 * 60 * 1000), httpOnly: false });
     }
 
     res.json({ success: true, data: { user: publicUser(user) } });

@@ -17,6 +17,7 @@ export const getCookieOptions = (req: Request, maxAge: number) => {
     httpOnly: true,
     secure: isProduction || req.secure || req.headers['x-forwarded-proto'] === 'https',
     sameSite: 'lax' as const,
+    path: '/',
     domain,
     maxAge,
   };
@@ -45,7 +46,7 @@ export async function issueAuthTokens(req: Request, res: Response, user: any) {
   } else {
     res.cookie('hopebed_access', token, getCookieOptions(req, 15 * 60 * 1000));
     res.cookie('hopebed_refresh', refreshCookieValue, getCookieOptions(req, 7 * 24 * 60 * 60 * 1000));
-    res.cookie('csrf_token', csrfToken, { ...getCookieOptions(req, 15 * 60 * 1000), httpOnly: false });
+    res.cookie('csrf_token', csrfToken, { ...getCookieOptions(req, 7 * 24 * 60 * 60 * 1000), httpOnly: false });
     return { token };
   }
 }

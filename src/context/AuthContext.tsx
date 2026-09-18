@@ -9,8 +9,9 @@ export type User = {
   id: string;
   name: string;
   email: string;
-  role: UserRole;
+  role: string;
   avatarUrl?: string;
+  phone?: string;
 };
 
 type AuthContextType = {

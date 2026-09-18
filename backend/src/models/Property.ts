@@ -16,23 +16,26 @@ export interface IProperty {
     | 'house'
     | 'farmstay';
   category: 'stay' | 'hostel' | 'resort' | 'homestay';
-  city: string;
-  locality: string;
-  state: string;
-  country: string;
-  address: string;
+  city?: string;
+  locality?: string;
+  state?: string;
+  country?: string;
+  address?: string;
   latitude?: number;
   longitude?: number;
   location?: {
     type: 'Point';
     coordinates: [number, number];
   };
-  bedrooms: number;
-  bathrooms: number;
-  maxGuests: number;
-  pricePerNight: number;
+  pinCode?: string;
+  contactEmail?: string;
+  contactPhone?: string;
+  bedrooms?: number;
+  bathrooms?: number;
+  maxGuests?: number;
+  pricePerNight?: number;
   currency: string;
-  description: string;
+  description?: string;
   amenities: string[];
   houseRules?: string[];
   isVerified: boolean;
@@ -42,6 +45,16 @@ export interface IProperty {
   rejectionReason?: string;
   isOperator?: boolean;
   operatorRole?: 'owner' | 'lease_holder' | 'property_manager' | 'authorized_operator';
+  ownerInfo?: {
+    fullName: string;
+    phone: string;
+    email: string;
+    whatsapp?: string;
+    relationship: 'owner' | 'manager' | 'representative';
+    businessName?: string;
+    pan?: string;
+    gstin?: string;
+  };
   primaryImage?: string;
   createdAt: Date;
   updatedAt: Date;
@@ -72,6 +85,8 @@ const propertySchema = new Schema<IProperty>(
         'Hostel',
         'Homestay',
         'Guesthouse',
+        'resort',
+        'Resort',
       ],
       required: true,
     },
@@ -80,11 +95,11 @@ const propertySchema = new Schema<IProperty>(
       enum: ['stay', 'hostel', 'resort', 'homestay'],
       default: 'stay',
     },
-    city: { type: String, required: true, trim: true },
-    locality: { type: String, required: true, trim: true },
-    state: { type: String, required: true, trim: true },
-    country: { type: String, required: true, default: 'India', trim: true },
-    address: { type: String, required: true, trim: true },
+    city: { type: String, trim: true },
+    locality: { type: String, trim: true },
+    state: { type: String, trim: true },
+    country: { type: String, default: 'India', trim: true },
+    address: { type: String, trim: true },
     latitude: { type: Number, min: -90, max: 90 },
     longitude: { type: Number, min: -180, max: 180 },
     location: {
@@ -101,12 +116,15 @@ const propertySchema = new Schema<IProperty>(
         },
       },
     },
-    bedrooms: { type: Number, required: true, min: 0 },
-    bathrooms: { type: Number, required: true, min: 1 },
-    maxGuests: { type: Number, required: true, min: 1 },
-    pricePerNight: { type: Number, required: true, min: 0 },
+    pinCode: { type: String, trim: true },
+    contactEmail: { type: String, trim: true },
+    contactPhone: { type: String, trim: true },
+    bedrooms: { type: Number, default: 0, min: 0 },
+    bathrooms: { type: Number, default: 0, min: 0 },
+    maxGuests: { type: Number, default: 0, min: 0 },
+    pricePerNight: { type: Number, default: 0, min: 0 },
     currency: { type: String, required: true, default: 'INR', uppercase: true },
-    description: { type: String, required: true, trim: true, maxlength: 4000 },
+    description: { type: String, trim: true, maxlength: 4000 },
     amenities: { type: [String], default: [] },
     houseRules: { type: [String], default: [] },
     isVerified: { type: Boolean, default: false },
@@ -123,6 +141,16 @@ const propertySchema = new Schema<IProperty>(
       type: String,
       enum: ['owner', 'lease_holder', 'property_manager', 'authorized_operator'],
       default: 'owner',
+    },
+    ownerInfo: {
+      fullName: { type: String, trim: true },
+      phone: { type: String, trim: true },
+      email: { type: String, trim: true },
+      whatsapp: { type: String, trim: true },
+      relationship: { type: String, enum: ['owner', 'manager', 'representative'] },
+      businessName: { type: String, trim: true },
+      pan: { type: String, trim: true },
+      gstin: { type: String, trim: true },
     },
     primaryImage: { type: String, trim: true },
   },

@@ -14,7 +14,9 @@ import {
   MapPin,
   X,
   UserCheck,
+  UploadCloud,
 } from "lucide-react";
+import Link from "next/link";
 import Image from "next/image";
 import { AuthModal } from "@/components/AuthModal";
 
@@ -23,17 +25,6 @@ export default function HostDashboardPage() {
 
   const [properties, setProperties] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [name, setName] = useState("");
-  const [city, setCity] = useState("Mumbai");
-  const [state, setState] = useState("Maharashtra");
-  const [type, setType] = useState("hotel");
-  const [pricePerNight, setPricePerNight] = useState(3500);
-  const [description, setDescription] = useState("");
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [amenitiesInput, setAmenitiesInput] = useState("WiFi, AC, Breakfast, Parking");
 
   useEffect(() => {
     if (user?.role === "HOST") {
@@ -67,59 +58,6 @@ export default function HostDashboardPage() {
     );
   }
 
-  const handleAddPropertySubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    
-    try {
-      const amenitiesArr = amenitiesInput.split(",").map((s) => s.trim()).filter(Boolean);
-      
-      const newProperty = await createProperty({
-        title: name,
-        propertyType: type,
-        city,
-        state,
-        pricePerNight: Number(pricePerNight),
-        description,
-        amenities: amenitiesArr,
-      });
-
-      if (imageFile && newProperty._id) {
-        const reader = new FileReader();
-        reader.readAsDataURL(imageFile);
-        reader.onload = async () => {
-          const base64 = reader.result as string;
-          try {
-            await uploadPropertyImage(newProperty._id, {
-              originalFilename: imageFile.name,
-              mimeType: imageFile.type,
-              fileBase64: base64,
-              isPrimary: true
-            });
-            // Refresh properties after image upload
-            const updated = await getHostProperties();
-            setProperties(updated || []);
-          } catch (imgErr) {
-            console.error("Image upload failed", imgErr);
-            alert("Property created, but image upload failed.");
-            setProperties(prev => [newProperty, ...prev]);
-          }
-        };
-      } else {
-        setProperties(prev => [newProperty, ...prev]);
-      }
-
-      setIsAddModalOpen(false);
-      setName("");
-      setDescription("");
-      setImageFile(null);
-    } catch (error) {
-      console.error("Failed to create property", error);
-      alert("Failed to create property. Please try again.");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
 
   const totalVerifiedCount = properties.filter((p) => p.isVerified).length;
 
@@ -138,12 +76,12 @@ export default function HostDashboardPage() {
             <p className="text-xs text-gray-500 mt-1">Manage listings for {user.name} ({user.email})</p>
           </div>
 
-          <button
-            onClick={() => setIsAddModalOpen(true)}
+          <Link
+            href="/host/onboarding"
             className="rounded-2xl bg-brand px-6 py-3 text-sm font-extrabold text-white shadow-lg shadow-brand/25 hover:bg-brand-dark transition-all flex items-center justify-center gap-2"
           >
             <PlusCircle className="h-5 w-5" /> Add New Property Listing
-          </button>
+          </Link>
         </div>
 
         {/* Stats Grid */}
@@ -192,9 +130,10 @@ export default function HostDashboardPage() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {properties.map((property) => (
-                <div
+                <Link
                   key={property._id || property.id}
-                  className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm flex flex-col justify-between"
+                  href={`/host/onboarding?propertyId=${property._id || property.id}`}
+                  className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow cursor-pointer"
                 >
                   <div>
                     <div className="relative aspect-[16/10] w-full bg-gray-100">
@@ -222,129 +161,21 @@ export default function HostDashboardPage() {
                       <p className="text-xs text-gray-500 flex items-center gap-1">
                         <MapPin className="h-3 w-3 text-brand" /> {property.city}, {property.state}
                       </p>
-                      <p className="text-sm font-extrabold text-brand">{formatInr(property.pricePerNight || 0)} / night</p>
+                      {property.pricePerNight ? (
+                        <p className="text-sm font-extrabold text-brand">{formatInr(property.pricePerNight)} / night</p>
+                      ) : (
+                        <p className="text-sm font-extrabold text-gray-400">Price based on rooms</p>
+                      )}
                     </div>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           )}
         </div>
       </div>
 
-      {/* Add New Property Modal */}
-      {isAddModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="relative w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-3xl bg-white p-6 shadow-2xl space-y-6">
-            <div className="flex items-center justify-between border-b pb-4">
-              <h3 className="text-xl font-extrabold text-gray-900 flex items-center gap-2">
-                <Building className="h-5 w-5 text-brand" /> Add Property Listing
-              </h3>
-              <button onClick={() => setIsAddModalOpen(false)}>
-                <X className="h-5 w-5 text-gray-500" />
-              </button>
-            </div>
 
-            <form onSubmit={handleAddPropertySubmit} className="space-y-4">
-              <div>
-                <label className="text-xs font-bold text-gray-700 block mb-1">Property Name</label>
-                <input
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  required
-                  placeholder="e.g. Sea View Villa Anjuna"
-                  className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-medium outline-none focus:border-brand"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-xs font-bold text-gray-700 block mb-1">City</label>
-                  <select
-                    value={city}
-                    onChange={(e) => setCity(e.target.value)}
-                    className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm font-medium outline-none bg-white"
-                  >
-                    {CITIES.map((c) => (
-                      <option key={c.id} value={c.name}>
-                        {c.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="text-xs font-bold text-gray-700 block mb-1">Property Type</label>
-                  <select
-                    value={type}
-                    onChange={(e) => setType(e.target.value)}
-                    className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm font-medium outline-none bg-white"
-                  >
-                    <option value="hotel">Hotel</option>
-                    <option value="villa">Villa</option>
-                    <option value="apartment">Apartment</option>
-                    <option value="homestay">Homestay</option>
-                    <option value="resort">Resort</option>
-                  </select>
-                </div>
-              </div>
-
-              <div>
-                <label className="text-xs font-bold text-gray-700 block mb-1">Price Per Night (₹)</label>
-                <input
-                  type="number"
-                  value={pricePerNight}
-                  onChange={(e) => setPricePerNight(Number(e.target.value))}
-                  required
-                  step="500"
-                  className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-medium outline-none focus:border-brand"
-                />
-              </div>
-
-              <div>
-                <label className="text-xs font-bold text-gray-700 block mb-1">Property Image</label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => setImageFile(e.target.files?.[0] || null)}
-                  required
-                  className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-medium outline-none focus:border-brand"
-                />
-              </div>
-
-              <div>
-                <label className="text-xs font-bold text-gray-700 block mb-1">Amenities (Comma separated)</label>
-                <input
-                  type="text"
-                  value={amenitiesInput}
-                  onChange={(e) => setAmenitiesInput(e.target.value)}
-                  className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-medium outline-none focus:border-brand"
-                />
-              </div>
-
-              <div>
-                <label className="text-xs font-bold text-gray-700 block mb-1">Description</label>
-                <textarea
-                  rows={3}
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  required
-                  placeholder="Describe your property details..."
-                  className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-medium outline-none focus:border-brand"
-                />
-              </div>
-
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="w-full rounded-2xl bg-brand py-3.5 text-center text-sm font-extrabold text-white shadow-lg hover:bg-brand-dark transition-all disabled:opacity-50"
-              >
-                {isSubmitting ? "Creating Listing..." : "Create Listing Now"}
-              </button>
-            </form>
-          </div>
-        </div>
-      )}
 
     </main>
   );

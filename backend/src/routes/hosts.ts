@@ -12,6 +12,19 @@ import { savePublicImage } from '../services/storageService.js';
 
 const router = Router();
 
+async function getOrCreateHostForUser(userId: string) {
+  let host = await Host.findOne({ user: userId });
+  if (!host) {
+    host = await Host.create({
+      user: userId,
+      verificationStatus: 'unverified',
+      kycStatus: 'not_started',
+    });
+    await User.findByIdAndUpdate(userId, { role: 'host' });
+  }
+  return host;
+}
+
 const hostRegistrationSchema = z.object({
   businessName: z.string().trim().max(120).optional(),
   bio: z.string().trim().max(1000).optional(),
@@ -192,17 +205,13 @@ router.get('/properties', requireAuth, requireRole('host', 'admin'), async (req:
   }
 });
 
-router.post('/properties', requireAuth, requireRole('host', 'admin'), async (req: AuthenticatedRequest, res, next) => {
+router.post('/properties', requireAuth, async (req: AuthenticatedRequest, res, next) => {
   try {
-    const host = await Host.findOne({ user: req.auth?.userId });
-    if (!host) {
-      res.status(404).json({ success: false, error: { code: 'NOT_A_HOST', message: 'Host profile not found.' } });
-      return;
-    }
+    const host = await getOrCreateHostForUser(req.auth!.userId);
     
     const propertyCreationSchema = z.object({
       title: z.string().trim().min(1),
-      propertyType: z.enum(['hotel', 'pg', 'hostel', 'villa', 'homestay', 'apartment']).optional(),
+      propertyType: z.string().optional(),
       category: z.enum(['stay', 'experience']).optional(),
       city: z.string().trim().optional(),
       locality: z.string().trim().optional(),
@@ -216,7 +225,22 @@ router.post('/properties', requireAuth, requireRole('host', 'admin'), async (req
       currency: z.string().optional(),
       description: z.string().optional(),
       amenities: z.array(z.string()).optional(),
-    });
+      pinCode: z.string().trim().optional(),
+      contactEmail: z.string().trim().optional(),
+      contactPhone: z.string().trim().optional(),
+      latitude: z.number().optional(),
+      longitude: z.number().optional(),
+      ownerInfo: z.object({
+        fullName: z.string().optional(),
+        phone: z.string().optional(),
+        email: z.string().optional(),
+        whatsapp: z.string().optional(),
+        relationship: z.string().optional(),
+        businessName: z.string().optional(),
+        pan: z.string().optional(),
+        gstin: z.string().optional(),
+      }).optional(),
+    }).passthrough();
     
     const validatedData = propertyCreationSchema.parse(req.body);
     
@@ -227,6 +251,10 @@ router.post('/properties', requireAuth, requireRole('host', 'admin'), async (req
       ...validatedData,
       host: host._id,
       slug,
+      location: (validatedData.longitude && validatedData.latitude) ? {
+        type: 'Point',
+        coordinates: [validatedData.longitude, validatedData.latitude]
+      } : undefined,
       verificationStatus: 'DRAFT',
       isVerified: false,
       isPublished: false
@@ -240,13 +268,83 @@ router.post('/properties', requireAuth, requireRole('host', 'admin'), async (req
   }
 });
 
-router.post('/properties/:propertyId/rooms', requireAuth, requireRole('host', 'admin'), async (req: AuthenticatedRequest, res, next) => {
+router.put('/properties/:propertyId', requireAuth, async (req: AuthenticatedRequest, res, next) => {
   try {
-    const host = await Host.findOne({ user: req.auth?.userId });
-    if (!host) {
-      res.status(404).json({ success: false, error: { code: 'NOT_A_HOST', message: 'Host profile not found.' } });
+    const host = await getOrCreateHostForUser(req.auth!.userId);
+
+    const property = await Property.findOne({ _id: req.params.propertyId, host: host._id });
+    if (!property) {
+      res.status(404).json({ success: false, error: { code: 'PROPERTY_NOT_FOUND', message: 'Property not found.' } });
       return;
     }
+    
+    // We can use a relaxed schema for draft updates
+    const updateSchema = z.object({
+      title: z.string().trim().min(1).optional(),
+      propertyType: z.string().optional(),
+      category: z.string().optional(),
+      city: z.string().trim().optional(),
+      locality: z.string().trim().optional(),
+      state: z.string().trim().optional(),
+      country: z.string().trim().optional(),
+      address: z.string().trim().optional(),
+      bedrooms: z.number().int().min(0).optional(),
+      bathrooms: z.number().int().min(0).optional(),
+      maxGuests: z.number().int().min(1).optional(),
+      pricePerNight: z.number().min(0).optional(),
+      currency: z.string().optional(),
+      description: z.string().optional(),
+      amenities: z.array(z.string()).optional(),
+      pinCode: z.string().trim().optional(),
+      contactEmail: z.string().trim().optional(),
+      contactPhone: z.string().trim().optional(),
+      latitude: z.number().optional(),
+      longitude: z.number().optional(),
+      ownerInfo: z.object({
+        fullName: z.string().optional(),
+        phone: z.string().optional(),
+        email: z.string().optional(),
+        whatsapp: z.string().optional(),
+        relationship: z.string().optional(),
+        businessName: z.string().optional(),
+        pan: z.string().optional(),
+        gstin: z.string().optional(),
+      }).optional(),
+    }).passthrough();
+    
+    const validatedData = updateSchema.parse(req.body);
+    
+    // Handle location specifically
+    if (validatedData.longitude !== undefined && validatedData.latitude !== undefined) {
+      validatedData.location = {
+        type: 'Point',
+        coordinates: [validatedData.longitude, validatedData.latitude]
+      };
+    }
+
+    // Handle ownerInfo merge
+    if (validatedData.ownerInfo) {
+      validatedData.ownerInfo = {
+        ...property.ownerInfo,
+        ...validatedData.ownerInfo,
+      };
+    }
+
+    const updatedProperty = await Property.findByIdAndUpdate(
+      property._id, 
+      { $set: validatedData },
+      { new: true }
+    );
+    
+    res.json({ success: true, data: { property: updatedProperty } });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.post('/properties/:propertyId/rooms', requireAuth, async (req: AuthenticatedRequest, res, next) => {
+  try {
+    const host = await getOrCreateHostForUser(req.auth!.userId);
 
     const property = await Property.findOne({ _id: req.params.propertyId, host: host._id });
     if (!property) {
@@ -265,13 +363,9 @@ router.post('/properties/:propertyId/rooms', requireAuth, requireRole('host', 'a
   }
 });
 
-router.post('/properties/:propertyId/images', requireAuth, requireRole('host', 'admin'), async (req: AuthenticatedRequest, res, next) => {
+router.post('/properties/:propertyId/images', requireAuth, async (req: AuthenticatedRequest, res, next) => {
   try {
-    const host = await Host.findOne({ user: req.auth?.userId });
-    if (!host) {
-      res.status(404).json({ success: false, error: { code: 'NOT_A_HOST', message: 'Host profile not found.' } });
-      return;
-    }
+    const host = await getOrCreateHostForUser(req.auth!.userId);
 
     const property = await Property.findOne({ _id: req.params.propertyId, host: host._id });
     if (!property) {
@@ -490,6 +584,100 @@ router.post('/properties/:propertyId/rooms/:roomId/availability', requireAuth, r
     await PropertyAvailability.bulkWrite(ops);
 
     res.json({ success: true, data: { message: 'Availability updated successfully.', count: dates.length } });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.get('/properties/:propertyId', requireAuth, async (req: AuthenticatedRequest, res, next) => {
+  try {
+    const host = await getOrCreateHostForUser(req.auth!.userId);
+
+    const property = await Property.findOne({ _id: req.params.propertyId, host: host._id });
+    if (!property) {
+      res.status(404).json({ success: false, error: { code: 'PROPERTY_NOT_FOUND', message: 'Property not found.' } });
+      return;
+    }
+
+    const rooms = await Room.find({ property: property._id });
+    const images = await PropertyMedia.find({ property: property._id, mediaType: 'image' });
+
+    res.json({ success: true, data: { property, rooms, images } });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.put('/properties/:propertyId/rooms/:roomId', requireAuth, async (req: AuthenticatedRequest, res, next) => {
+  try {
+    const host = await getOrCreateHostForUser(req.auth!.userId);
+
+    const room = await Room.findOneAndUpdate(
+      { _id: req.params.roomId, property: req.params.propertyId },
+      req.body,
+      { new: true }
+    );
+    if (!room) {
+      res.status(404).json({ success: false, error: { message: 'Room not found.' } });
+      return;
+    }
+    res.json({ success: true, data: { room } });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.delete('/properties/:propertyId/rooms/:roomId', requireAuth, async (req: AuthenticatedRequest, res, next) => {
+  try {
+    const host = await getOrCreateHostForUser(req.auth!.userId);
+
+    const room = await Room.findOneAndDelete({ _id: req.params.roomId, property: req.params.propertyId });
+    if (!room) {
+      res.status(404).json({ success: false, error: { message: 'Room not found.' } });
+      return;
+    }
+    res.json({ success: true, data: { message: 'Room deleted' } });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.post('/properties/:propertyId/submit', requireAuth, async (req: AuthenticatedRequest, res, next) => {
+  try {
+    const host = await getOrCreateHostForUser(req.auth!.userId);
+
+    const property = await Property.findOne({ _id: req.params.propertyId, host: host._id });
+    if (!property) {
+      res.status(404).json({ success: false, error: { code: 'PROPERTY_NOT_FOUND', message: 'Property not found.' } });
+      return;
+    }
+
+    const rooms = await Room.find({ property: property._id });
+    if (rooms.length === 0) {
+      res.status(400).json({ success: false, error: { message: 'At least one room or inventory must be added before submitting.' } });
+      return;
+    }
+
+    const images = await PropertyMedia.find({ property: property._id, mediaType: 'image' });
+    if (images.length < 3) {
+      res.status(400).json({ success: false, error: { message: 'At least 3 property photos are required before submitting.' } });
+      return;
+    }
+
+    if (!property.ownerInfo?.fullName || !property.ownerInfo?.phone) {
+      res.status(400).json({ success: false, error: { message: 'Owner information is incomplete.' } });
+      return;
+    }
+
+    if (!property.city || !property.address) {
+      res.status(400).json({ success: false, error: { message: 'Property location is incomplete.' } });
+      return;
+    }
+
+    property.verificationStatus = 'PENDING_REVIEW';
+    await property.save();
+
+    res.json({ success: true, data: { message: 'Property submitted for review successfully.', property } });
   } catch (error) {
     next(error);
   }

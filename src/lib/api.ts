@@ -94,7 +94,7 @@ export type PropertyDetails = SearchProperty & {
 
 type AuthResponse = {
 	success: boolean;
-	data: { token: string; user: { id: string; name: string; email: string; role: string; avatarUrl?: string } };
+	data: { token: string; user: { id: string; name: string; email: string; role: string; avatarUrl?: string; phone?: string } };
 };
 
 export async function authenticateWithGoogle(credential: string): Promise<AuthResponse> {
@@ -849,5 +849,63 @@ export async function uploadPropertyImage(propertyId: string, input: { originalF
 		body: JSON.stringify(input)});
 	const body = (await response.json()) as { data?: Record<string, unknown>; error?: { message?: string } };
 	if (!response.ok || !body.data) throw new Error(body.error?.message ?? "Image upload failed.");
+	return body.data;
+}
+
+export async function getHostPropertyDetails(propertyId: string) {
+	const response = await apiFetch(`${API_BASE_URL}/api/hosts/properties/${propertyId}`);
+	const body = (await response.json()) as { data?: any; error?: { message?: string } };
+	if (!response.ok || !body.data) throw new Error(body.error?.message ?? "Failed to fetch property details.");
+	return body.data;
+}
+
+export async function updatePropertyDraft(propertyId: string, input: any) {
+	const response = await apiFetch(`${API_BASE_URL}/api/hosts/properties/${propertyId}`, {
+		method: "PUT",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify(input)
+	});
+	const body = (await response.json()) as { data?: any; error?: { message?: string } };
+	if (!response.ok || !body.data) throw new Error(body.error?.message ?? "Failed to update property.");
+	return body.data;
+}
+
+export async function addRoom(propertyId: string, input: any) {
+	const response = await apiFetch(`${API_BASE_URL}/api/hosts/properties/${propertyId}/rooms`, {
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify(input)
+	});
+	const body = (await response.json()) as { data?: any; error?: { message?: string } };
+	if (!response.ok || !body.data) throw new Error(body.error?.message ?? "Failed to add room.");
+	return body.data;
+}
+
+export async function updateRoom(propertyId: string, roomId: string, input: any) {
+	const response = await apiFetch(`${API_BASE_URL}/api/hosts/properties/${propertyId}/rooms/${roomId}`, {
+		method: "PUT",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify(input)
+	});
+	const body = (await response.json()) as { data?: any; error?: { message?: string } };
+	if (!response.ok || !body.data) throw new Error(body.error?.message ?? "Failed to update room.");
+	return body.data;
+}
+
+export async function deleteRoom(propertyId: string, roomId: string) {
+	const response = await apiFetch(`${API_BASE_URL}/api/hosts/properties/${propertyId}/rooms/${roomId}`, {
+		method: "DELETE"
+	});
+	const body = (await response.json()) as { data?: any; error?: { message?: string } };
+	if (!response.ok || !body.data) throw new Error(body.error?.message ?? "Failed to delete room.");
+	return body.data;
+}
+
+export async function submitHostPropertyForReview(propertyId: string) {
+	const response = await apiFetch(`${API_BASE_URL}/api/hosts/properties/${propertyId}/submit`, {
+		method: "POST"
+	});
+	const body = (await response.json()) as { data?: any; error?: { message?: string } };
+	if (!response.ok || !body.data) throw new Error(body.error?.message ?? "Failed to submit property.");
 	return body.data;
 }
