@@ -53,7 +53,7 @@ async function runBookingTests() {
     }
 
     const { createAccessToken } = await import('../src/middleware/auth.js');
-    const token = createAccessToken(user._id.toString(), user.role as any);
+    const token = createAccessToken(user._id.toString(), user.role as any, user.tokenVersion || 0);
 
     // 2. Ensure test host, property & room
     let host = await Host.findOne({ businessName: 'Task2 Host Business' });
@@ -136,6 +136,7 @@ async function runBookingTests() {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'x-client-type': 'mobile',
         Authorization: `Bearer ${token}`
       },
       body: JSON.stringify(validPayload)

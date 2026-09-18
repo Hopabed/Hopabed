@@ -20,16 +20,11 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isOwnerFlow, setIsOwnerFlow] = useState(false);
-  const [user, setUser] = useState<AuthUser | null>({
-    id: "usr-admin",
-    name: "Admin User",
-    email: "admin@hopebed.in",
-    role: "admin",
-  });
+  const [user, setUser] = useState<AuthUser | null>(null);
 
   useEffect(() => {
     getCurrentUser().then(setUser).catch(() => {
-      // User is not logged in or session expired
+      setUser(null);
     });
   }, []);
 
@@ -69,7 +64,7 @@ export function useAuthModal() {
       isOwnerFlow: false,
       openAuth: () => {},
       closeAuth: () => {},
-      user: { id: "usr-admin", name: "Admin User", email: "admin@hopebed.in", role: "admin" },
+      user: null,
       setSession: () => {},
       logout: () => {},
     };

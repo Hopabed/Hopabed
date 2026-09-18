@@ -60,11 +60,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
         setUser(parsed);
       } else {
-        setUser(DEMO_USER);
-        localStorage.setItem("hopebed_user", JSON.stringify(DEMO_USER));
+        setUser(null);
       }
     } catch {
-      setUser(DEMO_USER);
+      setUser(null);
     }
     setInitialized(true);
   }, []);
@@ -83,7 +82,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const capitalizedName = nameFromEmail.charAt(0).toUpperCase() + nameFromEmail.slice(1);
     const loggedInUser: User = {
       id: `usr-${Date.now()}`,
-      name: customDetails?.name || capitalizedName || "Demo User",
+      name: customDetails?.name || capitalizedName || "Guest User",
       email,
       role,
       phone: customDetails?.phone || "+91 98765 43210",
@@ -122,7 +121,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   return (
     <AuthContext.Provider
       value={{
-        user: initialized ? user : DEMO_USER,
+        user: initialized ? user : null,
         isAuthenticated: !!user,
         login,
         signup,

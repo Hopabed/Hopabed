@@ -17,8 +17,8 @@ type BookingContextType = {
 const BookingContext = createContext<BookingContextType | undefined>(undefined);
 
 export function BookingProvider({ children }: { children: React.ReactNode }) {
-  const [bookings, setBookings] = useState<BookingItem[]>(MOCK_BOOKINGS);
-  const [hostProperties, setHostProperties] = useState<Property[]>(PROPERTIES);
+  const [bookings, setBookings] = useState<BookingItem[]>([]);
+  const [hostProperties, setHostProperties] = useState<Property[]>([]);
   const [initialized, setInitialized] = useState(false);
 
   useEffect(() => {
@@ -27,17 +27,17 @@ export function BookingProvider({ children }: { children: React.ReactNode }) {
       if (storedBookings) {
         setBookings(JSON.parse(storedBookings));
       } else {
-        localStorage.setItem("hopebed_bookings", JSON.stringify(MOCK_BOOKINGS));
+        localStorage.setItem("hopebed_bookings", JSON.stringify([]));
       }
 
       const storedProperties = localStorage.getItem("hopebed_host_properties");
       if (storedProperties) {
         setHostProperties(JSON.parse(storedProperties));
       } else {
-        localStorage.setItem("hopebed_host_properties", JSON.stringify(PROPERTIES));
+        localStorage.setItem("hopebed_host_properties", JSON.stringify([]));
       }
     } catch {
-      // Fall back to default memory states
+      // Fall back to empty memory states
     }
     setInitialized(true);
   }, []);
@@ -100,10 +100,10 @@ export function BookingProvider({ children }: { children: React.ReactNode }) {
   return (
     <BookingContext.Provider
       value={{
-        bookings: initialized ? bookings : MOCK_BOOKINGS,
+        bookings: initialized ? bookings : [],
         addBooking,
         cancelBooking,
-        hostProperties: initialized ? hostProperties : PROPERTIES,
+        hostProperties: initialized ? hostProperties : [],
         addHostProperty,
         toggleVerifyProperty,
         deleteHostProperty,

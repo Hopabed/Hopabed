@@ -48,7 +48,7 @@ export default async function StaysPage({
               !type ? "bg-brand text-white shadow-md" : "bg-white border border-gray-200 text-gray-700 hover:bg-gray-100"
             }`}
           >
-            All Categories ({PROPERTIES.length})
+            All Categories{PROPERTIES.length > 0 ? ` (${PROPERTIES.length})` : ""}
           </Link>
           {stayTypes.map((st) => (
             <Link

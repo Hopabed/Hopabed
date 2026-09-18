@@ -30,9 +30,9 @@ export default function BookingCheckoutPage() {
   const [guests, setGuests] = useState(initialGuests);
   const [rooms, setRooms] = useState(initialRooms);
 
-  const [guestName, setGuestName] = useState(user?.name || "Sharukh Mithagari");
-  const [guestEmail, setGuestEmail] = useState(user?.email || "hello@hopebed.in");
-  const [guestPhone, setGuestPhone] = useState(user?.phone || "+91 9876543210");
+  const [guestName, setGuestName] = useState(user?.name || "");
+  const [guestEmail, setGuestEmail] = useState(user?.email || "");
+  const [guestPhone, setGuestPhone] = useState(user?.phone || "");
   const [specialRequests, setSpecialRequests] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
