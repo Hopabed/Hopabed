@@ -9,6 +9,8 @@ const envSchema = z
     PORT: z.coerce.number().default(4000),
     JWT_SECRET: z.string().min(32, 'JWT_SECRET must be at least 32 characters'),
     GOOGLE_CLIENT_ID: z.string().min(1, 'GOOGLE_CLIENT_ID is required'),
+    GOOGLE_PLACES_API_KEY: z.string().optional(),
+    GOOGLE_MAPS_API_KEY: z.string().optional(),
     MONGODB_URI: z.string().min(1, 'MONGODB_URI is required'),
     MONGODB_DB_NAME: z.string().min(1, 'MONGODB_DB_NAME is required'),
     PAYU_ENV: z.enum(['sandbox', 'production']).default('sandbox'),

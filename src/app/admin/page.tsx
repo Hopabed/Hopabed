@@ -339,8 +339,15 @@ export default function AdminDashboardPage() {
         )
       );
 
-      const relClaimUrl = res.claimUrl || `/claim-property?token=${leadId}`;
-      const fullClaimUrl = typeof window !== "undefined" ? `${window.location.origin}${relClaimUrl}` : relClaimUrl;
+      const rawClaimUrl = res.claimUrl || `/claim-property?token=${leadId}`;
+      let fullClaimUrl = rawClaimUrl.trim();
+      if (fullClaimUrl.includes("http://localhost:3000http://localhost:3000")) {
+        fullClaimUrl = fullClaimUrl.replace("http://localhost:3000http://localhost:3000", "http://localhost:3000");
+      }
+      if (!fullClaimUrl.startsWith("http://") && !fullClaimUrl.startsWith("https://")) {
+        const origin = typeof window !== "undefined" ? window.location.origin : "http://localhost:3000";
+        fullClaimUrl = `${origin}${fullClaimUrl.startsWith("/") ? "" : "/"}${fullClaimUrl}`;
+      }
 
       setOutreachModal({
         show: true,
@@ -1192,7 +1199,17 @@ export default function AdminDashboardPage() {
               <a
                 href={outreachModal.claimUrl}
                 target="_blank"
-                rel="noreferrer"
+                rel="noopener noreferrer"
+                onClick={(e) => {
+                  let clean = outreachModal.claimUrl.trim();
+                  if (clean.includes("http://localhost:3000http://localhost:3000")) {
+                    clean = clean.replace("http://localhost:3000http://localhost:3000", "http://localhost:3000");
+                  }
+                  if (!clean.startsWith("http://") && !clean.startsWith("https://")) {
+                    clean = `${window.location.origin}${clean.startsWith("/") ? "" : "/"}${clean}`;
+                  }
+                  e.currentTarget.href = clean;
+                }}
                 className="w-full flex items-center justify-center gap-2 rounded-xl bg-brand px-4 py-3 text-xs font-bold text-white transition hover:bg-brand-dark text-center"
               >
                 <ExternalLink className="h-4 w-4" /> Open Claim Link in New Tab to Test

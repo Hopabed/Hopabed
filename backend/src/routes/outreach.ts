@@ -4,6 +4,7 @@ import { requireAuth, requireRole, type AuthenticatedRequest } from '../middlewa
 import { LeadListing } from '../models/LeadListing.js';
 import { Property } from '../models/Property.js';
 import { Host } from '../models/Host.js';
+import { User } from '../models/User.js';
 import { sendHostOutreachEmail } from '../services/emailService.js';
 import { env } from '../config/env.js';
 
@@ -156,6 +157,9 @@ outreachRouter.post(
 // ----------------------------------------------------------------------------
 // 2. ADMIN: Import Lead & Send Automated Host Outreach Email
 // ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+// 2. ADMIN: Import Lead & Send Automated Host Outreach Email
+// ----------------------------------------------------------------------------
 outreachRouter.post(
   '/admin/leads/import-and-invite',
   requireAuth,
@@ -169,43 +173,84 @@ outreachRouter.post(
         return;
       }
 
-      const lead = await LeadListing.findById(leadId);
+      let lead = await LeadListing.findById(leadId);
+      let propertyDoc = null;
+
       if (!lead) {
-        res.status(404).json({ error: { message: 'Lead listing not found.' } });
-        return;
+        propertyDoc = await Property.findById(leadId);
+        if (!propertyDoc) {
+          res.status(404).json({ error: { message: 'Lead or Property listing not found.' } });
+          return;
+        }
       }
 
-      const targetEmail = ownerEmail || lead.email;
+      const targetEmail = ownerEmail || (lead ? lead.email : propertyDoc?.contactEmail);
       if (!targetEmail) {
         res.status(400).json({ error: { message: 'Owner email address is required.' } });
         return;
       }
 
-      // Generate claim link
-      const claimUrl = `${env.FRONTEND_URL}/claim-property?token=${lead.claimToken}`;
+      if (lead) {
+        if (!lead.claimToken) {
+          lead.claimToken = Buffer.from(crypto.randomBytes(24)).toString('hex');
+        }
+        const claimUrl = `${env.FRONTEND_URL}/claim-property?token=${lead.claimToken}`;
 
-      // Dispatch outreach email
-      await sendHostOutreachEmail({
-        ownerEmail: targetEmail,
-        propertyTitle: lead.title,
-        city: lead.city,
-        locality: lead.locality,
-        claimUrl,
-      });
-
-      lead.status = 'INVITED';
-      lead.invitedAt = new Date();
-      lead.invitedEmail = targetEmail;
-      if (ownerEmail) lead.email = ownerEmail;
-      await lead.save();
-
-      res.json({
-        data: {
-          message: `Outreach email sent successfully to ${targetEmail}`,
-          lead,
+        await sendHostOutreachEmail({
+          ownerEmail: targetEmail,
+          propertyTitle: lead.title,
+          city: lead.city,
+          locality: lead.locality,
           claimUrl,
-        },
-      });
+        });
+
+        lead.status = 'INVITED';
+        lead.invitedAt = new Date();
+        lead.invitedEmail = targetEmail;
+        if (ownerEmail) lead.email = ownerEmail;
+        await lead.save();
+
+        res.json({
+          data: {
+            message: `Outreach email sent successfully to ${targetEmail}`,
+            lead,
+            claimUrl,
+          },
+        });
+      } else if (propertyDoc) {
+        if (!propertyDoc.claimToken) {
+          propertyDoc.claimToken = Buffer.from(crypto.randomBytes(24)).toString('hex');
+        }
+        propertyDoc.contactEmail = targetEmail;
+        if (propertyDoc.ownerInfo) {
+          propertyDoc.ownerInfo.email = targetEmail;
+        }
+        await propertyDoc.save();
+
+        const claimUrl = `${env.FRONTEND_URL}/claim-property?token=${propertyDoc.claimToken}`;
+
+        await sendHostOutreachEmail({
+          ownerEmail: targetEmail,
+          propertyTitle: propertyDoc.title,
+          city: propertyDoc.city || 'Mumbai',
+          locality: propertyDoc.locality || 'Downtown',
+          claimUrl,
+        });
+
+        res.json({
+          data: {
+            message: `Outreach email sent successfully to ${targetEmail}`,
+            lead: {
+              _id: propertyDoc._id,
+              title: propertyDoc.title,
+              city: propertyDoc.city,
+              email: targetEmail,
+              status: 'INVITED',
+            },
+            claimUrl,
+          },
+        });
+      }
     } catch (error: any) {
       console.error('[Outreach ERROR] Failed importing lead:', error);
       res.status(500).json({ error: { message: error?.message || 'Failed to invite property owner.' } });
@@ -219,7 +264,25 @@ outreachRouter.post(
 outreachRouter.get('/leads/claim/:token', async (req: Request, res: Response): Promise<void> => {
   try {
     const { token } = req.params;
-    const lead = await LeadListing.findOne({ claimToken: token });
+    let lead = await LeadListing.findOne({ claimToken: token });
+
+    if (!lead) {
+      const prop = await Property.findOne({ claimToken: token });
+      if (prop) {
+        lead = {
+          _id: prop._id,
+          title: prop.title,
+          propertyType: prop.propertyType,
+          city: prop.city,
+          locality: prop.locality,
+          address: prop.address,
+          phone: prop.phone || prop.contactPhone,
+          email: prop.contactEmail,
+          status: prop.claimed ? 'CLAIMED' : 'UNCLAIMED',
+          claimToken: prop.claimToken,
+        } as any;
+      }
+    }
 
     if (!lead) {
       res.status(404).json({ error: { message: 'Invalid or expired property claim link.' } });
@@ -240,14 +303,15 @@ outreachRouter.post('/leads/claim/:token', requireAuth, async (req: Authenticate
     const { token } = req.params;
     const userId = req.auth!.userId;
 
-    const lead = await LeadListing.findOne({ claimToken: token });
+    let lead = await LeadListing.findOne({ claimToken: token });
+    let propertyDoc = null;
+
     if (!lead) {
-      res.status(404).json({ error: { message: 'Invalid or expired property claim link.' } });
-      return;
+      propertyDoc = await Property.findOne({ claimToken: token });
     }
 
-    if (lead.status === 'CLAIMED') {
-      res.status(400).json({ error: { message: 'This property listing has already been claimed.' } });
+    if (!lead && !propertyDoc) {
+      res.status(404).json({ error: { message: 'Invalid or expired property claim link.' } });
       return;
     }
 
@@ -256,54 +320,72 @@ outreachRouter.post('/leads/claim/:token', requireAuth, async (req: Authenticate
     if (!host) {
       host = new Host({
         user: userId,
-        businessName: lead.title,
-        verificationStatus: 'UNVERIFIED',
+        businessName: lead ? lead.title : propertyDoc?.title,
+        verificationStatus: 'unverified',
       });
       await host.save();
     }
+    await User.findByIdAndUpdate(userId, { role: 'host' });
 
-    // Create active Property under host
-    const slug = `${lead.title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${Date.now().toString().slice(-4)}`;
-    const newProperty = new Property({
-      host: host._id,
-      title: lead.title,
-      slug,
-      propertyType: lead.propertyType || 'hotel',
-      category: 'stay',
-      city: lead.city,
-      locality: lead.locality,
-      state: 'State',
-      country: 'India',
-      address: lead.address,
-      bedrooms: 5,
-      bathrooms: 5,
-      maxGuests: 10,
-      pricePerNight: 2500,
-      currency: 'INR',
-      description: `Verified stay property claimed by ${host.businessName || 'Host'}. Located in ${lead.locality}, ${lead.city}.`,
-      amenities: ['Wifi', 'Air Conditioning', 'Power Backup', 'Housekeeping'],
-      isVerified: false,
-      isPublished: true,
-      isFeatured: false,
-      verificationStatus: 'DRAFT',
-      primaryImage: lead.primaryImage,
-    });
+    if (lead) {
+      if (lead.status === 'CLAIMED') {
+        res.status(400).json({ error: { message: 'This property listing has already been claimed.' } });
+        return;
+      }
 
-    await newProperty.save();
+      const slug = `${lead.title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${Date.now().toString().slice(-4)}`;
+      const newProperty = new Property({
+        host: host._id,
+        title: lead.title,
+        slug,
+        propertyType: lead.propertyType || 'hotel',
+        category: 'stay',
+        city: lead.city,
+        locality: lead.locality,
+        state: 'Maharashtra',
+        country: 'India',
+        address: lead.address,
+        bedrooms: 1,
+        bathrooms: 1,
+        maxGuests: 2,
+        pricePerNight: 2000,
+        currency: 'INR',
+        description: `Verified stay property claimed by ${host.businessName || 'Host'}. Located in ${lead.locality}, ${lead.city}.`,
+        amenities: ['Wifi', 'Air Conditioning', 'Power Backup'],
+        isVerified: false,
+        isPublished: false,
+        verificationStatus: 'DRAFT',
+        primaryImage: lead.primaryImage,
+      });
 
-    // Mark lead as claimed
-    lead.status = 'CLAIMED';
-    lead.claimedByHost = host._id;
-    lead.claimedAt = new Date();
-    await lead.save();
+      await newProperty.save();
 
-    res.json({
-      data: {
-        message: 'Property claimed successfully! Please proceed to Host KYC verification.',
-        property: newProperty,
-        host,
-      },
-    });
+      lead.status = 'CLAIMED';
+      lead.claimedByHost = host._id;
+      lead.claimedAt = new Date();
+      await lead.save();
+
+      res.json({
+        data: {
+          message: 'Property claimed successfully! Please proceed to Host KYC verification.',
+          property: newProperty,
+          host,
+        },
+      });
+    } else if (propertyDoc) {
+      propertyDoc.host = host._id;
+      propertyDoc.claimed = true;
+      propertyDoc.ownerId = host._id;
+      await propertyDoc.save();
+
+      res.json({
+        data: {
+          message: 'Property claimed successfully! Please proceed to Host KYC verification.',
+          property: propertyDoc,
+          host,
+        },
+      });
+    }
   } catch (error: any) {
     console.error('[Claim ERROR] Failed claiming property:', error);
     res.status(500).json({ error: { message: error?.message || 'Failed to claim property listing.' } });
