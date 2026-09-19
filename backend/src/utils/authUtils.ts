@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import type { Request, Response } from 'express';
 import { env } from '../config/env.js';
 import { RefreshToken } from '../models/RefreshToken.js';
+import { User } from '../models/User.js';
 import { createAccessToken } from '../middleware/auth.js';
 
 export const getCookieOptions = (req: Request, maxAge: number) => {
@@ -29,6 +30,8 @@ export async function issueAuthTokens(req: Request, res: Response, user: any) {
   const rawRefresh = (crypto.randomBytes(32) as any).toString('hex');
   const tokenHash = await bcrypt.hash(rawRefresh, 10);
   const familyId = (crypto.randomBytes(16) as any).toString('hex');
+  
+  await User.findByIdAndUpdate(user._id, { lastLoginAt: new Date() });
   
   await RefreshToken.create({
     userId: user._id,

@@ -402,6 +402,7 @@ export async function sendHostOutreachEmail(data: {
 
     <p>Claim your property listing in 1-click to complete your host verification and start receiving guests!</p>
     <a href="${data.claimUrl}" class="btn" style="background-color:#0d9488;">Claim Your Property & Verify</a>
+    <p style="font-size:12px; color:#ef4444; margin-top:16px;">⏰ Note: This property claim invitation link expires in <strong>4 days</strong>.</p>
     `
   );
   return sendEmail({ to: data.ownerEmail, subject, html });

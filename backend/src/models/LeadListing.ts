@@ -14,6 +14,7 @@ export interface ILeadListing {
   primaryImage?: string;
   status: 'UNCLAIMED' | 'INVITED' | 'CLAIMED';
   claimToken: string;
+  claimExpiresAt?: Date;
   claimedByHost?: Types.ObjectId;
   claimedAt?: Date;
   invitedAt?: Date;
@@ -44,6 +45,7 @@ const leadListingSchema = new Schema<ILeadListing>(
       index: true,
     },
     claimToken: { type: String, required: true, unique: true, index: true },
+    claimExpiresAt: { type: Date, index: true },
     claimedByHost: { type: Schema.Types.ObjectId, ref: 'Host' },
     claimedAt: { type: Date },
     invitedAt: { type: Date },

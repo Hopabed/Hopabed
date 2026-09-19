@@ -96,20 +96,24 @@ export function requireCsrf(req: Request, res: Response, next: NextFunction): vo
     return;
   }
 
-  let cookieToken = req.cookies?.csrf_token;
+  const cookieToken = req.cookies?.csrf_token;
   const headerToken = req.header('x-csrf-token');
 
-  if (!cookieToken) {
-    cookieToken = crypto.randomUUID();
-    res.cookie('csrf_token', cookieToken, { ...getCookieOptions(req, 7 * 24 * 60 * 60 * 1000), httpOnly: false });
-  }
-
-  if (headerToken && cookieToken !== headerToken) {
+  // If cookieToken exists AND headerToken exists, enforce matching
+  if (cookieToken && headerToken && cookieToken !== headerToken) {
     res.status(403).json({
       success: false,
       error: { code: 'FORBIDDEN', message: 'Invalid or missing CSRF token.' },
     });
     return;
+  }
+
+  // Auto-sync cookieToken if missing but header is present
+  if (!cookieToken && headerToken) {
+    res.cookie('csrf_token', headerToken, { ...getCookieOptions(req, 7 * 24 * 60 * 60 * 1000), httpOnly: false });
+  } else if (!cookieToken && !headerToken) {
+    const newToken = crypto.randomUUID();
+    res.cookie('csrf_token', newToken, { ...getCookieOptions(req, 7 * 24 * 60 * 60 * 1000), httpOnly: false });
   }
 
   next();

@@ -57,6 +57,7 @@ export interface IProperty {
   sourceUrl?: string;
   claimed?: boolean;
   claimToken?: string;
+  claimExpiresAt?: Date;
   ownerId?: Types.ObjectId;
   ownerInfo?: {
     fullName: string;
@@ -169,6 +170,7 @@ const propertySchema = new Schema<IProperty>(
     sourceUrl: { type: String, trim: true },
     claimed: { type: Boolean, default: false, index: true },
     claimToken: { type: String, trim: true, sparse: true, index: true },
+    claimExpiresAt: { type: Date, index: true },
     ownerId: { type: Schema.Types.ObjectId, ref: 'Host' },
     ownerInfo: {
       fullName: { type: String, trim: true },

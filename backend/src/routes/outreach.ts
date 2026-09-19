@@ -27,7 +27,7 @@ outreachRouter.post(
       const filter: Record<string, unknown> = {};
 
       if (city && city.trim().length > 0) {
-        filter.city = new RegExp(city.trim(), 'i');
+        filter.city = new RegExp(`^${city.trim()}$`, 'i');
       }
 
       if (category && category.trim().length > 0 && category.toLowerCase() !== 'all') {
@@ -63,7 +63,7 @@ outreachRouter.post(
       // Aggregate UNCLAIMED properties from Property collection
       const unclaimedPropFilter: Record<string, unknown> = {};
       if (city && city.trim().length > 0) {
-        unclaimedPropFilter.city = new RegExp(city.trim(), 'i');
+        unclaimedPropFilter.city = new RegExp(`^${city.trim()}$`, 'i');
       }
 
       const unclaimedProperties = await Property.find(unclaimedPropFilter).sort({ createdAt: -1 });
@@ -190,10 +190,14 @@ outreachRouter.post(
         return;
       }
 
+      const FOUR_DAYS_MS = 4 * 24 * 60 * 60 * 1000;
+      const claimExpiresAt = new Date(Date.now() + FOUR_DAYS_MS);
+
       if (lead) {
         if (!lead.claimToken) {
           lead.claimToken = Buffer.from(crypto.randomBytes(24)).toString('hex');
         }
+        lead.claimExpiresAt = claimExpiresAt;
         const claimUrl = `${env.FRONTEND_URL}/claim-property?token=${lead.claimToken}`;
 
         await sendHostOutreachEmail({
@@ -215,12 +219,14 @@ outreachRouter.post(
             message: `Outreach email sent successfully to ${targetEmail}`,
             lead,
             claimUrl,
+            claimExpiresAt,
           },
         });
       } else if (propertyDoc) {
         if (!propertyDoc.claimToken) {
           propertyDoc.claimToken = Buffer.from(crypto.randomBytes(24)).toString('hex');
         }
+        propertyDoc.claimExpiresAt = claimExpiresAt;
         propertyDoc.contactEmail = targetEmail;
         if (propertyDoc.ownerInfo) {
           propertyDoc.ownerInfo.email = targetEmail;
@@ -248,6 +254,7 @@ outreachRouter.post(
               status: 'INVITED',
             },
             claimUrl,
+            claimExpiresAt,
           },
         });
       }
@@ -265,10 +272,14 @@ outreachRouter.get('/leads/claim/:token', async (req: Request, res: Response): P
   try {
     const { token } = req.params;
     let lead = await LeadListing.findOne({ claimToken: token });
+    let expiresAtDate: Date | undefined = undefined;
 
-    if (!lead) {
+    if (lead) {
+      expiresAtDate = lead.claimExpiresAt;
+    } else {
       const prop = await Property.findOne({ claimToken: token });
       if (prop) {
+        expiresAtDate = prop.claimExpiresAt;
         lead = {
           _id: prop._id,
           title: prop.title,
@@ -280,12 +291,24 @@ outreachRouter.get('/leads/claim/:token', async (req: Request, res: Response): P
           email: prop.contactEmail,
           status: prop.claimed ? 'CLAIMED' : 'UNCLAIMED',
           claimToken: prop.claimToken,
+          claimExpiresAt: prop.claimExpiresAt,
         } as any;
       }
     }
 
     if (!lead) {
-      res.status(404).json({ error: { message: 'Invalid or expired property claim link.' } });
+      res.status(404).json({ error: { message: 'Invalid property claim link.' } });
+      return;
+    }
+
+    // Check if token has expired after 4 days
+    if (expiresAtDate && new Date() > new Date(expiresAtDate)) {
+      res.status(410).json({
+        error: {
+          code: 'CLAIM_LINK_EXPIRED',
+          message: 'This property claim invitation link has expired (claim links are valid for 4 days). Please contact the administrator for a new invitation link.',
+        },
+      });
       return;
     }
 
@@ -311,7 +334,18 @@ outreachRouter.post('/leads/claim/:token', requireAuth, async (req: Authenticate
     }
 
     if (!lead && !propertyDoc) {
-      res.status(404).json({ error: { message: 'Invalid or expired property claim link.' } });
+      res.status(404).json({ error: { message: 'Invalid property claim link.' } });
+      return;
+    }
+
+    const expiresAtDate = lead ? lead.claimExpiresAt : propertyDoc?.claimExpiresAt;
+    if (expiresAtDate && new Date() > new Date(expiresAtDate)) {
+      res.status(410).json({
+        error: {
+          code: 'CLAIM_LINK_EXPIRED',
+          message: 'This property claim invitation link has expired (claim links are valid for 4 days). Please contact the administrator for a new invitation link.',
+        },
+      });
       return;
     }
 

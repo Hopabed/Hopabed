@@ -11,6 +11,9 @@ import { AuditLog } from '../models/AuditLog.js';
 import { OwnerVerification } from '../models/OwnerVerification.js';
 import { PropertyVerification } from '../models/PropertyVerification.js';
 import { PropertyVerificationDocument } from '../models/PropertyVerificationDocument.js';
+import { PropertyAvailability } from '../models/PropertyAvailability.js';
+import { Payment } from '../models/Payment.js';
+import { LeadListing } from '../models/LeadListing.js';
 import { sendPropertyStatusEmail, sendHostVerificationStatusEmail } from '../services/emailService.js';
 
 const router = Router();
@@ -55,6 +58,176 @@ router.get('/bookings', async (req, res, next) => {
       .lean();
 
     res.json({ success: true, data: { bookings } });
+  } catch (error) {
+    next(error);
+  }
+});
+
+/**
+ * GET /api/admin/users
+ * Fetch platform users with optional role filtering and search query
+ */
+router.get('/users', async (req, res, next) => {
+  try {
+    const roleFilter = req.query.role as string;
+    const searchQuery = req.query.search as string;
+
+    const filter: Record<string, unknown> = {};
+
+    if (roleFilter && roleFilter !== 'ALL') {
+      filter.role = roleFilter;
+    }
+
+    if (searchQuery && searchQuery.trim().length > 0) {
+      const regex = new RegExp(searchQuery.trim(), 'i');
+      filter.$or = [{ name: regex }, { email: regex }, { phone: regex }, { mobile: regex }];
+    }
+
+    const users = await User.find(filter)
+      .select('-password -otpSecret -resetPasswordToken')
+      .sort({ lastLoginAt: -1, createdAt: -1 })
+      .lean();
+
+    res.json({ success: true, data: { users } });
+  } catch (error) {
+    next(error);
+  }
+});
+
+/**
+ * PUT /api/admin/users/:id/role
+ * Update user role (guest, host, admin)
+ */
+router.put('/users/:id/role', async (req: AuthenticatedRequest, res, next) => {
+  try {
+    const userId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+    const input = z.object({
+      role: z.enum(['guest', 'host', 'admin'])
+    }).parse(req.body);
+
+    const user = await User.findById(userId);
+    if (!user) {
+      res.status(404).json({ success: false, error: { message: 'User not found' } });
+      return;
+    }
+
+    const previousRole = user.role;
+    user.role = input.role;
+    await user.save();
+
+    // If upgraded to host, ensure Host document exists
+    if (input.role === 'host') {
+      const existingHost = await Host.findOne({ user: user._id });
+      if (!existingHost) {
+        await Host.create({
+          user: user._id,
+          businessName: `${user.name}'s Hosting`,
+          isActive: true,
+          verificationStatus: 'pending',
+          kycStatus: 'pending',
+        });
+      }
+    }
+
+    await AuditLog.create({
+      actor: new Types.ObjectId(req.auth!.userId),
+      action: 'USER_ROLE_UPDATED',
+      targetType: 'User',
+      targetId: user._id,
+      metadata: { previousRole, newRole: input.role }
+    });
+
+    res.json({ success: true, data: { user } });
+  } catch (error) {
+    next(error);
+  }
+});
+
+/**
+ * POST /api/admin/users/:id/revoke-sessions
+ * Instantly revoke all active sessions for a user by incrementing tokenVersion
+ */
+router.post('/users/:id/revoke-sessions', async (req: AuthenticatedRequest, res, next) => {
+  try {
+    const userId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { $inc: { tokenVersion: 1 } },
+      { new: true }
+    ).select('-password');
+
+    if (!user) {
+      res.status(404).json({ success: false, error: { message: 'User not found' } });
+      return;
+    }
+
+    await AuditLog.create({
+      actor: new Types.ObjectId(req.auth!.userId),
+      action: 'USER_SESSIONS_REVOKED',
+      targetType: 'User',
+      targetId: user._id,
+      metadata: { newVersion: user.tokenVersion }
+    });
+
+    res.json({ success: true, message: 'User sessions successfully revoked', data: { user } });
+  } catch (error) {
+    next(error);
+  }
+});
+
+/**
+ * POST /api/admin/clear-all-data
+ * Clear all test properties, hosts, bookings, leads, verifications, audit logs, and non-admin users
+ */
+router.post('/clear-all-data', async (req: AuthenticatedRequest, res, next) => {
+  try {
+    const adminUserId = req.auth!.userId;
+
+    const userDeleteResult = await User.deleteMany({ role: { $ne: 'admin' }, _id: { $ne: adminUserId } });
+
+    const adminUsers = await User.find({ role: 'admin' }).select('_id');
+    const adminUserIds = adminUsers.map(u => u._id);
+    const hostDeleteResult = await Host.deleteMany({ user: { $nin: adminUserIds } });
+
+    const [propRes, roomRes, availRes, bookRes, payRes, ownerVerifRes, propVerifRes, docRes, leadRes] = await Promise.all([
+      Property.deleteMany({}),
+      Room.deleteMany({}),
+      PropertyAvailability.deleteMany({}),
+      Booking.deleteMany({}),
+      Payment.deleteMany({}),
+      OwnerVerification.deleteMany({}),
+      PropertyVerification.deleteMany({}),
+      PropertyVerificationDocument.deleteMany({}),
+      LeadListing.deleteMany({}),
+    ]);
+
+    await AuditLog.deleteMany({});
+
+    await AuditLog.create({
+      actor: new Types.ObjectId(adminUserId),
+      action: 'ALL_TEST_DATA_CLEARED',
+      targetType: 'System',
+      metadata: {
+        deletedUsers: userDeleteResult.deletedCount,
+        deletedHosts: hostDeleteResult.deletedCount,
+        deletedProperties: propRes.deletedCount,
+        deletedBookings: bookRes.deletedCount,
+        deletedLeads: leadRes.deletedCount,
+      }
+    });
+
+    res.json({
+      success: true,
+      message: 'All platform test data cleared successfully.',
+      data: {
+        deletedUsers: userDeleteResult.deletedCount,
+        deletedHosts: hostDeleteResult.deletedCount,
+        deletedProperties: propRes.deletedCount,
+        deletedBookings: bookRes.deletedCount,
+        deletedLeads: leadRes.deletedCount,
+      }
+    });
   } catch (error) {
     next(error);
   }

@@ -12,6 +12,7 @@ export interface IUser {
   isPhoneVerified: boolean;
   avatarUrl?: string;
   tokenVersion: number;
+  lastLoginAt?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -46,6 +47,7 @@ const userSchema = new Schema<IUser>(
     isPhoneVerified: { type: Boolean, default: false },
     avatarUrl: { type: String, trim: true },
     tokenVersion: { type: Number, default: 0 },
+    lastLoginAt: { type: Date },
   },
   { timestamps: true }
 );

@@ -14,8 +14,11 @@ export interface IAuditLog {
     | 'HOST_SUSPENDED'
     | 'HOST_SUBMITTED'
     | 'HOST_RESUBMITTED'
-    | 'SETTINGS_UPDATED';
-  targetType: 'Property' | 'Host' | 'System';
+    | 'SETTINGS_UPDATED'
+    | 'USER_ROLE_UPDATED'
+    | 'USER_SESSIONS_REVOKED'
+    | 'ALL_TEST_DATA_CLEARED';
+  targetType: 'Property' | 'Host' | 'User' | 'System';
   targetId?: Types.ObjectId;
   metadata?: Record<string, unknown>;
   createdAt: Date;
@@ -42,12 +45,15 @@ const auditLogSchema = new Schema<IAuditLog>(
         'HOST_SUBMITTED',
         'HOST_RESUBMITTED',
         'SETTINGS_UPDATED',
+        'USER_ROLE_UPDATED',
+        'USER_SESSIONS_REVOKED',
+        'ALL_TEST_DATA_CLEARED',
       ],
       required: true,
     },
     targetType: {
       type: String,
-      enum: ['Property', 'Host', 'System'],
+      enum: ['Property', 'Host', 'User', 'System'],
       required: true,
     },
     targetId: { type: Schema.Types.ObjectId },

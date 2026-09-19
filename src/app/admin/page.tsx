@@ -11,10 +11,15 @@ import {
   rejectAdminHost,
   suspendAdminHost,
   getAdminAuditLogs,
+  getAdminUsers,
+  updateAdminUserRole,
+  revokeAdminUserSessions,
+  clearAdminData,
   searchGoogleLeads,
   importAndInviteLead,
   createLeadListing,
   API_BASE_URL,
+  type AdminUserItem,
 } from "@/lib/api";
 import {
   CheckCircle,
@@ -23,6 +28,7 @@ import {
   FileText,
   Building2,
   UserCheck,
+  Users,
   Eye,
   X,
   Loader2,
@@ -37,6 +43,12 @@ import {
   Sparkles,
   Copy,
   CheckCircle2,
+  ShieldAlert,
+  LogOut,
+  RefreshCw,
+  User,
+  Key,
+  Trash2,
 } from "lucide-react";
 
 interface PropertyQueueItem {
@@ -143,7 +155,7 @@ interface AuditLogItem {
 export default function AdminDashboardPage() {
   const { user } = useAuthModal();
 
-  const [mainTab, setMainTab] = useState<"PROPERTIES" | "HOSTS" | "AUDIT_LOGS" | "LEAD_DISCOVERY">("PROPERTIES");
+  const [mainTab, setMainTab] = useState<"PROPERTIES" | "HOSTS" | "USERS" | "AUDIT_LOGS" | "LEAD_DISCOVERY">("PROPERTIES");
 
   const [stats, setStats] = useState<{ users: number; hosts: number; properties: number; bookings: number } | null>(null);
   
@@ -154,6 +166,12 @@ export default function AdminDashboardPage() {
   // Host Queue State
   const [hostQueue, setHostQueue] = useState<HostQueueItem[]>([]);
   const [hostStatus, setHostStatus] = useState("pending");
+
+  // User Management State
+  const [usersList, setUsersList] = useState<AdminUserItem[]>([]);
+  const [userRoleFilter, setUserRoleFilter] = useState<string>("ALL");
+  const [userSearchQuery, setUserSearchQuery] = useState<string>("");
+  const [userActionId, setUserActionId] = useState<string | null>(null);
 
   // Audit Logs State
   const [auditLogs, setAuditLogs] = useState<AuditLogItem[]>([]);
@@ -212,6 +230,9 @@ export default function AdminDashboardPage() {
       } else if (mainTab === "HOSTS") {
         const hostsRes = await getAdminHostQueue(hostStatus);
         setHostQueue(hostsRes as unknown as HostQueueItem[]);
+      } else if (mainTab === "USERS") {
+        const usersRes = await getAdminUsers({ role: userRoleFilter, search: userSearchQuery });
+        setUsersList(usersRes);
       } else if (mainTab === "AUDIT_LOGS") {
         const logsRes = await getAdminAuditLogs();
         setAuditLogs(logsRes as unknown as AuditLogItem[]);
@@ -221,7 +242,55 @@ export default function AdminDashboardPage() {
     } finally {
       setLoading(false);
     }
-  }, [mainTab, propertyStatus, hostStatus]);
+  }, [mainTab, propertyStatus, hostStatus, userRoleFilter, userSearchQuery]);
+
+  const handleRoleChange = async (userId: string, newRole: "guest" | "host" | "admin") => {
+    if (!confirm(`Are you sure you want to change this user's role to ${newRole.toUpperCase()}?`)) return;
+    setUserActionId(userId);
+    try {
+      const updated = await updateAdminUserRole(userId, newRole);
+      setUsersList((prev) => prev.map((u) => (u._id === userId ? { ...u, role: updated.role } : u)));
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : "Failed to update user role.");
+    } finally {
+      setUserActionId(null);
+    }
+  };
+
+  const handleRevokeSessions = async (userId: string, userName: string) => {
+    if (!confirm(`Are you sure you want to revoke active sessions for ${userName}? They will be forced to log in again immediately.`)) return;
+    setUserActionId(userId);
+    try {
+      const updated = await revokeAdminUserSessions(userId);
+      setUsersList((prev) => prev.map((u) => (u._id === userId ? { ...u, tokenVersion: updated.tokenVersion } : u)));
+      alert(`Active sessions for ${userName} have been revoked successfully.`);
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : "Failed to revoke sessions.");
+    } finally {
+      setUserActionId(null);
+    }
+  };
+
+  const [clearingData, setClearingData] = useState(false);
+
+  const handleClearAllData = async () => {
+    const confirmation = prompt('DANGER: Type "DELETE" to clear all test properties, hosts, bookings, leads, verifications, and test users:');
+    if (confirmation !== "DELETE") {
+      alert("Operation cancelled. Confirmation text did not match 'DELETE'.");
+      return;
+    }
+
+    setClearingData(true);
+    try {
+      const res = await clearAdminData();
+      alert(`Database successfully cleaned!\n- Deleted ${res.deletedUsers} test users\n- Deleted ${res.deletedHosts} hosts\n- Deleted ${res.deletedProperties} properties\n- Deleted ${res.deletedBookings} bookings\n- Deleted ${res.deletedLeads} leads`);
+      await loadData();
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : "Failed to clear platform data.");
+    } finally {
+      setClearingData(false);
+    }
+  };
 
   useEffect(() => {
     if (user?.role?.toLowerCase() === "admin") {
@@ -412,8 +481,16 @@ export default function AdminDashboardPage() {
       <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
           <h1 className="text-3xl font-bold text-ink-soft">Admin Verification Portal</h1>
-          <p className="text-sm text-muted">Review host identity verifications, property submissions, and platform compliance.</p>
+          <p className="text-sm text-muted">Review host identity verifications, property submissions, user management, and platform compliance.</p>
         </div>
+
+        <button
+          onClick={handleClearAllData}
+          disabled={clearingData}
+          className="inline-flex items-center gap-2 rounded-xl bg-red-600 px-5 py-2.5 text-xs font-bold text-white shadow-xs transition hover:bg-red-700 disabled:opacity-50 shrink-0"
+        >
+          {clearingData ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />} Clear All Test Data
+        </button>
       </div>
 
       {stats && (
@@ -443,6 +520,15 @@ export default function AdminDashboardPage() {
           }`}
         >
           <UserCheck className="h-4 w-4" /> Host Verification Queue
+        </button>
+
+        <button
+          onClick={() => setMainTab("USERS")}
+          className={`inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-xs font-bold transition ${
+            mainTab === "USERS" ? "bg-brand text-white shadow-sm" : "bg-white text-muted hover:bg-canvas"
+          }`}
+        >
+          <Users className="h-4 w-4" /> User Management & Active Sessions
         </button>
 
         <button
@@ -714,6 +800,205 @@ export default function AdminDashboardPage() {
               </table>
             </div>
           )}
+        </div>
+      )}
+
+      {/* USER MANAGEMENT & LOGIN SESSIONS VIEW */}
+      {mainTab === "USERS" && (
+        <div className="space-y-6">
+          <div className="rounded-3xl border border-border bg-white p-6 shadow-xs sm:p-8">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand/10 text-brand">
+                  <Users className="h-5 w-5" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold text-ink-soft">Platform User Management & Login Activity</h2>
+                  <p className="text-xs text-muted">Monitor logged-in accounts, track active login timestamps, assign system roles, and enforce session revocations.</p>
+                </div>
+              </div>
+
+              <button
+                onClick={() => loadData()}
+                className="inline-flex items-center gap-2 rounded-xl border border-border bg-canvas px-4 py-2 text-xs font-semibold text-ink-soft hover:bg-canvas/80 transition"
+              >
+                <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin text-brand' : ''}`} /> Refresh Directory
+              </button>
+            </div>
+
+            {/* Filter & Search Bar */}
+            <div className="flex flex-wrap items-center justify-between gap-4 border-t border-border pt-4">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-xs font-bold text-muted mr-1">Filter Role:</span>
+                {["ALL", "guest", "host", "admin"].map((roleKey) => (
+                  <button
+                    key={roleKey}
+                    onClick={() => setUserRoleFilter(roleKey)}
+                    className={`rounded-xl px-3.5 py-1.5 text-xs font-bold capitalize transition ${
+                      userRoleFilter === roleKey
+                        ? "bg-brand text-white shadow-xs"
+                        : "bg-canvas text-muted hover:bg-canvas/80"
+                    }`}
+                  >
+                    {roleKey === "ALL" ? "All Users" : roleKey}
+                  </button>
+                ))}
+              </div>
+
+              <div className="relative flex-1 min-w-[240px] max-w-md">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted" />
+                <input
+                  type="text"
+                  placeholder="Search user by name, email, or mobile..."
+                  value={userSearchQuery}
+                  onChange={(e) => setUserSearchQuery(e.target.value)}
+                  className="w-full rounded-xl border border-border bg-canvas pl-9 pr-4 py-2 text-xs text-ink-soft focus:border-brand focus:outline-none"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* User Directory Table Card */}
+          <div className="rounded-2xl border border-border bg-white shadow-sm overflow-hidden">
+            {loading ? (
+              <div className="py-16 text-center text-muted">
+                <Loader2 className="mx-auto mb-2 h-6 w-6 animate-spin text-brand" />
+                Loading registered user accounts...
+              </div>
+            ) : usersList.length === 0 ? (
+              <div className="py-16 text-center text-muted">
+                <User className="mx-auto mb-2 h-8 w-8 text-muted/60" />
+                <p className="text-sm font-semibold">No users found matching your search criteria.</p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-sm">
+                  <thead className="border-b border-border bg-canvas/60 text-xs uppercase text-muted">
+                    <tr>
+                      <th className="px-5 py-3.5 font-bold">User Account</th>
+                      <th className="px-5 py-3.5 font-bold">Role</th>
+                      <th className="px-5 py-3.5 font-bold">Auth Provider</th>
+                      <th className="px-5 py-3.5 font-bold">Last Login Activity</th>
+                      <th className="px-5 py-3.5 font-bold">Registered On</th>
+                      <th className="px-5 py-3.5 font-bold text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border">
+                    {usersList.map((u) => {
+                      const isRecentlyActive = u.lastLoginAt && (new Date().getTime() - new Date(u.lastLoginAt).getTime()) < 15 * 60 * 1000;
+                      const isWithin24h = u.lastLoginAt && (new Date().getTime() - new Date(u.lastLoginAt).getTime()) < 24 * 60 * 60 * 1000;
+
+                      return (
+                        <tr key={u._id} className="hover:bg-canvas/40 transition text-xs">
+                          <td className="px-5 py-4">
+                            <div className="flex items-center gap-3">
+                              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-brand/10 text-brand font-bold text-sm shrink-0">
+                                {u.name ? u.name.charAt(0).toUpperCase() : "U"}
+                              </div>
+                              <div className="min-w-0">
+                                <div className="flex items-center gap-1.5">
+                                  <span className="font-bold text-ink-soft text-sm truncate">{u.name || "Anonymous User"}</span>
+                                  {u.isEmailVerified && (
+                                    <span title="Email Verified">
+                                      <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
+                                    </span>
+                                  )}
+                                </div>
+                                <p className="text-muted truncate">{u.email}</p>
+                                {(u.mobile || u.phone) && (
+                                  <p className="text-[11px] text-muted font-mono">{u.mobile || u.phone}</p>
+                                )}
+                              </div>
+                            </div>
+                          </td>
+
+                          <td className="px-5 py-4">
+                            <div className="flex items-center gap-2">
+                              <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider ${
+                                u.role === 'admin' ? 'bg-purple-100 text-purple-800 border border-purple-200' :
+                                u.role === 'host' ? 'bg-amber-100 text-amber-800 border border-amber-200' :
+                                'bg-blue-100 text-blue-800 border border-blue-200'
+                              }`}>
+                                {u.role === 'admin' && <ShieldCheck className="h-3 w-3" />}
+                                {u.role === 'host' && <Building2 className="h-3 w-3" />}
+                                {u.role === 'guest' && <User className="h-3 w-3" />}
+                                {u.role}
+                              </span>
+
+                              <select
+                                value={u.role}
+                                disabled={userActionId === u._id}
+                                onChange={(e) => handleRoleChange(u._id, e.target.value as 'guest' | 'host' | 'admin')}
+                                className="rounded-lg border border-border bg-white px-2 py-1 text-[11px] font-semibold text-ink-soft focus:border-brand focus:outline-none"
+                              >
+                                <option value="guest">Guest</option>
+                                <option value="host">Host</option>
+                                <option value="admin">Admin</option>
+                              </select>
+                            </div>
+                          </td>
+
+                          <td className="px-5 py-4">
+                            <span className="inline-flex items-center gap-1 rounded-md bg-canvas px-2.5 py-1 text-[11px] font-semibold text-ink-soft border border-border/80">
+                              {u.authProvider === 'google' ? 'Google OAuth' : 'Email & Password'}
+                            </span>
+                          </td>
+
+                          <td className="px-5 py-4">
+                            {isRecentlyActive ? (
+                              <div className="flex items-center gap-2">
+                                <span className="relative flex h-2.5 w-2.5">
+                                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                                </span>
+                                <div>
+                                  <span className="font-bold text-emerald-700">Online / Active Now</span>
+                                  <p className="text-[10px] text-muted">
+                                    {new Date(u.lastLoginAt!).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                  </p>
+                                </div>
+                              </div>
+                            ) : u.lastLoginAt ? (
+                              <div>
+                                <span className={`font-semibold ${isWithin24h ? 'text-ink-soft' : 'text-muted'}`}>
+                                  {new Date(u.lastLoginAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                                </span>
+                                <p className="text-[10px] text-muted">
+                                  {new Date(u.lastLoginAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                </p>
+                              </div>
+                            ) : (
+                              <span className="text-gray-400 italic">Never logged in</span>
+                            )}
+                          </td>
+
+                          <td className="px-5 py-4 text-muted">
+                            {new Date(u.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                          </td>
+
+                          <td className="px-5 py-4 text-right">
+                            <button
+                              onClick={() => handleRevokeSessions(u._id, u.name || u.email)}
+                              disabled={userActionId === u._id}
+                              className="inline-flex items-center gap-1.5 rounded-xl border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-700 hover:bg-red-100 transition disabled:opacity-50"
+                              title="Force logout on all active devices"
+                            >
+                              {userActionId === u._id ? (
+                                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                              ) : (
+                                <LogOut className="h-3.5 w-3.5" />
+                              )}
+                              Revoke Sessions
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
         </div>
       )}
 
@@ -1192,6 +1477,9 @@ export default function AdminDashboardPage() {
                     {copiedLink ? "Copied!" : "Copy Link"}
                   </button>
                 </div>
+                <p className="mt-1.5 flex items-center gap-1 text-[11px] font-bold text-amber-700">
+                  <Clock className="h-3.5 w-3.5 text-amber-600" /> Claim Link Expiration: Valid for 4 days
+                </p>
               </div>
             </div>
 

@@ -1088,3 +1088,59 @@ export async function submitHostPropertyForReview(propertyId: string) {
 	if (!response.ok || !body.data) throw new Error(body.error?.message ?? "Failed to submit property.");
 	return body.data;
 }
+
+export type AdminUserItem = {
+	_id: string;
+	name: string;
+	email: string;
+	phone?: string;
+	mobile?: string;
+	role: 'guest' | 'host' | 'admin';
+	authProvider?: string;
+	isEmailVerified?: boolean;
+	isPhoneVerified?: boolean;
+	lastLoginAt?: string;
+	createdAt: string;
+	tokenVersion?: number;
+};
+
+export async function getAdminUsers(params?: { role?: string; search?: string }): Promise<AdminUserItem[]> {
+	const query = new URLSearchParams();
+	if (params?.role) query.append('role', params.role);
+	if (params?.search) query.append('search', params.search);
+
+	const url = `${API_BASE_URL}/api/admin/users${query.toString() ? `?${query.toString()}` : ''}`;
+	const response = await apiFetch(url, { cache: "no-store" });
+	const body = await safeJsonResponse<{ data?: { users: AdminUserItem[] }; error?: { message?: string } }>(response, "Failed to fetch platform users.");
+	if (!response.ok || !body.data) throw new Error(body.error?.message ?? "Failed to fetch platform users.");
+	return body.data.users;
+}
+
+export async function updateAdminUserRole(userId: string, role: 'guest' | 'host' | 'admin'): Promise<AdminUserItem> {
+	const response = await apiFetch(`${API_BASE_URL}/api/admin/users/${userId}/role`, {
+		method: "PUT",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify({ role })
+	});
+	const body = await safeJsonResponse<{ data?: { user: AdminUserItem }; error?: { message?: string } }>(response, "Failed to update user role.");
+	if (!response.ok || !body.data) throw new Error(body.error?.message ?? "Failed to update user role.");
+	return body.data.user;
+}
+
+export async function revokeAdminUserSessions(userId: string): Promise<AdminUserItem> {
+	const response = await apiFetch(`${API_BASE_URL}/api/admin/users/${userId}/revoke-sessions`, {
+		method: "POST"
+	});
+	const body = await safeJsonResponse<{ data?: { user: AdminUserItem }; message?: string; error?: { message?: string } }>(response, "Failed to revoke user sessions.");
+	if (!response.ok || !body.data) throw new Error(body.error?.message ?? "Failed to revoke user sessions.");
+	return body.data.user;
+}
+
+export async function clearAdminData(): Promise<{ deletedUsers: number; deletedHosts: number; deletedProperties: number; deletedBookings: number; deletedLeads: number }> {
+	const response = await apiFetch(`${API_BASE_URL}/api/admin/clear-all-data`, {
+		method: "POST"
+	});
+	const body = await safeJsonResponse<{ data?: any; message?: string; error?: { message?: string } }>(response, "Failed to clear platform data.");
+	if (!response.ok || !body.data) throw new Error(body.error?.message ?? "Failed to clear platform data.");
+	return body.data;
+}
