@@ -228,17 +228,39 @@ export async function discoverFromGooglePlaces(city: string, category = 'hotel',
           }
         }
 
-        rawPlacesInput = placeResults.slice(0, targetLimit).map((place: any) => ({
-          sourcePlaceId: place.place_id,
-          title: place.name,
-          propertyType: category,
-          city,
-          locality: place.formatted_address?.split(',')?.[1]?.trim() || city,
-          address: place.formatted_address || `${place.name}, ${city}`,
-          latitude: place.geometry?.location?.lat,
-          longitude: place.geometry?.location?.lng,
-          source: 'google_places' as const,
-        }));
+        const targetPlaces = placeResults.slice(0, targetLimit);
+        rawPlacesInput = await Promise.all(
+          targetPlaces.map(async (place: any) => {
+            let phone: string | undefined = undefined;
+            let website: string | undefined = undefined;
+
+            try {
+              const detailsUrl = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${place.place_id}&fields=formatted_phone_number,international_phone_number,website&key=${apiKey}`;
+              const dRes = await fetch(detailsUrl);
+              const dJson = (await dRes.json()) as any;
+              if (dRes.ok && dJson?.status === 'OK' && dJson?.result) {
+                phone = dJson.result.formatted_phone_number || dJson.result.international_phone_number;
+                website = dJson.result.website;
+              }
+            } catch {
+              // Ignore place details fetch errors gracefully
+            }
+
+            return {
+              sourcePlaceId: place.place_id,
+              title: place.name,
+              propertyType: category,
+              city,
+              locality: place.formatted_address?.split(',')?.[1]?.trim() || city,
+              address: place.formatted_address || `${place.name}, ${city}`,
+              phone,
+              website,
+              latitude: place.geometry?.location?.lat,
+              longitude: place.geometry?.location?.lng,
+              source: 'google_places' as const,
+            };
+          })
+        );
       } else {
         console.warn(`[Discovery Engine] Google Places API returned status '${json?.status}'. Error: '${json?.error_message || 'None'}'. Using discovery fallbacks.`);
       }
