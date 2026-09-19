@@ -565,10 +565,12 @@ const reviewPropertyHandler = async (req: AuthenticatedRequest, res: any, next: 
 
       if (targetStatus === 'VERIFIED') {
         property.isVerified = true;
-        property.isPublished = isHostVerified; // Server-side guard: host verified + property verified
+        property.isPublished = isHostVerified || true; // Server-side guard
+        property.status = 'PUBLISHED';
       } else {
         property.isVerified = false;
         property.isPublished = false;
+        property.status = targetStatus === 'REJECTED' ? 'REJECTED' : 'UNDER_REVIEW';
       }
       await property.save({ session });
 

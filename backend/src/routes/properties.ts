@@ -83,16 +83,23 @@ router.get('/search', async (req, res, next) => {
     const verifiedHostIds = verifiedHosts.map((h) => h._id);
 
     const propertyFilter: Record<string, unknown> = {
-      verificationStatus: 'VERIFIED',
       isVerified: true,
       isPublished: true,
+      $or: [
+        { verificationStatus: { $in: ['VERIFIED', 'PUBLISHED'] } },
+        { status: { $in: ['VERIFIED', 'PUBLISHED'] } },
+      ],
       host: { $in: verifiedHostIds },
     };
     if (query.destination) {
-      propertyFilter.$or = [
-        { city: new RegExp(escapeRegex(query.destination), 'i') },
-        { locality: new RegExp(escapeRegex(query.destination), 'i') },
-        { title: new RegExp(escapeRegex(query.destination), 'i') },
+      propertyFilter.$and = [
+        {
+          $or: [
+            { city: new RegExp(escapeRegex(query.destination), 'i') },
+            { locality: new RegExp(escapeRegex(query.destination), 'i') },
+            { title: new RegExp(escapeRegex(query.destination), 'i') },
+          ],
+        },
       ];
     }
     if (query.propertyType) propertyFilter.propertyType = query.propertyType;
@@ -124,15 +131,21 @@ router.get('/:id', async (req, res, next) => {
       res.status(404).json({ success: false, error: { code: 'PROPERTY_NOT_FOUND', message: 'Property not found.' } });
       return;
     }
-    const property = await Property.findOne({ _id: req.params.id, verificationStatus: 'VERIFIED', isVerified: true, isPublished: true }).lean();
+    const property = await Property.findOne({
+      _id: req.params.id,
+      isVerified: true,
+      isPublished: true,
+    }).lean();
     if (!property) {
-      res.status(404).json({ success: false, error: { code: 'PROPERTY_NOT_FOUND', message: 'Property not found.' } });
+      res.status(404).json({ success: false, error: { code: 'PROPERTY_NOT_FOUND', message: 'Property not found or not published.' } });
       return;
     }
-    const hostDoc = await Host.findById(property.host).lean();
-    if (!hostDoc || hostDoc.verificationStatus !== 'verified' || !hostDoc.isActive) {
-      res.status(404).json({ success: false, error: { code: 'PROPERTY_NOT_FOUND', message: 'Property not available.' } });
-      return;
+    if (property.host) {
+      const hostDoc = await Host.findById(property.host).lean();
+      if (!hostDoc || hostDoc.verificationStatus !== 'verified' || !hostDoc.isActive) {
+        res.status(404).json({ success: false, error: { code: 'PROPERTY_NOT_FOUND', message: 'Property not available.' } });
+        return;
+      }
     }
 
     const rooms = await Room.find({ property: property._id, isActive: true }).lean();
@@ -140,10 +153,32 @@ router.get('/:id', async (req, res, next) => {
   } catch (error) { next(error); }
 });
 
+router.post('/:id/submit-review', requireAuth, async (req: AuthenticatedRequest, res, next) => {
+  try {
+    const propertyId = String(Array.isArray(req.params.id) ? req.params.id[0] : req.params.id);
+    if (!Types.ObjectId.isValid(propertyId)) {
+      res.status(404).json({ success: false, error: { code: 'PROPERTY_NOT_FOUND', message: 'Property not found.' } });
+      return;
+    }
+    const property = await Property.findById(propertyId);
+    if (!property) {
+      res.status(404).json({ success: false, error: { code: 'PROPERTY_NOT_FOUND', message: 'Property not found.' } });
+      return;
+    }
+    property.status = 'UNDER_REVIEW';
+    property.verificationStatus = 'PENDING_REVIEW';
+    property.isPublished = false;
+    property.isVerified = false;
+    await property.save();
+
+    res.json({ success: true, data: { property, message: 'Property submitted for admin review successfully.' } });
+  } catch (error) { next(error); }
+});
+
 router.post('/:id/bookings', requireAuth, bookingLimiter, async (req: AuthenticatedRequest, res, next) => {
   const session = await Booking.startSession();
   try {
-    const propertyId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+    const propertyId = String(Array.isArray(req.params.id) ? req.params.id[0] : req.params.id);
     if (!Types.ObjectId.isValid(propertyId)) {
       res.status(404).json({ success: false, error: { code: 'PROPERTY_NOT_FOUND', message: 'Property not found.' } });
       return;
@@ -163,7 +198,11 @@ router.post('/:id/bookings', requireAuth, bookingLimiter, async (req: Authentica
     if (!auth) throw new Error('UNAUTHORIZED');
     let booking;
     await session.withTransaction(async () => {
-      const property = await Property.findOne({ _id: propertyId, verificationStatus: 'VERIFIED', isVerified: true, isPublished: true }).session(session);
+      const property = await Property.findOne({
+        _id: propertyId,
+        isVerified: true,
+        isPublished: true,
+      }).session(session);
       if (!property) throw new Error('ROOM_UNAVAILABLE');
       const hostDoc = await Host.findById(property.host).session(session);
       if (!hostDoc || hostDoc.verificationStatus !== 'verified' || !hostDoc.isActive) throw new Error('ROOM_UNAVAILABLE');

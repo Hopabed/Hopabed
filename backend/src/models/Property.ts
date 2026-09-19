@@ -1,7 +1,7 @@
 import { Schema, model, type HydratedDocument, type Model, Types } from 'mongoose';
 
 export interface IProperty {
-  host: Types.ObjectId;
+  host?: Types.ObjectId;
   title: string;
   slug: string;
   propertyType:
@@ -30,6 +30,8 @@ export interface IProperty {
   pinCode?: string;
   contactEmail?: string;
   contactPhone?: string;
+  phone?: string;
+  website?: string;
   bedrooms?: number;
   bathrooms?: number;
   maxGuests?: number;
@@ -45,10 +47,17 @@ export interface IProperty {
   isVerified: boolean;
   isPublished: boolean;
   isFeatured: boolean;
-  verificationStatus: 'DRAFT' | 'PENDING_REVIEW' | 'CHANGES_REQUESTED' | 'VERIFIED' | 'REJECTED' | 'SUSPENDED';
+  status: 'UNCLAIMED' | 'DRAFT' | 'SUBMITTED' | 'UNDER_REVIEW' | 'VERIFIED' | 'PUBLISHED' | 'REJECTED';
+  verificationStatus: 'DRAFT' | 'PENDING_REVIEW' | 'UNDER_REVIEW' | 'CHANGES_REQUESTED' | 'VERIFIED' | 'PUBLISHED' | 'REJECTED' | 'SUSPENDED';
   rejectionReason?: string;
   isOperator?: boolean;
   operatorRole?: 'owner' | 'lease_holder' | 'property_manager' | 'authorized_operator';
+  source?: 'google_places' | 'manual' | 'owner_submitted';
+  sourcePlaceId?: string;
+  sourceUrl?: string;
+  claimed?: boolean;
+  claimToken?: string;
+  ownerId?: Types.ObjectId;
   ownerInfo?: {
     fullName: string;
     phone: string;
@@ -68,7 +77,7 @@ export type PropertyDocument = HydratedDocument<IProperty>;
 
 const propertySchema = new Schema<IProperty>(
   {
-    host: { type: Schema.Types.ObjectId, ref: 'Host', required: true },
+    host: { type: Schema.Types.ObjectId, ref: 'Host', required: false },
     title: { type: String, required: true, trim: true, maxlength: 160 },
     slug: { type: String, required: true, trim: true, lowercase: true },
     propertyType: {
@@ -120,6 +129,8 @@ const propertySchema = new Schema<IProperty>(
     pinCode: { type: String, trim: true },
     contactEmail: { type: String, trim: true },
     contactPhone: { type: String, trim: true },
+    phone: { type: String, trim: true },
+    website: { type: String, trim: true },
     bedrooms: { type: Number, default: 0, min: 0 },
     bathrooms: { type: Number, default: 0, min: 0 },
     maxGuests: { type: Number, default: 0, min: 0 },
@@ -135,9 +146,15 @@ const propertySchema = new Schema<IProperty>(
     isVerified: { type: Boolean, default: false },
     isPublished: { type: Boolean, default: false },
     isFeatured: { type: Boolean, default: false },
+    status: {
+      type: String,
+      enum: ['UNCLAIMED', 'DRAFT', 'SUBMITTED', 'UNDER_REVIEW', 'VERIFIED', 'PUBLISHED', 'REJECTED'],
+      default: 'UNCLAIMED',
+      index: true,
+    },
     verificationStatus: {
       type: String,
-      enum: ['DRAFT', 'PENDING_REVIEW', 'CHANGES_REQUESTED', 'VERIFIED', 'REJECTED', 'SUSPENDED'],
+      enum: ['DRAFT', 'PENDING_REVIEW', 'UNDER_REVIEW', 'CHANGES_REQUESTED', 'VERIFIED', 'PUBLISHED', 'REJECTED', 'SUSPENDED'],
       default: 'DRAFT',
     },
     rejectionReason: { type: String, trim: true },
@@ -147,6 +164,12 @@ const propertySchema = new Schema<IProperty>(
       enum: ['owner', 'lease_holder', 'property_manager', 'authorized_operator'],
       default: 'owner',
     },
+    source: { type: String, enum: ['google_places', 'manual', 'owner_submitted'], default: 'manual' },
+    sourcePlaceId: { type: String, trim: true, sparse: true, index: true },
+    sourceUrl: { type: String, trim: true },
+    claimed: { type: Boolean, default: false, index: true },
+    claimToken: { type: String, trim: true, sparse: true, index: true },
+    ownerId: { type: Schema.Types.ObjectId, ref: 'Host' },
     ownerInfo: {
       fullName: { type: String, trim: true },
       phone: { type: String, trim: true },
@@ -166,7 +189,10 @@ propertySchema.index({ host: 1, isPublished: 1 });
 propertySchema.index({ city: 1, locality: 1, isPublished: 1 });
 propertySchema.index({ pricePerNight: 1, maxGuests: 1 });
 propertySchema.index({ isFeatured: 1, isPublished: 1 });
+propertySchema.index({ isVerified: 1, isPublished: 1, status: 1 });
 propertySchema.index({ slug: 1 }, { unique: true });
+propertySchema.index({ phone: 1 });
+propertySchema.index({ website: 1 });
 propertySchema.index({ location: '2dsphere' });
 
 export const Property: Model<IProperty> = model<IProperty>('Property', propertySchema);

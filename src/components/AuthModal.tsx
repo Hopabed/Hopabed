@@ -42,7 +42,9 @@ export function AuthModal() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [googleReady, setGoogleReady] = useState(false);
+  const [googleReady, setGoogleReady] = useState(() => {
+    return typeof window !== "undefined" && Boolean(window.google?.accounts?.id);
+  });
 
   const googleButtonRef = useRef<HTMLDivElement>(null);
   const googleClientId =
@@ -50,7 +52,14 @@ export function AuthModal() {
     "790859697143-rc3tgtgejdhoeoaqi300nbbnbj4sjetq.apps.googleusercontent.com";
 
   useEffect(() => {
-    if (!isAuthModalOpen || !googleReady || !googleClientId || !googleButtonRef.current || !window.google) return;
+    if (typeof window !== "undefined" && window.google?.accounts?.id) {
+      setGoogleReady(true);
+    }
+  }, [isAuthModalOpen]);
+
+  useEffect(() => {
+    if (!isAuthModalOpen || !googleClientId || !googleButtonRef.current) return;
+    if (typeof window === "undefined" || !window.google?.accounts?.id) return;
 
     try {
       googleButtonRef.current.replaceChildren();
@@ -70,8 +79,10 @@ export function AuthModal() {
         size: "large",
         width: 340,
       });
-    } catch {}
-  }, [googleClientId, googleReady, isAuthModalOpen, login]);
+    } catch (err) {
+      console.warn("[Google Auth Modal Warning] Error rendering Google button:", err);
+    }
+  }, [googleClientId, googleReady, isAuthModalOpen, googleLogin]);
 
   if (!isAuthModalOpen) return null;
 
@@ -103,8 +114,27 @@ export function AuthModal() {
     }
   };
 
-  const handleGoogleMockLogin = () => {
-    setError("Please wait for Google Sign-In to initialize.");
+  const handleGoogleClick = () => {
+    if (typeof window !== "undefined" && window.google?.accounts?.id) {
+      try {
+        window.google.accounts.id.initialize({
+          client_id: googleClientId,
+          callback: async ({ credential }) => {
+            try {
+              setError(null);
+              await googleLogin(credential);
+            } catch (err: any) {
+              setError(err.message || "Google sign-in failed");
+            }
+          },
+        });
+        window.google.accounts.id.prompt();
+      } catch (err: any) {
+        setError(err.message || "Please try again.");
+      }
+    } else {
+      setError("Google Sign-In script is loading. Please try again in a moment.");
+    }
   };
 
   return (
