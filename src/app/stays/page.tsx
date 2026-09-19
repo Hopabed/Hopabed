@@ -7,6 +7,8 @@ import { searchProperties } from "@/lib/api";
 import Link from "next/link";
 import { Sparkles, CheckCircle2 } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+
 export default async function StaysPage({
   searchParams,
 }: {
@@ -21,29 +23,16 @@ export default async function StaysPage({
   if (city) queryParams.set("city", city);
 
   let propertiesList: any[] = [];
+  let hasApiError = false;
+
   try {
     const apiProps = await searchProperties(queryParams);
-    if (apiProps && apiProps.length > 0) {
+    if (Array.isArray(apiProps)) {
       propertiesList = apiProps;
     }
   } catch (err) {
-    console.warn("[Hopebed API Warning] searchProperties failed, falling back to mock properties:", err);
-  }
-
-  if (propertiesList.length === 0) {
-    propertiesList = PROPERTIES.filter((p) => {
-      if (type) {
-        const normType = type.toLowerCase();
-        const pType = (p.type || p.propertyType || "").toLowerCase();
-        if (normType === "homestays") {
-          if (pType !== "homestays" && pType !== "villas") return false;
-        } else if (pType !== normType) {
-          return false;
-        }
-      }
-      if (city && !p.city.toLowerCase().includes(city.toLowerCase())) return false;
-      return true;
-    });
+    console.error("[Hopebed API Error] searchProperties failed:", err);
+    hasApiError = true;
   }
 
   return (
@@ -87,7 +76,7 @@ export default async function StaysPage({
             return (
               <Link
                 key={st.id}
-                href={`/stays?type=${st.id}`}
+                href={`/stays?type=${st.id}${city ? `&city=${encodeURIComponent(city)}` : ""}`}
                 style={{ color: isSelected ? "#ffffff" : "#0f172a" }}
                 className={`shrink-0 rounded-full px-4.5 py-2 text-xs font-bold transition-all ${
                   isSelected
@@ -108,24 +97,38 @@ export default async function StaysPage({
           <PromotionalAds limit={3} />
         </div>
 
-        {/* Properties Grid with Google Ads in Middle */}
-        {propertiesList.length === 0 ? (
+        {/* API Error State */}
+        {hasApiError ? (
+          <div className="rounded-2xl border border-rose-200 bg-rose-50 p-8 text-center shadow-sm">
+            <h2 className="text-lg font-bold text-rose-900 mb-2">Unable to connect to Hopebed database server</h2>
+            <p className="text-sm text-rose-700 max-w-md mx-auto mb-4">
+              We experienced a temporary network or server connectivity issue while retrieving live properties.
+            </p>
+            <Link href="/stays" className="inline-block rounded-xl bg-rose-600 px-5 py-2.5 text-xs font-bold text-white hover:bg-rose-700 transition-colors">
+              Refresh Property Search
+            </Link>
+          </div>
+        ) : propertiesList.length === 0 ? (
+          /* Empty Inventory State */
           <div className="rounded-2xl border border-gray-200 bg-white p-12 text-center shadow-sm">
-            <p className="text-gray-500">No properties currently found in this category.</p>
-            <Link href="/stays" className="mt-4 inline-block font-bold text-[#0b8f3c] hover:underline">
-              View all properties →
+            <h2 className="text-lg font-bold text-gray-900 mb-2">No properties currently found</h2>
+            <p className="text-gray-500 text-sm max-w-md mx-auto mb-4">
+              {city ? `No verified listings currently available in "${city}".` : "No properties found in this category."}
+            </p>
+            <Link href="/stays" className="inline-block font-bold text-[#0b8f3c] hover:underline text-sm">
+              View all verified stays →
             </Link>
           </div>
         ) : (
+          /* Properties Grid */
           <>
-            {/* Top Property Cards */}
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 mb-10">
               {propertiesList.slice(0, Math.min(6, propertiesList.length)).map((property) => (
                 <PropertyCard key={property.id} property={property} />
               ))}
             </div>
 
-            {/* 3 Sponsored Google Ads in Middle */}
+            {/* Google Ads in Middle */}
             <div className="my-10 pt-4 border-t border-gray-200">
               <GoogleAds />
             </div>

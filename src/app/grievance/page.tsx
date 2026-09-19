@@ -64,12 +64,12 @@ export default function GrievancePage() {
 
       <div className="mt-12 pt-8 border-t border-gray-100">
         <h2 className="text-xl font-bold text-ink-soft mb-4">Grievance Officer Details</h2>
-        <ul className="list-none text-sm text-muted space-y-2">
-          <li><strong>Name:</strong> [PLACEHOLDER_GRIEVANCE_OFFICER_NAME]</li>
-          <li><strong>Designation:</strong> [PLACEHOLDER_GRIEVANCE_OFFICER_DESIGNATION]</li>
-          <li><strong>Address:</strong> [PLACEHOLDER_GRIEVANCE_OFFICER_ADDRESS]</li>
-          <li><strong>Email:</strong> [PLACEHOLDER_GRIEVANCE_OFFICER_EMAIL]</li>
-          <li><strong>Phone:</strong> [PLACEHOLDER_GRIEVANCE_OFFICER_PHONE]</li>
+        <ul className="list-none text-sm text-muted space-y-2 bg-gray-50 p-4 rounded-xl border border-gray-100">
+          <li><strong>Name:</strong> Sharukh Mithagari</li>
+          <li><strong>Designation:</strong> Nodal Grievance & Compliance Officer</li>
+          <li><strong>Address:</strong> Hopebed Technologies, Sector 17, Vashi, Navi Mumbai, Maharashtra 400703, India</li>
+          <li><strong>Email:</strong> grievance@hopebed.in</li>
+          <li><strong>Phone:</strong> +91 9930467576</li>
         </ul>
       </div>
     </div>

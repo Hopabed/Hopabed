@@ -23,9 +23,6 @@ export function HostBanner() {
         </div>
         <div className="relative min-h-[240px]">
           <Image src={HOST_IMAGE} alt="Premium property for hosting" fill className="object-cover" sizes="50vw" />
-          <div className="absolute top-3 right-3 rounded-lg bg-amber-500/90 px-2.5 py-1 text-[10px] font-bold text-white shadow-sm">
-            TODO: replace with real property photos
-          </div>
           <div className="absolute bottom-5 left-5 flex items-center gap-2 rounded-xl bg-white px-3 py-2 shadow-md">
             <ShieldCheck className="h-4 w-4 text-brand" />
             <p className="text-sm text-ink-soft">

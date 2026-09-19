@@ -67,59 +67,53 @@ export async function checkDuplicateProperty(data: DiscoveredPlaceInput) {
   return null;
 }
 
-export async function createUnclaimedProperty(data: DiscoveredPlaceInput) {
-  // Deduplication check
-  const duplicate = await checkDuplicateProperty(data);
-  if (duplicate) {
-    return { created: false, duplicate: true, property: duplicate };
+export async function createUnclaimedLead(data: DiscoveredPlaceInput) {
+  // Deduplication check in LeadListing
+  if (data.sourcePlaceId && data.sourcePlaceId.trim().length > 0) {
+    const existingByPlaceId = await LeadListing.findOne({ placeId: data.sourcePlaceId.trim() });
+    if (existingByPlaceId) return { created: false, duplicate: true, lead: existingByPlaceId };
+
+    const existingProp = await Property.findOne({ sourcePlaceId: data.sourcePlaceId.trim() });
+    if (existingProp) return { created: false, duplicate: true, property: existingProp };
+  }
+
+  const normTitle = normalizeString(data.title);
+  const normCity = normalizeString(data.city);
+  if (normTitle && normCity) {
+    const existingByTitleCity = await LeadListing.findOne({
+      title: new RegExp(`^${normTitle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i'),
+      city: new RegExp(`^${normCity.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i'),
+    });
+    if (existingByTitleCity) return { created: false, duplicate: true, lead: existingByTitleCity };
   }
 
   const claimToken = Buffer.from(crypto.randomBytes(24)).toString('hex');
-  const slugBase = normalizeString(data.title).replace(/[^a-z0-9]+/g, '-');
-  const slug = `${slugBase}-${Date.now().toString().slice(-6)}`;
+  const placeId = data.sourcePlaceId || `lead_${data.city.toLowerCase().replace(/[^a-z0-9]+/g, '_')}_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
 
   const validTypes = ['hotel', 'pg', 'hostel', 'homestay', 'guesthouse', 'apartment', 'villa', 'studio', 'house', 'farmstay'];
   const pType = (data.propertyType && validTypes.includes(data.propertyType.toLowerCase()))
     ? data.propertyType.toLowerCase()
     : 'hotel';
 
-  const newProperty = new Property({
+  const newLead = await LeadListing.create({
+    placeId,
     title: data.title.trim(),
-    slug,
-    propertyType: pType as any,
-    category: 'stay',
+    propertyType: pType,
     city: data.city.trim(),
     locality: (data.locality || data.city).trim(),
     address: data.address.trim(),
-    country: 'India',
     phone: data.phone?.trim(),
-    contactPhone: data.phone?.trim(),
-    contactEmail: data.email?.trim(),
+    email: data.email?.trim(),
     website: data.website?.trim(),
-    sourcePlaceId: data.sourcePlaceId?.trim(),
-    sourceUrl: data.sourceUrl?.trim(),
-    source: data.source || 'manual',
+    source: data.source || 'google_places',
     primaryImage: data.primaryImage,
-    latitude: data.latitude,
-    longitude: data.longitude,
-    location: data.latitude && data.longitude ? { type: 'Point', coordinates: [data.longitude, data.latitude] } : undefined,
+    rating: 4.5,
     status: 'UNCLAIMED',
-    verificationStatus: 'DRAFT',
-    isVerified: false,
-    isPublished: false,
-    claimed: false,
     claimToken,
     claimExpiresAt: new Date(Date.now() + 4 * 24 * 60 * 60 * 1000),
-    amenities: ['Wifi', 'Housekeeping'],
-    currency: 'INR',
-    bedrooms: 0,
-    bathrooms: 0,
-    maxGuests: 0,
-    pricePerNight: 0,
   });
 
-  await newProperty.save();
-  return { created: true, duplicate: false, property: newProperty };
+  return { created: true, duplicate: false, lead: newLead };
 }
 
 function generateFallbackPlaces(city: string, category = 'hotel', limit = 20): DiscoveredPlaceInput[] {
@@ -282,9 +276,9 @@ export async function discoverFromGooglePlaces(city: string, category = 'hotel',
 
   const onboarded = [];
   for (const placeInput of rawPlacesInput) {
-    const result = await createUnclaimedProperty(placeInput);
-    if (result.created) {
-      onboarded.push(result.property);
+    const result = await createUnclaimedLead(placeInput);
+    if (result.created && result.lead) {
+      onboarded.push(result.lead);
     }
   }
 

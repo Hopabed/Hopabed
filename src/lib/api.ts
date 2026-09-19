@@ -676,14 +676,26 @@ export async function getPendingProperties() {
 }
 
 export async function verifyProperty(id: string, status: "VERIFIED" | "REJECTED", reason?: string) {
-
-
 	const response = await apiFetch(`${API_BASE_URL}/api/admin/properties/${id}/verify`, {
 		method: "PUT",
 		headers: { "Content-Type": "application/json" },
 		body: JSON.stringify({ status, reason })});
 	const body = (await response.json()) as { data?: { property: Record<string, unknown> }; error?: { message?: string } };
 	if (!response.ok || !body.data) throw new Error(body.error?.message ?? "Failed to verify property.");
+	return body.data.property;
+}
+
+export async function convertLeadToPropertyApi(leadData: Record<string, unknown>) {
+	const response = await apiFetch(`${API_BASE_URL}/api/outreach/admin/leads/convert-to-property`, {
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify(leadData),
+	});
+	const body = await safeJsonResponse<{ data?: { property: Record<string, unknown> }; error?: { message?: string } }>(
+		response,
+		"Failed to convert lead to property draft."
+	);
+	if (!response.ok || !body.data) throw new Error(body.error?.message ?? "Failed to convert lead to property.");
 	return body.data.property;
 }
 

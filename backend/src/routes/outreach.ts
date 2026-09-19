@@ -188,6 +188,143 @@ outreachRouter.post(
 );
 
 // ----------------------------------------------------------------------------
+// 1c. ADMIN: Convert Lead Listing into a Property Draft
+// ----------------------------------------------------------------------------
+outreachRouter.post(
+  '/admin/leads/convert-to-property',
+  requireAuth,
+  requireRole('admin'),
+  async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+    try {
+      const {
+        leadId,
+        title,
+        propertyType,
+        city,
+        locality,
+        address,
+        phone,
+        email,
+        website,
+        description,
+        primaryImage,
+        pricePerNight,
+        pricePerMonth,
+        isMonthlyAvailable,
+        messIncluded,
+        messMonthlyFee,
+        maxGuests,
+        amenities,
+        cancellationPolicy,
+      } = req.body as {
+        leadId: string;
+        title?: string;
+        propertyType?: string;
+        city?: string;
+        locality?: string;
+        address?: string;
+        phone?: string;
+        email?: string;
+        website?: string;
+        description?: string;
+        primaryImage?: string;
+        pricePerNight?: number;
+        pricePerMonth?: number;
+        isMonthlyAvailable?: boolean;
+        messIncluded?: boolean;
+        messMonthlyFee?: number;
+        maxGuests?: number;
+        amenities?: string[];
+        cancellationPolicy?: string;
+      };
+
+      if (!leadId) {
+        res.status(400).json({ error: { message: 'Lead ID is required for conversion.' } });
+        return;
+      }
+
+      const lead = await LeadListing.findById(leadId);
+      if (!lead) {
+        res.status(404).json({ error: { message: 'Lead listing not found.' } });
+        return;
+      }
+
+      const propTitle = (title || lead.title).trim();
+      const slugBase = propTitle.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+      const slug = `${slugBase}-${Date.now().toString().slice(-6)}`;
+
+      const firstHost = await Host.findOne({ isActive: true }) || await Host.create({ businessName: 'Hopebed Managed' });
+
+      const newProperty = new Property({
+        host: firstHost._id,
+        title: propTitle,
+        slug,
+        propertyType: propertyType || lead.propertyType || 'hotel',
+        category: 'stay',
+        city: (city || lead.city).trim(),
+        locality: (locality || lead.locality).trim(),
+        state: 'Maharashtra',
+        country: 'India',
+        address: (address || lead.address).trim(),
+        phone: phone || lead.phone,
+        contactPhone: phone || lead.phone,
+        contactEmail: email || lead.email,
+        website: website || lead.website,
+        description: description || `Verified stay in ${locality || lead.locality}, ${city || lead.city}. Handpicked property.`,
+        primaryImage: primaryImage || lead.primaryImage || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80',
+        pricePerNight: pricePerNight || 2500,
+        pricePerMonth: pricePerMonth || 0,
+        isMonthlyAvailable: Boolean(isMonthlyAvailable),
+        messIncluded: Boolean(messIncluded),
+        messMonthlyFee: messMonthlyFee || 0,
+        maxGuests: maxGuests || 2,
+        bedrooms: 1,
+        bathrooms: 1,
+        amenities: amenities && amenities.length > 0 ? amenities : ['Wi-Fi', 'Air Conditioning', 'Power Backup', 'Housekeeping'],
+        cancellationPolicy: cancellationPolicy || 'Free cancellation up to 48 hours before check-in',
+        status: 'DRAFT',
+        verificationStatus: 'DRAFT',
+        isVerified: false,
+        isPublished: false,
+        claimed: false,
+        currency: 'INR',
+      });
+
+      await newProperty.save();
+
+      // Create default standard Room for availability & booking calculations
+      const defaultRoom = await Room.create({
+        property: newProperty._id,
+        name: 'Standard Deluxe Room',
+        roomType: (propertyType || lead.propertyType) === 'pg' ? 'shared' : 'private',
+        capacity: maxGuests || 2,
+        inventory: 5,
+        pricePerNight: pricePerNight || 2500,
+        pricePerMonth: pricePerMonth || 0,
+        messIncluded: Boolean(messIncluded),
+        messMonthlyFee: messMonthlyFee || 0,
+        currency: 'INR',
+        isActive: true,
+      });
+
+      lead.status = 'CLAIMED';
+      await lead.save();
+
+      res.status(201).json({
+        data: {
+          message: 'Lead successfully converted to Property draft.',
+          property: newProperty,
+          room: defaultRoom,
+        },
+      });
+    } catch (error: any) {
+      console.error('[Outreach ERROR] Failed converting lead to property:', error);
+      res.status(500).json({ error: { message: error?.message || 'Failed to convert lead to property.' } });
+    }
+  }
+);
+
+// ----------------------------------------------------------------------------
 // 2. ADMIN: Import Lead & Send Automated Host Outreach Email
 // ----------------------------------------------------------------------------
 // ----------------------------------------------------------------------------

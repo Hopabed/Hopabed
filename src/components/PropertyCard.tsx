@@ -17,7 +17,7 @@ export function PropertyCard({ property }: { property: Partial<Property> & { id:
   const image = getValidImageUrl(rawImage);
   const price = property.pricePerNight || 3000;
   const rating = property.rating || 4.5;
-  const isVerified = property.isVerified ?? true;
+  const isVerified = Boolean(property.isVerified);
   const propType = property.type || property.propertyType || "stay";
 
   return (
