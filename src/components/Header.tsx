@@ -48,25 +48,29 @@ export default function Header() {
         <nav className="hidden md:flex items-center gap-6 lg:gap-10 xl:gap-12">
           <Link
             href="/stays"
-            className="text-sm lg:text-base font-bold text-white hover:text-[#0b8f3c] transition-colors whitespace-nowrap"
+            style={{ color: '#ffffff' }}
+            className="text-sm lg:text-base font-bold !text-white hover:!text-[#0b8f3c] transition-colors whitespace-nowrap"
           >
             Explore Stays
           </Link>
           <Link
             href="/stays?type=hotels"
-            className="text-sm lg:text-base font-bold text-white hover:text-[#0b8f3c] transition-colors whitespace-nowrap"
+            style={{ color: '#ffffff' }}
+            className="text-sm lg:text-base font-bold !text-white hover:!text-[#0b8f3c] transition-colors whitespace-nowrap"
           >
             Hotels
           </Link>
           <Link
             href="/stays?type=pg"
-            className="text-sm lg:text-base font-bold text-white hover:text-[#0b8f3c] transition-colors whitespace-nowrap"
+            style={{ color: '#ffffff' }}
+            className="text-sm lg:text-base font-bold !text-white hover:!text-[#0b8f3c] transition-colors whitespace-nowrap"
           >
             PG & Long-Stay
           </Link>
           <Link
             href="/stays?type=homestays"
-            className="text-sm lg:text-base font-bold text-white hover:text-[#0b8f3c] transition-colors whitespace-nowrap"
+            style={{ color: '#ffffff' }}
+            className="text-sm lg:text-base font-bold !text-white hover:!text-[#0b8f3c] transition-colors whitespace-nowrap"
           >
             Homestays & Villas
           </Link>
@@ -77,18 +81,20 @@ export default function Header() {
           {/* List Your Property CTA */}
           <Link
             href="/host"
-            className="hidden sm:flex items-center gap-1.5 rounded-full bg-[#0b8f3c] hover:bg-[#06752f] px-4.5 py-2 text-xs sm:text-sm font-bold text-white shadow-xs hover:shadow transition-all whitespace-nowrap"
+            style={{ color: '#ffffff' }}
+            className="hidden sm:flex items-center gap-1.5 rounded-full bg-[#0b8f3c] hover:bg-[#06752f] px-4.5 py-2 text-xs sm:text-sm font-bold !text-white shadow-xs hover:shadow transition-all whitespace-nowrap"
           >
             <PlusCircle className="h-4 w-4 text-white shrink-0" />
-            <span>List Your Property</span>
+            <span style={{ color: '#ffffff' }}>List Your Property</span>
           </Link>
 
           <Link
             href="/contact"
-            className="hidden lg:flex items-center gap-1.5 text-sm font-bold text-white hover:text-emerald-400 transition-colors whitespace-nowrap"
+            style={{ color: '#ffffff' }}
+            className="hidden lg:flex items-center gap-1.5 text-sm font-bold !text-white hover:!text-emerald-400 transition-colors whitespace-nowrap"
           >
             <HelpCircle className="h-4 w-4 text-white shrink-0" />
-            <span>Support</span>
+            <span style={{ color: '#ffffff' }}>Support</span>
           </Link>
 
           {/* User Account / Profile Button */}

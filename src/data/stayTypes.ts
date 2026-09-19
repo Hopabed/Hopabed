@@ -40,11 +40,19 @@ export const stayTypes: StayType[] = [
     href: "/stays?type=resorts",
   },
   {
-    id: "homestays",
-    title: "Homestays",
-    description: "Experience local hospitality",
+    id: "pg",
+    title: "PG & Long-Stay",
+    description: "Fully furnished PG accommodations & co-living spaces",
     image:
       "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=900&q=80",
+    href: "/stays?type=pg",
+  },
+  {
+    id: "homestays",
+    title: "Homestays & Villas",
+    description: "Experience authentic local hospitality & private villas",
+    image:
+      "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=900&q=80",
     href: "/stays?type=homestays",
   },
 ];
