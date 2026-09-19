@@ -159,7 +159,7 @@ export function AuthModal() {
             <button
               type="button"
               onClick={closeAuthModal}
-              className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 transition-colors"
+              className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 transition-colors cursor-pointer"
             >
               <X className="h-5 w-5" />
             </button>
@@ -188,7 +188,7 @@ export function AuthModal() {
                 <button
                   type="button"
                   onClick={handleGoogleClick}
-                  className="w-full flex items-center justify-center gap-3 rounded-2xl border border-gray-300 bg-white py-2.5 px-4 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50 transition-all"
+                  className="w-full flex items-center justify-center gap-3 rounded-2xl border border-gray-300 bg-white py-2.5 px-4 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50 transition-all cursor-pointer"
                 >
                   <svg className="h-5 w-5" viewBox="0 0 24 24">
                     <path
@@ -271,7 +271,7 @@ export function AuthModal() {
 
               <button
                 type="submit"
-                className="w-full rounded-2xl bg-brand py-3.5 text-center text-sm font-extrabold text-white shadow-lg shadow-brand/25 hover:bg-brand-dark transition-all flex items-center justify-center gap-2"
+                className="w-full rounded-2xl bg-brand py-3.5 text-center text-sm font-extrabold text-white shadow-lg shadow-brand/25 hover:bg-brand-dark transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
                 {mode === "login" ? "Sign In to Account" : "Create Account"} <ArrowRight className="h-4 w-4" />
               </button>
@@ -285,7 +285,7 @@ export function AuthModal() {
                   <button
                     type="button"
                     onClick={() => setMode("signup")}
-                    className="font-bold text-brand hover:underline"
+                    className="font-bold text-brand hover:underline cursor-pointer"
                   >
                     Sign Up Free
                   </button>
@@ -296,7 +296,7 @@ export function AuthModal() {
                   <button
                     type="button"
                     onClick={() => setMode("login")}
-                    className="font-bold text-brand hover:underline"
+                    className="font-bold text-brand hover:underline cursor-pointer"
                   >
                     Sign In
                   </button>

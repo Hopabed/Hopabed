@@ -208,7 +208,7 @@ export default function Header() {
             <button
               type="button"
               onClick={openAuthModal}
-              className="flex items-center gap-2 rounded-full bg-white hover:bg-slate-100 px-4.5 py-2 text-xs sm:text-sm font-bold text-slate-900 shadow-xs transition-all whitespace-nowrap"
+              className="flex items-center gap-2 rounded-full bg-white hover:bg-slate-100 px-4.5 py-2 text-xs sm:text-sm font-bold text-slate-900 shadow-xs transition-all whitespace-nowrap cursor-pointer"
             >
               <User className="h-4 w-4 text-slate-900 shrink-0" />
               <span>Sign In<span className="hidden sm:inline"> / Register</span></span>
@@ -219,7 +219,7 @@ export default function Header() {
           <button
             type="button"
             onClick={() => setMobileMenuOpen(true)}
-            className="md:hidden flex h-10 w-10 items-center justify-center rounded-full border border-zinc-700 bg-zinc-900 text-white hover:bg-zinc-800 transition-all"
+            className="md:hidden flex h-10 w-10 items-center justify-center rounded-full border border-zinc-700 bg-zinc-900 text-white hover:bg-zinc-800 transition-all cursor-pointer"
             aria-label="Open menu"
           >
             <Menu className="h-5 w-5 text-white" />
@@ -236,7 +236,7 @@ export default function Header() {
                 <Logo compact />
                 <button
                   onClick={() => setMobileMenuOpen(false)}
-                  className="rounded-full p-1 text-zinc-400 hover:bg-zinc-800 hover:text-white"
+                  className="rounded-full p-1 text-zinc-400 hover:bg-zinc-800 hover:text-white cursor-pointer"
                 >
                   <X className="h-5 w-5" />
                 </button>
@@ -292,7 +292,7 @@ export default function Header() {
                   setMobileMenuOpen(false);
                   openAuthModal();
                 }}
-                className="w-full rounded-2xl bg-slate-900 py-3 text-center text-base font-bold text-white shadow-md hover:bg-slate-800 transition-all"
+                className="w-full rounded-2xl bg-slate-900 py-3 text-center text-base font-bold text-white shadow-md hover:bg-slate-800 transition-all cursor-pointer"
               >
                 Sign In / Register
               </button>
@@ -302,7 +302,7 @@ export default function Header() {
                   logout();
                   setMobileMenuOpen(false);
                 }}
-                className="w-full rounded-2xl bg-rose-50 py-3 text-center text-base font-bold text-rose-600 border border-rose-200 hover:bg-rose-100 transition-all"
+                className="w-full rounded-2xl bg-rose-50 py-3 text-center text-base font-bold text-rose-600 border border-rose-200 hover:bg-rose-100 transition-all cursor-pointer"
               >
                 Sign Out
               </button>
@@ -310,8 +310,6 @@ export default function Header() {
           </div>
         </div>
       )}
-
-      <AuthModal />
     </header>
   );
 }

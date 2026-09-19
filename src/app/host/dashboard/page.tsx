@@ -51,11 +51,10 @@ export default function HostDashboardPage() {
         </p>
         <button
           onClick={openAuthModal}
-          className="mt-6 rounded-2xl bg-brand px-8 py-3.5 text-sm font-bold text-white shadow-lg hover:bg-brand-dark transition-all"
+          className="mt-6 rounded-2xl bg-brand px-8 py-3.5 text-sm font-bold text-white shadow-lg hover:bg-brand-dark transition-all cursor-pointer"
         >
           Sign In
         </button>
-        <AuthModal />
       </main>
     );
   }
