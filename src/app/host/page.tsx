@@ -12,24 +12,27 @@ export default function HostLandingPage() {
   const { user, toggleHostMode, openAuthModal } = useAuth();
   const router = useRouter();
 
-  const handleStartHosting = async () => {
+  const isHost = user?.role?.toLowerCase() === "host";
+
+  const handleStartHosting = async (e?: React.MouseEvent) => {
+    if (e) e.preventDefault();
     if (!user) {
       openAuthModal();
       return;
     }
     
     try {
-      if (user.role !== "HOST" && user.role !== "host") {
+      if (!isHost) {
         await registerHost({ businessName: user.name + " Properties" });
         toggleHostMode(); // Update local frontend state
       }
       router.push("/host/dashboard");
     } catch (error: any) {
-      console.error("Failed to register as host", error);
       if (error.message?.includes("already registered")) {
-        toggleHostMode();
+        if (!isHost) toggleHostMode();
         router.push("/host/dashboard");
       } else {
+        console.error("Failed to register as host", error);
         alert(error.message || "Failed to register as host. Please try again later.");
       }
     }
@@ -54,7 +57,7 @@ export default function HostLandingPage() {
           </p>
 
           <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
-            {user?.role === "HOST" ? (
+            {isHost ? (
               <Link
                 href="/host/dashboard"
                 className="w-full sm:w-auto rounded-2xl bg-amber-400 px-8 py-4 text-base font-extrabold text-gray-900 shadow-xl hover:bg-amber-300 transition-all flex items-center justify-center gap-2"
@@ -122,13 +125,21 @@ export default function HostLandingPage() {
             <h3 className="text-2xl font-extrabold">Ready to welcome your first guest?</h3>
             <p className="text-sm text-gray-400 mt-1">Setup takes less than 5 minutes. No upfront fees.</p>
           </div>
-          <Link
-            href="/host/dashboard"
-            onClick={handleStartHosting}
-            className="shrink-0 rounded-2xl bg-brand px-8 py-4 text-center text-sm font-extrabold text-white shadow-lg hover:bg-brand-dark transition-all"
-          >
-            Access Host Dashboard →
-          </Link>
+          {isHost ? (
+            <Link
+              href="/host/dashboard"
+              className="shrink-0 rounded-2xl bg-brand px-8 py-4 text-center text-sm font-extrabold text-white shadow-lg hover:bg-brand-dark transition-all"
+            >
+              Access Host Dashboard →
+            </Link>
+          ) : (
+            <button
+              onClick={handleStartHosting}
+              className="shrink-0 rounded-2xl bg-brand px-8 py-4 text-center text-sm font-extrabold text-white shadow-lg hover:bg-brand-dark transition-all"
+            >
+              Access Host Dashboard →
+            </button>
+          )}
         </div>
       </section>
 
