@@ -5,6 +5,7 @@ import { LeadListing } from '../models/LeadListing.js';
 import { Property } from '../models/Property.js';
 import { Host } from '../models/Host.js';
 import { User } from '../models/User.js';
+import { Room } from '../models/Room.js';
 import { sendHostOutreachEmail } from '../services/emailService.js';
 import { env } from '../config/env.js';
 
