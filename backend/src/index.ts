@@ -293,8 +293,16 @@ const startServer = async (): Promise<void> => {
   try {
     await connectDatabase();
 
-    app.listen(env.PORT, () => {
+    const server = app.listen(env.PORT, () => {
       console.log(`Backend server running on http://localhost:${env.PORT}`);
+    });
+
+    server.on('error', (err: any) => {
+      if (err.code === 'EADDRINUSE') {
+        console.warn(`[Hopebed Notice] Port ${env.PORT} is already in use by a background backend process.`);
+      } else {
+        console.error('Server error:', err);
+      }
     });
   } catch (error) {
     console.error('Failed to start backend server:', error);

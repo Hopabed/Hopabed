@@ -21,10 +21,7 @@ export function Hero() {
         <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-black/40 to-transparent" />
         <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-white to-transparent" />
         
-        <div className="absolute top-4 left-4 z-10 rounded-lg bg-black/60 backdrop-blur-md border border-white/20 px-3 py-1 text-[11px] font-bold text-amber-300">
-          TODO: replace with real property photos
-        </div>
-        
+
         <div className="relative flex h-full items-center justify-center text-center">
           <div className="container-page pb-14 pt-6 sm:pb-20 sm:pt-10">
             <div className="mb-4 sm:mb-6 inline-flex items-center justify-center gap-2 rounded-full border border-white/30 bg-white/20 px-4 py-1.5 sm:px-5 sm:py-2 font-semibold uppercase tracking-[0.15em] sm:tracking-[0.2em] text-white backdrop-blur-md shadow-sm text-[11px] sm:text-xs">

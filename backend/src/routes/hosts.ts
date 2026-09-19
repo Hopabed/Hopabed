@@ -251,10 +251,12 @@ router.post('/properties', requireAuth, async (req: AuthenticatedRequest, res, n
       ...validatedData,
       host: host._id,
       slug,
-      location: (validatedData.longitude && validatedData.latitude) ? {
+      location: {
         type: 'Point',
-        coordinates: [validatedData.longitude, validatedData.latitude]
-      } : undefined,
+        coordinates: (validatedData.longitude && validatedData.latitude) 
+          ? [validatedData.longitude, validatedData.latitude] 
+          : [73.0022, 19.0759]
+      },
       verificationStatus: 'DRAFT',
       isVerified: false,
       isPublished: false

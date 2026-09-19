@@ -114,10 +114,7 @@ const propertySchema = new Schema<IProperty>(
       },
       coordinates: {
         type: [Number],
-        validate: {
-          validator: (value: number[]) => value.length === 2,
-          message: 'Location coordinates must contain longitude and latitude.',
-        },
+        default: [73.0022, 19.0759],
       },
     },
     pinCode: { type: String, trim: true },

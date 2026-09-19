@@ -1,32 +1,29 @@
 import mongoose from 'mongoose';
+import { connectDatabase } from './src/config/database.js';
 import { Property } from './src/models/Property.js';
 
 async function run() {
-  await mongoose.connect('mongodb://127.0.0.1:27017/hopebed');
+  await connectDatabase();
   
   try {
     const prop = new Property({
       host: new mongoose.Types.ObjectId(),
-      title: 'demo',
-      slug: 'demo-' + Date.now(),
+      title: 'demo draft test',
+      slug: 'demo-draft-test-' + Date.now(),
       propertyType: 'hotel',
-      contactPhone: '123456789',
-      ownerInfo: {
-        fullName: '',
-        phone: '',
-        email: '',
-        whatsapp: '',
-        relationship: 'owner',
-        businessName: '',
-        pan: '',
-        gstin: ''
+      contactPhone: '8879892250',
+      contactEmail: 'test@hopebed.in',
+      location: {
+        type: 'Point',
+        coordinates: [73.0022, 19.0759]
       }
     });
 
-    await prop.validate();
-    console.log("Validation passed!");
+    await prop.save();
+    console.log("Draft Property Saved Successfully into MongoDB!", prop._id);
+    await Property.findByIdAndDelete(prop._id);
   } catch (err: any) {
-    console.error("Validation failed:", err.message);
+    console.error("Save failed:", err.message);
   } finally {
     await mongoose.disconnect();
   }

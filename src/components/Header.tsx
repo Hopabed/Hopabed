@@ -7,19 +7,17 @@ import { useAuth } from "@/context/AuthContext";
 import {
   HelpCircle,
   Briefcase,
-  Building2,
-  Home,
-  Tent,
-  Building,
-  Menu,
-  ChevronDown,
   Calendar,
   User,
-  ShieldCheck,
   LogOut,
   Sparkles,
   Search,
   X,
+  ChevronDown,
+  Menu,
+  Building2,
+  Tent,
+  PlusCircle,
 } from "lucide-react";
 import { AuthModal } from "./AuthModal";
 
@@ -40,132 +38,119 @@ export default function Header() {
   }, []);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-white/15 bg-black/95 backdrop-blur-2xl shadow-xl transition-all duration-300">
-      <div className="mx-auto flex max-w-[1440px] items-center justify-between px-4 py-3 sm:px-6 sm:py-3.5">
-        {/* Left: Brand Logo */}
-        <div className="flex shrink-0 items-center gap-2.5">
-          <Link href="/" className="flex items-center gap-2 group shrink-0">
-            <Image
-              src="/logo.png"
-              alt="Hopebed Logo"
-              width={135}
-              height={34}
-              className="object-contain transition-transform group-hover:scale-[1.02]"
-              priority
-            />
-          </Link>
-          <span className="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-emerald-500/20 px-2.5 py-0.5 text-[11px] font-bold text-emerald-400 border border-emerald-500/40 whitespace-nowrap">
-            <ShieldCheck className="h-3.5 w-3.5 text-emerald-400 shrink-0" /> Verified
-          </span>
-        </div>
+    <header className="sticky top-0 z-50 bg-[#000000] border-b border-zinc-800/80 shadow-md transition-all duration-200">
+      <div className="mx-auto flex max-w-[1440px] items-center justify-between px-4 py-3 sm:px-6 lg:px-10">
+        {/* Left: Official Hopebed Wordmark Logo (Seamless on #000 Header) */}
+        <Link href="/" className="flex items-center group shrink-0 py-0.5">
+          <Image
+            src="/brand/hopabed-wordmark.jpg"
+            alt="Hopebed Logo"
+            width={165}
+            height={44}
+            className="h-9 sm:h-10 w-auto object-contain transition-transform duration-200 group-hover:scale-105"
+            priority
+          />
+        </Link>
 
-        {/* Center: Single-Line High Contrast Navigation Links */}
-        <div className="hidden lg:flex items-center gap-1 xl:gap-2 shrink-0">
+        {/* Center: High-Contrast Pure White Navigation Links */}
+        <nav className="hidden md:flex items-center gap-6 lg:gap-10 xl:gap-12">
           <Link
             href="/stays"
-            className="flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs xl:text-sm font-bold text-white hover:bg-white/15 transition-all whitespace-nowrap shrink-0"
+            className="text-sm lg:text-base font-bold text-white hover:text-[#0b8f3c] transition-colors whitespace-nowrap"
           >
-            <Search className="h-4 w-4 text-white shrink-0" />
-            <span className="text-white whitespace-nowrap">Explore Stays</span>
+            Explore Stays
           </Link>
           <Link
             href="/stays?type=hotels"
-            className="flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs xl:text-sm font-bold text-white hover:bg-white/15 transition-all whitespace-nowrap shrink-0"
+            className="text-sm lg:text-base font-bold text-white hover:text-[#0b8f3c] transition-colors whitespace-nowrap"
           >
-            <Building2 className="h-4 w-4 text-white shrink-0" />
-            <span className="text-white whitespace-nowrap">Hotels</span>
+            Hotels
           </Link>
           <Link
-            href="/stays?type=villas"
-            className="flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs xl:text-sm font-bold text-white hover:bg-white/15 transition-all whitespace-nowrap shrink-0"
+            href="/stays?type=pg"
+            className="text-sm lg:text-base font-bold text-white hover:text-[#0b8f3c] transition-colors whitespace-nowrap"
           >
-            <Home className="h-4 w-4 text-white shrink-0" />
-            <span className="text-white whitespace-nowrap">Villas</span>
+            PG & Long-Stay
           </Link>
           <Link
             href="/stays?type=homestays"
-            className="flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs xl:text-sm font-bold text-white hover:bg-white/15 transition-all whitespace-nowrap shrink-0"
+            className="text-sm lg:text-base font-bold text-white hover:text-[#0b8f3c] transition-colors whitespace-nowrap"
           >
-            <Tent className="h-4 w-4 text-white shrink-0" />
-            <span className="text-white whitespace-nowrap">Homestays</span>
+            Homestays & Villas
           </Link>
-          <Link
-            href="/stays?type=apartments"
-            className="flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs xl:text-sm font-bold text-white hover:bg-white/15 transition-all whitespace-nowrap shrink-0"
-          >
-            <Building className="h-4 w-4 text-white shrink-0" />
-            <span className="text-white whitespace-nowrap">Apartments</span>
-          </Link>
-        </div>
+        </nav>
 
         {/* Right Actions */}
-        <div className="flex items-center gap-2.5 sm:gap-3 shrink-0">
+        <div className="flex items-center gap-3 sm:gap-4 shrink-0">
+          {/* List Your Property CTA */}
           <Link
             href="/host"
-            className="hidden md:flex items-center gap-2 rounded-full border border-blue-500/80 bg-blue-600 px-4 py-1.5 shadow-md shadow-blue-600/40 hover:bg-blue-500 transition-all shrink-0"
+            className="hidden sm:flex items-center gap-1.5 rounded-full bg-[#0b8f3c] hover:bg-[#06752f] px-4.5 py-2 text-xs sm:text-sm font-bold text-white shadow-xs hover:shadow transition-all whitespace-nowrap"
           >
-            <Briefcase className="h-5 w-5 text-white shrink-0" />
-            <div className="flex flex-col text-left">
-              <span className="text-white font-bold text-xs xl:text-sm leading-tight">List your property</span>
-              <span className="text-blue-100 font-medium text-[9px] xl:text-[10px] leading-tight mt-0.5">Start earning in 25 mins in just 2 clicks</span>
-            </div>
+            <PlusCircle className="h-4 w-4 text-white shrink-0" />
+            <span>List Your Property</span>
           </Link>
 
           <Link
             href="/contact"
-            className="hidden xl:flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs xl:text-sm font-bold text-white hover:bg-white/15 transition-all whitespace-nowrap shrink-0"
+            className="hidden lg:flex items-center gap-1.5 text-sm font-bold text-white hover:text-emerald-400 transition-colors whitespace-nowrap"
           >
             <HelpCircle className="h-4 w-4 text-white shrink-0" />
-            <span className="text-white whitespace-nowrap">Support</span>
+            <span>Support</span>
           </Link>
 
+          {/* User Account / Profile Button */}
           {user ? (
             <div className="relative shrink-0" ref={dropdownRef}>
               <button
                 type="button"
                 onClick={() => setProfileDropdownOpen((prev) => !prev)}
-                className="flex items-center gap-2 rounded-full border border-white/30 bg-white/10 p-1.5 pr-3 shadow-md hover:border-white hover:bg-white/20 transition-all text-white whitespace-nowrap"
+                className="flex items-center gap-2.5 rounded-full border border-zinc-700 bg-zinc-900 px-3.5 py-1.5 hover:border-zinc-500 hover:bg-zinc-800 transition-all text-white shadow-2xs"
               >
-                <div className="relative h-7 w-7 overflow-hidden rounded-full bg-blue-600 text-white font-bold flex items-center justify-center text-xs shrink-0 border border-white/30">
+                <div className="h-7 w-7 rounded-full bg-[#0b8f3c] text-white font-bold flex items-center justify-center text-xs shrink-0 ring-2 ring-emerald-500/30 overflow-hidden">
                   {user.avatarUrl ? (
                     <img
                       src={user.avatarUrl}
                       alt={user.name}
-                      className="h-full w-full object-cover"
+                      className="h-full w-full object-cover rounded-full"
                       onError={(e) => {
                         (e.target as HTMLImageElement).style.display = "none";
                       }}
                     />
                   ) : null}
-                  <span className={user.avatarUrl ? "hidden" : "block"}>{user.name.charAt(0).toUpperCase()}</span>
+                  <span className={user.avatarUrl ? "hidden" : "block"}>
+                    {user.name.charAt(0).toUpperCase()}
+                  </span>
                 </div>
-                <span className="hidden sm:inline text-xs font-bold text-white truncate max-w-[100px] whitespace-nowrap">
+                <span className="hidden sm:inline text-sm font-bold text-white truncate max-w-[120px]">
                   {user.name.split(" ")[0]}
                 </span>
-                <ChevronDown className="h-3.5 w-3.5 text-white shrink-0" />
+                <ChevronDown className="h-4 w-4 text-white shrink-0" />
               </button>
 
-              {/* User Dropdown */}
+              {/* User Dropdown Panel */}
               {profileDropdownOpen && (
-                <div className="absolute right-0 top-12 z-50 w-64 overflow-hidden rounded-2xl border border-white/20 bg-black p-2.5 shadow-2xl space-y-1 text-white">
-                  <div className="px-3.5 py-3 border-b border-white/15 flex items-center gap-3">
-                    <div className="relative h-10 w-10 overflow-hidden rounded-full bg-blue-600 text-white font-bold flex items-center justify-center text-sm shrink-0 border border-white/30">
+                <div className="absolute right-0 top-12 z-50 w-64 overflow-hidden rounded-2xl border border-slate-200 bg-white p-2 shadow-xl space-y-1 text-slate-800 animate-in fade-in zoom-in-95 duration-150">
+                  <div className="px-3.5 py-3 border-b border-slate-100 flex items-center gap-3 bg-slate-50/80 rounded-xl mb-1">
+                    <div className="h-9 w-9 rounded-full bg-[#0b8f3c] text-white font-bold flex items-center justify-center text-sm shrink-0 ring-2 ring-emerald-500/20">
                       {user.avatarUrl ? (
                         <img
                           src={user.avatarUrl}
                           alt={user.name}
-                          className="h-full w-full object-cover"
+                          className="h-full w-full object-cover rounded-full"
                           onError={(e) => {
                             (e.target as HTMLImageElement).style.display = "none";
                           }}
                         />
                       ) : null}
-                      <span className={user.avatarUrl ? "hidden" : "block"}>{user.name.charAt(0).toUpperCase()}</span>
+                      <span className={user.avatarUrl ? "hidden" : "block"}>
+                        {user.name.charAt(0).toUpperCase()}
+                      </span>
                     </div>
                     <div className="overflow-hidden">
-                      <p className="text-sm font-extrabold text-white truncate">{user.name}</p>
-                      <p className="text-xs text-white/70 truncate">{user.email}</p>
-                      <span className="mt-1 inline-block rounded-full bg-blue-500/30 px-2 py-0.5 text-[10px] font-bold text-white border border-blue-400/50">
+                      <p className="text-xs font-bold text-slate-900 truncate">{user.name}</p>
+                      <p className="text-[11px] text-slate-500 truncate">{user.email}</p>
+                      <span className="mt-1 inline-block rounded-full bg-emerald-100 px-2 py-0.5 text-[9px] font-bold text-emerald-800 capitalize">
                         {user.role} Account
                       </span>
                     </div>
@@ -174,19 +159,19 @@ export default function Header() {
                   <Link
                     href="/bookings"
                     onClick={() => setProfileDropdownOpen(false)}
-                    className="flex items-center gap-2.5 rounded-xl px-3.5 py-2.5 text-xs font-bold text-white hover:bg-white/15 transition-colors"
+                    className="flex items-center gap-2.5 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-700 hover:bg-slate-100 hover:text-slate-900 transition-all"
                   >
-                    <Calendar className="h-4 w-4 text-white" />
-                    <span className="text-white">My Bookings</span>
+                    <Calendar className="h-4 w-4 text-[#0b8f3c]" />
+                    <span>My Bookings</span>
                   </Link>
 
                   <Link
                     href="/host/dashboard"
                     onClick={() => setProfileDropdownOpen(false)}
-                    className="flex items-center gap-2.5 rounded-xl px-3.5 py-2.5 text-xs font-bold text-white hover:bg-white/15 transition-colors"
+                    className="flex items-center gap-2.5 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-700 hover:bg-slate-100 hover:text-slate-900 transition-all"
                   >
-                    <Briefcase className="h-4 w-4 text-white" />
-                    <span className="text-white">Host Dashboard</span>
+                    <Briefcase className="h-4 w-4 text-teal-600" />
+                    <span>Host Dashboard</span>
                   </Link>
 
                   <button
@@ -195,22 +180,22 @@ export default function Header() {
                       toggleHostMode();
                       setProfileDropdownOpen(false);
                     }}
-                    className="w-full flex items-center gap-2.5 rounded-xl px-3.5 py-2.5 text-left text-xs font-bold text-white hover:bg-white/15 transition-colors"
+                    className="w-full flex items-center gap-2.5 rounded-xl px-3.5 py-2.5 text-left text-xs font-semibold text-slate-700 hover:bg-slate-100 hover:text-slate-900 transition-all"
                   >
-                    <Sparkles className="h-4 w-4 text-amber-300" />
-                    <span className="text-white">Switch to {user.role === "HOST" ? "Guest" : "Host"} Mode</span>
+                    <Sparkles className="h-4 w-4 text-amber-500" />
+                    <span>Switch to {user.role === "HOST" ? "Guest" : "Host"} Mode</span>
                   </button>
 
-                  <div className="border-t border-white/15 pt-1">
+                  <div className="border-t border-slate-100 pt-1">
                     <button
                       type="button"
                       onClick={() => {
                         logout();
                         setProfileDropdownOpen(false);
                       }}
-                      className="w-full flex items-center gap-2.5 rounded-xl px-3.5 py-2.5 text-left text-xs font-bold text-rose-400 hover:bg-rose-500/20 transition-colors"
+                      className="w-full flex items-center gap-2.5 rounded-xl px-3.5 py-2.5 text-left text-xs font-semibold text-rose-600 hover:bg-rose-50 transition-all"
                     >
-                      <LogOut className="h-4 w-4 text-rose-400" />
+                      <LogOut className="h-4 w-4 text-rose-500" />
                       <span>Sign Out</span>
                     </button>
                   </div>
@@ -221,33 +206,37 @@ export default function Header() {
             <button
               type="button"
               onClick={openAuthModal}
-              className="flex items-center gap-1.5 rounded-full bg-blue-600 px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-bold text-white shadow-md shadow-blue-600/40 hover:bg-blue-500 transition-all whitespace-nowrap shrink-0"
+              className="flex items-center gap-2 rounded-full bg-white hover:bg-slate-100 px-4.5 py-2 text-xs sm:text-sm font-bold text-slate-900 shadow-xs transition-all whitespace-nowrap"
             >
-              <User className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-white shrink-0" />
-              <span className="text-white whitespace-nowrap">Sign In<span className="hidden sm:inline"> / Register</span></span>
+              <User className="h-4 w-4 text-slate-900 shrink-0" />
+              <span>Sign In<span className="hidden sm:inline"> / Register</span></span>
             </button>
           )}
 
-          {/* Mobile Hamburger Toggle */}
+          {/* Mobile Menu Toggle Button */}
           <button
             type="button"
             onClick={() => setMobileMenuOpen(true)}
-            className="lg:hidden flex h-9 w-9 items-center justify-center rounded-xl border border-white/30 bg-white/10 text-white shrink-0"
+            className="md:hidden flex h-10 w-10 items-center justify-center rounded-full border border-zinc-700 bg-zinc-900 text-white hover:bg-zinc-800 transition-all"
+            aria-label="Open menu"
           >
             <Menu className="h-5 w-5 text-white" />
           </button>
         </div>
       </div>
 
-      {/* Mobile Drawer */}
+      {/* Mobile Slide Drawer */}
       {mobileMenuOpen && (
-        <div className="fixed inset-0 z-50 flex bg-black/80 backdrop-blur-md lg:hidden">
-          <div className="relative ml-auto h-full w-4/5 max-w-xs bg-black p-6 shadow-2xl flex flex-col justify-between text-white border-l border-white/20">
+        <div className="fixed inset-0 z-50 flex bg-black/60 backdrop-blur-sm md:hidden animate-in fade-in duration-200">
+          <div className="relative ml-auto h-full w-4/5 max-w-xs bg-slate-950 p-6 shadow-2xl flex flex-col justify-between text-white border-l border-zinc-800 animate-in slide-in-from-right duration-250">
             <div>
-              <div className="flex items-center justify-between border-b border-white/20 pb-4 mb-4">
-                <Image src="/logo.png" alt="Hopebed Logo" width={120} height={30} />
-                <button onClick={() => setMobileMenuOpen(false)}>
-                  <X className="h-5 w-5 text-white" />
+              <div className="flex items-center justify-between border-b border-zinc-800 pb-4 mb-5">
+                <Image src="/brand/hopabed-wordmark.jpg" alt="Hopebed Logo" width={140} height={38} className="h-8 w-auto object-contain" />
+                <button
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="rounded-full p-1 text-zinc-400 hover:bg-zinc-800 hover:text-white"
+                >
+                  <X className="h-5 w-5" />
                 </button>
               </div>
 
@@ -255,45 +244,42 @@ export default function Header() {
                 <Link
                   href="/stays"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-2 rounded-xl px-3.5 py-2.5 text-sm font-bold text-white hover:bg-white/15"
+                  className="flex items-center gap-3 rounded-xl px-4 py-3 text-base font-bold text-slate-700 hover:bg-emerald-50 hover:text-[#0b8f3c] transition-all"
                 >
-                  <Search className="h-4 w-4 text-white" />
-                  <span className="text-white">Explore All Stays</span>
+                  <Search className="h-5 w-5 text-slate-400" />
+                  <span>Explore Stays</span>
                 </Link>
                 <Link
-                  href="/bookings"
+                  href="/stays?type=hotels"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-2 rounded-xl px-3.5 py-2.5 text-sm font-bold text-white hover:bg-white/15"
+                  className="flex items-center gap-3 rounded-xl px-4 py-3 text-base font-bold text-slate-700 hover:bg-emerald-50 hover:text-[#0b8f3c] transition-all"
                 >
-                  <Calendar className="h-4 w-4 text-white" />
-                  <span className="text-white">My Bookings</span>
+                  <Building2 className="h-5 w-5 text-blue-600" />
+                  <span>Hotels</span>
+                </Link>
+                <Link
+                  href="/stays?type=pg"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center gap-3 rounded-xl px-4 py-3 text-base font-bold text-slate-700 hover:bg-emerald-50 hover:text-[#0b8f3c] transition-all"
+                >
+                  <Sparkles className="h-5 w-5 text-amber-500" />
+                  <span>PG & Long-Stay</span>
+                </Link>
+                <Link
+                  href="/stays?type=homestays"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center gap-3 rounded-xl px-4 py-3 text-base font-bold text-slate-700 hover:bg-emerald-50 hover:text-[#0b8f3c] transition-all"
+                >
+                  <Tent className="h-5 w-5 text-emerald-600" />
+                  <span>Homestays & Villas</span>
                 </Link>
                 <Link
                   href="/host"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-2 rounded-xl px-3.5 py-2.5 hover:bg-white/15"
+                  className="flex items-center gap-3 rounded-xl px-4 py-3 bg-[#0b8f3c] text-white font-bold mt-3"
                 >
-                  <Briefcase className="h-5 w-5 text-white" />
-                  <div className="flex flex-col text-left">
-                    <span className="text-sm font-bold text-white">List your property</span>
-                    <span className="text-[10px] font-medium text-white/70 mt-0.5">Start earning in 25 mins in just 2 clicks</span>
-                  </div>
-                </Link>
-                <Link
-                  href="/contact"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-2 rounded-xl px-3.5 py-2.5 text-sm font-bold text-white hover:bg-white/15"
-                >
-                  <HelpCircle className="h-4 w-4 text-white" />
-                  <span className="text-white">Contact Support</span>
-                </Link>
-                <Link
-                  href="/faq"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-2 rounded-xl px-3.5 py-2.5 text-sm font-bold text-white hover:bg-white/15"
-                >
-                  <Sparkles className="h-4 w-4 text-amber-300" />
-                  <span className="text-white">FAQs</span>
+                  <PlusCircle className="h-5 w-5 text-white" />
+                  <span>List Your Property</span>
                 </Link>
               </nav>
             </div>
@@ -304,7 +290,7 @@ export default function Header() {
                   setMobileMenuOpen(false);
                   openAuthModal();
                 }}
-                className="w-full rounded-2xl bg-blue-600 py-3.5 text-center text-sm font-bold text-white shadow-lg"
+                className="w-full rounded-2xl bg-slate-900 py-3 text-center text-base font-bold text-white shadow-md hover:bg-slate-800 transition-all"
               >
                 Sign In / Register
               </button>
@@ -314,7 +300,7 @@ export default function Header() {
                   logout();
                   setMobileMenuOpen(false);
                 }}
-                className="w-full rounded-2xl bg-rose-600/30 py-3.5 text-center text-sm font-bold text-rose-300 border border-rose-500/40"
+                className="w-full rounded-2xl bg-rose-50 py-3 text-center text-base font-bold text-rose-600 border border-rose-200 hover:bg-rose-100 transition-all"
               >
                 Sign Out
               </button>
