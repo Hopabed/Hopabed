@@ -12,6 +12,7 @@ declare global {
         id: {
           initialize: (options: { client_id: string; callback: (response: { credential: string }) => void }) => void;
           renderButton: (element: HTMLElement, options: { theme: string; size: string; width: number }) => void;
+          prompt: (momentListener?: (notification: any) => void) => void;
         };
       };
     };
@@ -186,7 +187,7 @@ export function AuthModal() {
               {!googleReady && (
                 <button
                   type="button"
-                  onClick={handleGoogleMockLogin}
+                  onClick={handleGoogleClick}
                   className="w-full flex items-center justify-center gap-3 rounded-2xl border border-gray-300 bg-white py-2.5 px-4 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50 transition-all"
                 >
                   <svg className="h-5 w-5" viewBox="0 0 24 24">
