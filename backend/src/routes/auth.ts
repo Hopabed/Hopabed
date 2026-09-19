@@ -13,11 +13,13 @@ import { issueAuthTokens, clearAuthCookies, getCookieOptions } from '../utils/au
 import otpAuthRouter from './otpAuth.js';
 import rateLimit from 'express-rate-limit';
 
-const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  limit: 20, // 20 requests per 15 mins for auth routes
-  message: { success: false, error: { message: 'Too many authentication attempts, please try again later.' } },
-});
+const authLimiter = process.env.CF_WORKER === 'true'
+  ? (_req: any, _res: any, next: any) => next()
+  : rateLimit({
+      windowMs: 15 * 60 * 1000, // 15 minutes
+      limit: 20, // 20 requests per 15 mins for auth routes
+      message: { success: false, error: { message: 'Too many authentication attempts, please try again later.' } },
+    });
 
 const router = Router();
 router.use(authLimiter);

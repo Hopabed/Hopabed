@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import { getMongoConnectionStatus } from '../config/database.js';
 import { env } from '../config/env.js';
 
 export async function validateDatabaseConfiguration(): Promise<{ ok: boolean; message: string; }> {
@@ -10,9 +10,9 @@ export async function validateDatabaseConfiguration(): Promise<{ ok: boolean; me
   }
 
   try {
-    const readyState = mongoose.connection.readyState;
+    const isConnected = getMongoConnectionStatus();
 
-    if (readyState === 1) {
+    if (isConnected) {
       return {
         ok: true,
         message: 'MongoDB connection is active.',

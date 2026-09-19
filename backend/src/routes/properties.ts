@@ -9,11 +9,13 @@ import { Room } from '../models/Room.js';
 import { requireAuth, type AuthenticatedRequest } from '../middleware/auth.js';
 import rateLimit from 'express-rate-limit';
 
-const bookingLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000, // 1 hour
-  limit: 10, // 10 booking attempts per hour per IP
-  message: { success: false, error: { message: 'Too many booking attempts. Please try again later.' } },
-});
+const bookingLimiter = process.env.CF_WORKER === 'true'
+  ? (_req: any, _res: any, next: any) => next()
+  : rateLimit({
+      windowMs: 60 * 60 * 1000, // 1 hour
+      limit: 10, // 10 booking attempts per hour per IP
+      message: { success: false, error: { message: 'Too many booking attempts. Please try again later.' } },
+    });
 
 const router = Router();
 const dateSchema = z.object({

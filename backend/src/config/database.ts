@@ -1,8 +1,23 @@
-import mongoose from 'mongoose/index.js';
+import * as mongooseNamespace from 'mongoose';
+import mongooseDefault from 'mongoose';
 import { env } from './env.js';
 
+const getMongoose = (): any => {
+  if (mongooseDefault && (mongooseDefault as any).connection) return mongooseDefault;
+  if ((mongooseDefault as any)?.default?.connection) return (mongooseDefault as any).default;
+  if (mongooseNamespace && (mongooseNamespace as any).connection) return mongooseNamespace;
+  if ((mongooseNamespace as any)?.default?.connection) return (mongooseNamespace as any).default;
+  return mongooseDefault || mongooseNamespace;
+};
+
 export const connectDatabase = async (): Promise<void> => {
-  if (mongoose.connection.readyState === 1) {
+  const mongoose = getMongoose();
+  if (!mongoose || !mongoose.connection) {
+    console.error('Mongoose instance or connection is undefined!', { mongooseDefault, mongooseNamespace });
+    return;
+  }
+
+  if ((mongoose.connection.readyState as number) === 1) {
     return;
   }
 
@@ -13,7 +28,7 @@ export const connectDatabase = async (): Promise<void> => {
       await new Promise((resolve) => setTimeout(resolve, 100));
       tries++;
     }
-    if (mongoose.connection.readyState === 1) return;
+    if ((mongoose.connection.readyState as number) === 1) return;
   }
 
   try {
@@ -33,13 +48,17 @@ export const connectDatabase = async (): Promise<void> => {
 };
 
 export const disconnectDatabase = async (): Promise<void> => {
-  if (mongoose.connection.readyState !== 0) {
+  const mongoose = getMongoose();
+  if (mongoose?.connection && mongoose.connection.readyState !== 0) {
     await mongoose.disconnect();
     console.log('MongoDB disconnected');
   }
 };
 
-export const getMongoConnectionStatus = (): boolean => mongoose.connection.readyState === 1;
+export const getMongoConnectionStatus = (): boolean => {
+  const mongoose = getMongoose();
+  return (mongoose?.connection?.readyState as number) === 1;
+};
 
 
 
