@@ -1,4 +1,5 @@
-import { Schema, model, type HydratedDocument, type Model, Types } from 'mongoose';
+import { Schema, type HydratedDocument, type Model, Types } from 'mongoose';
+import { getOrCreateModel } from './modelUtils.js';
 
 export interface IRoom {
   property: Types.ObjectId;
@@ -44,4 +45,4 @@ const roomSchema = new Schema<IRoom>(
 roomSchema.index({ property: 1, isActive: 1 });
 roomSchema.index({ property: 1, name: 1 }, { unique: true });
 
-export const Room: Model<IRoom> = model<IRoom>('Room', roomSchema);
+export const Room: Model<IRoom> = getOrCreateModel<IRoom>('Room', roomSchema);

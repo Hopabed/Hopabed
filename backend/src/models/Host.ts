@@ -1,4 +1,5 @@
-import { Schema, model, type HydratedDocument, type Model, Types } from 'mongoose';
+import { Schema, type HydratedDocument, type Model, Types } from 'mongoose';
+import { getOrCreateModel } from './modelUtils.js';
 
 export interface IHost {
   user: Types.ObjectId;
@@ -63,4 +64,4 @@ hostSchema.index({ user: 1 }, { unique: true });
 hostSchema.index({ verificationStatus: 1, isActive: 1 });
 hostSchema.index({ averageRating: -1, reviewCount: -1 });
 
-export const Host: Model<IHost> = model<IHost>('Host', hostSchema);
+export const Host: Model<IHost> = getOrCreateModel<IHost>('Host', hostSchema);

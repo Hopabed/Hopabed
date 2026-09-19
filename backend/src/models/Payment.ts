@@ -1,4 +1,5 @@
-import { Schema, model, type HydratedDocument, type Model, Types } from 'mongoose';
+import { Schema, type HydratedDocument, type Model, Types } from 'mongoose';
+import { getOrCreateModel } from './modelUtils.js';
 
 export interface IPayment {
   booking: Types.ObjectId;
@@ -45,4 +46,4 @@ paymentSchema.index({ booking: 1 }, { unique: true });
 paymentSchema.index({ user: 1, status: 1, createdAt: -1 });
 paymentSchema.index({ paymentGateway: 1, status: 1 });
 
-export const Payment: Model<IPayment> = model<IPayment>('Payment', paymentSchema);
+export const Payment: Model<IPayment> = getOrCreateModel<IPayment>('Payment', paymentSchema);

@@ -1,4 +1,5 @@
-import { Schema, model, type HydratedDocument, type Model, Types } from 'mongoose';
+import { Schema, type HydratedDocument, type Model, Types } from 'mongoose';
+import { getOrCreateModel } from './modelUtils.js';
 
 export interface IProperty {
   host?: Types.ObjectId;
@@ -197,4 +198,4 @@ propertySchema.index({ phone: 1 });
 propertySchema.index({ website: 1 });
 propertySchema.index({ location: '2dsphere' });
 
-export const Property: Model<IProperty> = model<IProperty>('Property', propertySchema);
+export const Property: Model<IProperty> = getOrCreateModel<IProperty>('Property', propertySchema);

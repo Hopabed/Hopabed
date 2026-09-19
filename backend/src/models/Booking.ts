@@ -1,4 +1,5 @@
-import { Schema, model, type HydratedDocument, type Model, Types } from 'mongoose';
+import { Schema, type HydratedDocument, type Model, Types } from 'mongoose';
+import { getOrCreateModel } from './modelUtils.js';
 
 export interface IBooking {
   property: Types.ObjectId;
@@ -68,4 +69,4 @@ bookingSchema.index({ room: 1, status: 1, checkIn: 1, checkOut: 1 });
 bookingSchema.index({ guest: 1, status: 1, createdAt: -1 });
 bookingSchema.index({ host: 1, status: 1, checkIn: 1 });
 
-export const Booking: Model<IBooking> = model<IBooking>('Booking', bookingSchema);
+export const Booking: Model<IBooking> = getOrCreateModel<IBooking>('Booking', bookingSchema);

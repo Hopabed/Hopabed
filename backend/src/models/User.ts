@@ -1,4 +1,5 @@
-import { Schema, model, type HydratedDocument, type Model } from 'mongoose';
+import { Schema, type HydratedDocument, type Model } from 'mongoose';
+import { getOrCreateModel } from './modelUtils.js';
 
 export interface IUser {
   name: string;
@@ -53,7 +54,7 @@ const userSchema = new Schema<IUser>(
 );
 
 userSchema.pre('save', function (next) {
-  const adminEmails = ['mithagaris@gmail.com', 'admin@hopebed.in'];
+  const adminEmails = ['mithagaris@gmail.com', 'hello@hopebed.in'];
   if (this.email && adminEmails.includes(this.email.toLowerCase())) {
     this.role = 'admin';
   }
@@ -64,4 +65,4 @@ userSchema.index({ email: 1 }, { unique: true });
 userSchema.index({ role: 1, isEmailVerified: 1 });
 userSchema.index({ createdAt: -1 });
 
-export const User: Model<IUser> = model<IUser>('User', userSchema);
+export const User: Model<IUser> = getOrCreateModel<IUser>('User', userSchema);

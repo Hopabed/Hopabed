@@ -4,19 +4,19 @@ import { Repository } from 'typeorm';
 import { Payment } from './entities/payment.entity';
 import { Booking } from '../bookings/entities/booking.entity';
 import { ConfigService } from '@nestjs/config';
-import * as Razorpay from 'razorpay';
+import Razorpay from 'razorpay';
 import * as crypto from 'crypto';
 
 @Injectable()
 export class PaymentsService {
-  private razorpay: any;
+  private razorpay: Razorpay;
 
   constructor(
     @InjectRepository(Payment) private paymentRepo: Repository<Payment>,
     @InjectRepository(Booking) private bookingRepo: Repository<Booking>,
     private configService: ConfigService,
   ) {
-    this.razorpay = new (Razorpay as any)({
+    this.razorpay = new Razorpay({
       key_id: this.configService.get('RAZORPAY_KEY_ID') || 'mockKeyId',
       key_secret: this.configService.get('RAZORPAY_KEY_SECRET') || 'mockSecret',
     });

@@ -1,14 +1,5 @@
-import * as mongooseNamespace from 'mongoose';
-import mongooseDefault from 'mongoose';
 import { env } from './env.js';
-
-const getMongoose = (): any => {
-  if (mongooseDefault && (mongooseDefault as any).connection) return mongooseDefault;
-  if ((mongooseDefault as any)?.default?.connection) return (mongooseDefault as any).default;
-  if (mongooseNamespace && (mongooseNamespace as any).connection) return mongooseNamespace;
-  if ((mongooseNamespace as any)?.default?.connection) return (mongooseNamespace as any).default;
-  return mongooseDefault || mongooseNamespace;
-};
+import { getMongoose } from '../models/modelUtils.js';
 
 export const connectDatabase = async (): Promise<void> => {
   const mongoose = getMongoose();

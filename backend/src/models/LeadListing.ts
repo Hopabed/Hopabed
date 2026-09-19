@@ -1,4 +1,5 @@
-import { Schema, model, type HydratedDocument, type Model, Types } from 'mongoose';
+import { Schema, type HydratedDocument, type Model, Types } from 'mongoose';
+import { getOrCreateModel } from './modelUtils.js';
 
 export interface ILeadListing {
   placeId: string;
@@ -54,4 +55,4 @@ const leadListingSchema = new Schema<ILeadListing>(
   { timestamps: true }
 );
 
-export const LeadListing = model<ILeadListing>('LeadListing', leadListingSchema);
+export const LeadListing: Model<ILeadListing> = getOrCreateModel<ILeadListing>('LeadListing', leadListingSchema);
