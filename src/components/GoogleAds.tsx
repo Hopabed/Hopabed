@@ -42,7 +42,7 @@ export function SingleGoogleAdUnit({
   }, [scriptLoaded, adPushed]);
 
   return (
-    <div className="w-full overflow-hidden rounded-2xl bg-gray-900/90 p-4 border border-gray-700/50 shadow-md min-h-[250px] flex flex-col justify-between text-white relative">
+    <div className="w-full overflow-hidden rounded-2xl bg-white p-2 border border-gray-200 shadow-xs min-h-[250px] flex items-center justify-center relative">
       {/* Pure Google AdSense Tag */}
       <ins
         className="adsbygoogle block w-full text-center"
@@ -51,7 +51,6 @@ export function SingleGoogleAdUnit({
         data-ad-slot={adSlot}
         data-ad-format="auto"
         data-full-width-responsive="true"
-        data-adtest="on"
       />
     </div>
   );
@@ -82,7 +81,7 @@ export function GoogleAds({ clientPublisherId, slotId }: GoogleAdsProps) {
             </span>
           </div>
           <span className="text-[11px] font-semibold text-gray-400">
-            Ads by Google ({adClient})
+            Ads by Google
           </span>
         </div>
 
