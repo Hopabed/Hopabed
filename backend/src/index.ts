@@ -46,6 +46,7 @@ app.use(
     },
     credentials: true,
     allowedHeaders: ['Content-Type', 'Authorization', 'X-CSRF-Token', 'x-csrf-token', 'X-Client-Type', 'x-client-type'],
+    exposedHeaders: ['X-CSRF-Token', 'x-csrf-token'],
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   })
 );

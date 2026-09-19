@@ -34,14 +34,35 @@ async function safeJsonResponse<T = any>(response: Response, fallbackMessage = "
   return (await response.json()) as T;
 }
 
+let activeCsrfToken: string | null = null;
+
+function getActiveCsrfToken(): string | undefined {
+  if (activeCsrfToken) return activeCsrfToken;
+  if (typeof document !== 'undefined') {
+    const match = document.cookie.split('; ').find((row) => row.startsWith('csrf_token='));
+    if (match) return match.split('=')[1];
+  }
+  return undefined;
+}
+
+export function setActiveCsrfToken(token: string | null | undefined) {
+  if (!token) return;
+  activeCsrfToken = token;
+  if (typeof document !== 'undefined') {
+    try {
+      document.cookie = `csrf_token=${token}; path=/; samesite=lax`;
+    } catch {
+      // ignore
+    }
+  }
+}
+
 async function apiFetch(url: string, options: RequestInit = {}) {
   options.credentials = 'include';
   
   const isModifying = ['POST', 'PUT', 'PATCH', 'DELETE'].includes(options.method?.toUpperCase() || '');
   if (isModifying) {
-    const csrfToken = typeof document !== 'undefined' 
-      ? document.cookie.split('; ').find(row => row.startsWith('csrf_token='))?.split('=')[1]
-      : undefined;
+    const csrfToken = getActiveCsrfToken();
     if (csrfToken) {
       options.headers = {
         ...options.headers,
@@ -53,12 +74,17 @@ async function apiFetch(url: string, options: RequestInit = {}) {
   let response: Response;
   try {
     response = await fetch(url, options);
+    const serverCsrf = response.headers.get('x-csrf-token') || response.headers.get('X-CSRF-Token');
+    if (serverCsrf) setActiveCsrfToken(serverCsrf);
+
     const contentType = response.headers.get('content-type') || '';
     if (!response.ok && !contentType.includes('application/json') && API_BASE_URL !== 'http://localhost:4000') {
       const localUrl = url.replace(API_BASE_URL, 'http://localhost:4000');
       const localRes = await fetch(localUrl, options).catch(() => null);
       if (localRes) {
         response = localRes;
+        const localCsrf = response.headers.get('x-csrf-token') || response.headers.get('X-CSRF-Token');
+        if (localCsrf) setActiveCsrfToken(localCsrf);
       }
     }
   } catch (err) {
@@ -66,6 +92,8 @@ async function apiFetch(url: string, options: RequestInit = {}) {
       const localUrl = url.replace(API_BASE_URL, 'http://localhost:4000');
       try {
         response = await fetch(localUrl, options);
+        const localCsrf = response.headers.get('x-csrf-token') || response.headers.get('X-CSRF-Token');
+        if (localCsrf) setActiveCsrfToken(localCsrf);
       } catch {
         throw err;
       }
@@ -81,6 +109,8 @@ async function apiFetch(url: string, options: RequestInit = {}) {
         await refreshSession();
         onRefreshed(null);
         response = await fetch(url, options);
+        const refreshedCsrf = response.headers.get('x-csrf-token') || response.headers.get('X-CSRF-Token');
+        if (refreshedCsrf) setActiveCsrfToken(refreshedCsrf);
       } catch (error) {
         onRefreshed(error instanceof Error ? error : new Error('Refresh failed'));
       } finally {
@@ -95,6 +125,8 @@ async function apiFetch(url: string, options: RequestInit = {}) {
           });
         });
         response = await fetch(url, options);
+        const refreshedCsrf = response.headers.get('x-csrf-token') || response.headers.get('X-CSRF-Token');
+        if (refreshedCsrf) setActiveCsrfToken(refreshedCsrf);
       } catch (error) {
         // Refresh failed, return the 401 response
       }
