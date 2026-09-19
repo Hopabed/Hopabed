@@ -1091,18 +1091,24 @@ export default function AdminDashboardPage() {
                   </div>
                   <div>
                     <span className="text-muted">Phone:</span>
-                    <p className="font-semibold text-ink-soft">{selectedProperty.host?.user?.phone || "✓ Verified"}</p>
+                    <p className="font-semibold text-ink-soft">
+                      {selectedProperty.host?.user?.phone ? `✓ ${selectedProperty.host.user.phone}` : "N/A"}
+                    </p>
                   </div>
                   <div>
                     <span className="text-muted">Gov ID Status:</span>
-                    <p className="font-semibold text-green-700 uppercase">
-                      ✓ {selectedProperty.ownerVerification?.governmentIdType || "Verified"}
+                    <p className={selectedProperty.ownerVerification?.governmentIdStatus === "verified" ? "font-semibold text-green-700 uppercase" : "font-semibold text-amber-700"}>
+                      {selectedProperty.ownerVerification?.governmentIdStatus === "verified"
+                        ? `✓ ${selectedProperty.ownerVerification.governmentIdType || "Verified"}`
+                        : "○ Pending Submission"}
                     </p>
                   </div>
                   <div>
                     <span className="text-muted">PAN Status:</span>
-                    <p className="font-semibold text-green-700">
-                      ✓ {selectedProperty.ownerVerification?.panNumberMasked || "Verified"}
+                    <p className={selectedProperty.ownerVerification?.panStatus === "verified" ? "font-semibold text-green-700 uppercase" : "font-semibold text-amber-700"}>
+                      {selectedProperty.ownerVerification?.panStatus === "verified"
+                        ? `✓ ${selectedProperty.ownerVerification.panNumberMasked || "Verified"}`
+                        : "○ Pending Submission"}
                     </p>
                   </div>
                 </div>
@@ -1250,12 +1256,18 @@ export default function AdminDashboardPage() {
               <div className="rounded-xl border border-border bg-canvas/40 p-4 grid sm:grid-cols-2 gap-4">
                 <div>
                   <span className="text-muted block">Gov ID Status:</span>
-                  <p className="font-bold text-green-700 uppercase">✓ {selectedHost.ownerVerification?.governmentIdType || "Aadhaar e-KYC Verified"}</p>
+                  <p className={selectedHost.ownerVerification?.governmentIdStatus === "verified" ? "font-bold text-green-700 uppercase" : "font-bold text-amber-700"}>
+                    {selectedHost.ownerVerification?.governmentIdStatus === "verified"
+                      ? `✓ ${selectedHost.ownerVerification.governmentIdType || "Verified"}`
+                      : "○ Pending Submission"}
+                  </p>
                 </div>
                 <div>
                   <span className="text-muted block">PAN Status:</span>
-                  <p className="font-bold text-green-700">
-                    ✓ {selectedHost.ownerVerification?.panNumberMasked || "Verified"} ({selectedHost.ownerVerification?.panName})
+                  <p className={selectedHost.ownerVerification?.panStatus === "verified" ? "font-bold text-green-700" : "font-bold text-amber-700"}>
+                    {selectedHost.ownerVerification?.panStatus === "verified"
+                      ? `✓ ${selectedHost.ownerVerification.panNumberMasked || "Verified"}${selectedHost.ownerVerification.panName ? ` (${selectedHost.ownerVerification.panName})` : ""}`
+                      : "○ Pending Submission"}
                   </p>
                 </div>
               </div>
