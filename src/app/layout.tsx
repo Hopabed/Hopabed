@@ -18,6 +18,11 @@ export const metadata: Metadata = {
     template: "%s | Hopebed",
   },
   description: "Hopebed is building a smarter way to find, book and verify stays in India. Discover verified hotels, PGs, and homestays. Stay Smart. Stay Verified.",
+  icons: {
+    icon: "/brand/hopabed-icon.jpg",
+    shortcut: "/brand/hopabed-icon.jpg",
+    apple: "/brand/hopabed-icon.jpg",
+  },
   openGraph: {
     title: "Hopebed — Verified Stays in India",
     description: "Discover verified hotels, PGs, and homestays across India.",
@@ -25,11 +30,13 @@ export const metadata: Metadata = {
     siteName: "Hopebed",
     locale: "en_IN",
     type: "website",
+    images: [{ url: "/brand/hopabed-wordmark.jpg" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "Hopebed — Verified Stays in India",
     description: "Discover verified hotels, PGs, and homestays across India.",
+    images: ["/brand/hopabed-wordmark.jpg"],
   },
   alternates: {
     canonical: "/",
@@ -40,6 +47,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <head>
+        <link rel="icon" href="/brand/hopabed-icon.jpg" type="image/jpeg" />
+        <link rel="apple-touch-icon" href="/brand/hopabed-icon.jpg" />
         <Script src="https://www.googletagmanager.com/gtag/js?id=AW-836763755" strategy="afterInteractive" />
         <Script id="google-analytics" strategy="afterInteractive">
           {`

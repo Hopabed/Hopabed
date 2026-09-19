@@ -40,14 +40,14 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-50 bg-[#000000] border-b border-zinc-800/80 shadow-md transition-all duration-200">
       <div className="mx-auto flex max-w-[1440px] items-center justify-between px-4 py-3 sm:px-6 lg:px-10">
-        {/* Left: Official Hopebed Wordmark Logo (Seamless on #000 Header) */}
-        <Link href="/" className="flex items-center group shrink-0 py-0.5">
+        {/* Left: Official Hopebed Wordmark Logo (Prominent & Clear) */}
+        <Link href="/" className="flex items-center group shrink-0 py-1">
           <Image
             src="/brand/hopabed-wordmark.jpg"
             alt="Hopebed Logo"
-            width={165}
-            height={44}
-            className="h-9 sm:h-10 w-auto object-contain transition-transform duration-200 group-hover:scale-105"
+            width={240}
+            height={65}
+            className="h-12 sm:h-14 lg:h-16 w-auto object-contain transition-transform duration-200 group-hover:scale-105"
             priority
           />
         </Link>
@@ -231,7 +231,7 @@ export default function Header() {
           <div className="relative ml-auto h-full w-4/5 max-w-xs bg-slate-950 p-6 shadow-2xl flex flex-col justify-between text-white border-l border-zinc-800 animate-in slide-in-from-right duration-250">
             <div>
               <div className="flex items-center justify-between border-b border-zinc-800 pb-4 mb-5">
-                <Image src="/brand/hopabed-wordmark.jpg" alt="Hopebed Logo" width={140} height={38} className="h-8 w-auto object-contain" />
+                <Image src="/brand/hopabed-wordmark.jpg" alt="Hopebed Logo" width={180} height={50} className="h-11 w-auto object-contain" />
                 <button
                   onClick={() => setMobileMenuOpen(false)}
                   className="rounded-full p-1 text-zinc-400 hover:bg-zinc-800 hover:text-white"
