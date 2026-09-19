@@ -145,7 +145,7 @@ export function PromotionalAds({ limit = 3 }: { limit?: number }) {
               {/* Bottom CTA */}
               <div className="mt-5 pt-3 border-t border-white/10 flex items-center justify-between">
                 <span className="text-[11px] font-medium text-gray-400">
-                  {ad.code ? "Click to Claim 20% Off" : "Verified Sponsor Offer"}
+                  {ad.code ? "Click to Claim 20% Off" : "Hopebed Launch Offer"}
                 </span>
                 <Link
                   href={ad.ctaHref}
