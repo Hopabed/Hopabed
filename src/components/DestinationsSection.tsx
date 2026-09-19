@@ -3,6 +3,11 @@ import Link from "next/link";
 
 const DESTINATIONS = [
   {
+    name: "Navi Mumbai",
+    image: "https://images.unsplash.com/photo-1570168007204-dfb528c6958f?auto=format&fit=crop&w=600&q=80",
+    properties: "Panvel, CBD Belapur & Vashi",
+  },
+  {
     name: "Goa",
     image: "https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?auto=format&fit=crop&w=600&q=80",
     properties: "Beaches & Nightlife",

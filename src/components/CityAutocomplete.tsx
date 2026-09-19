@@ -21,7 +21,8 @@ export function CityAutocomplete({
   const filteredCities = CITIES.filter(
     (c) =>
       c.name.toLowerCase().includes(value.toLowerCase()) ||
-      c.state.toLowerCase().includes(value.toLowerCase())
+      c.state.toLowerCase().includes(value.toLowerCase()) ||
+      c.keywords?.some((k) => k.toLowerCase().includes(value.toLowerCase()))
   );
 
   useEffect(() => {
