@@ -4,6 +4,7 @@ import { StayTypeSection } from "@/components/StayTypeSection";
 import { DestinationsSection } from "@/components/DestinationsSection";
 import { PropertySection } from "@/components/PropertySection";
 import { HostBanner } from "@/components/HostBanner";
+import { PromotionalAds } from "@/components/PromotionalAds";
 
 export default function HomePage() {
   return (
@@ -42,6 +43,14 @@ export default function HomePage() {
       />
       <Hero />
       <TrustSection />
+      
+      {/* 3 Featured Promotional Ads */}
+      <section className="bg-canvas py-10 border-y border-border/60">
+        <div className="container-page">
+          <PromotionalAds limit={3} />
+        </div>
+      </section>
+
       <StayTypeSection />
       <DestinationsSection />
       <PropertySection />

@@ -126,10 +126,37 @@ export default function BookingCheckoutPage() {
     return diffDays > 0 ? diffDays : 1;
   };
 
+  const [promoCodeInput, setPromoCodeInput] = useState(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("hopebed_claimed_promo") || "";
+    }
+    return "";
+  });
+  const [appliedPromo, setAppliedPromo] = useState<string | null>(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("hopebed_claimed_promo") || null;
+    }
+    return null;
+  });
+
   const nights = calculateNights();
-  const subtotal = property.pricePerNight * nights * rooms;
+  const rawSubtotal = property.pricePerNight * nights * rooms;
+  const discountAmount = appliedPromo?.toUpperCase() === "HOPE20" ? Math.round(rawSubtotal * 0.2) : 0;
+  const subtotal = Math.max(0, rawSubtotal - discountAmount);
   const taxes = Math.round(subtotal * 0.12);
   const totalPrice = subtotal + taxes;
+
+  const handleApplyPromo = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (promoCodeInput.trim().toUpperCase() === "HOPE20") {
+      setAppliedPromo("HOPE20");
+      if (typeof window !== "undefined") {
+        localStorage.setItem("hopebed_claimed_promo", "HOPE20");
+      }
+    } else {
+      alert("Invalid promo code. Use HOPE20 for 20% off your stay.");
+    }
+  };
 
   const triggerPaymentRejection = (reason: string) => {
     setIsSubmitting(false);
@@ -460,12 +487,43 @@ export default function BookingCheckoutPage() {
                   <span className="font-bold text-gray-900">{rooms} Room, {guests} Guests</span>
                 </div>
                 <div className="flex justify-between">
+                  <span>Subtotal</span>
+                  <span className="font-bold text-gray-900">{formatInr(rawSubtotal)}</span>
+                </div>
+                {discountAmount > 0 && (
+                  <div className="flex justify-between text-emerald-700 font-bold bg-emerald-50 p-2 rounded-xl border border-emerald-200">
+                    <span>Promo Discount (HOPE20 - 20% OFF)</span>
+                    <span>-{formatInr(discountAmount)}</span>
+                  </div>
+                )}
+                <div className="flex justify-between">
                   <span>Taxes & Fees (12%)</span>
                   <span className="font-bold text-gray-900">{formatInr(taxes)}</span>
                 </div>
+
+                {/* Promo Code Box */}
+                <form onSubmit={handleApplyPromo} className="pt-2 border-t border-gray-100">
+                  <label className="text-[11px] font-bold text-gray-700 block mb-1">Have a Promo Code?</label>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={promoCodeInput}
+                      onChange={(e) => setPromoCodeInput(e.target.value)}
+                      placeholder="e.g. HOPE20"
+                      className="flex-1 rounded-xl border border-gray-200 px-3 py-1.5 text-xs font-mono font-bold text-gray-900 uppercase outline-none focus:border-[#0b8f3c]"
+                    />
+                    <button
+                      type="submit"
+                      className="rounded-xl bg-[#0b8f3c] px-3.5 py-1.5 text-xs font-bold text-white hover:bg-[#06752f] transition-colors cursor-pointer"
+                    >
+                      {appliedPromo ? "Applied" : "Apply"}
+                    </button>
+                  </div>
+                </form>
+
                 <div className="border-t border-gray-200 pt-3 flex justify-between text-lg font-extrabold text-gray-900">
                   <span>Total Due</span>
-                  <span className="text-brand">{formatInr(totalPrice)}</span>
+                  <span className="text-[#0b8f3c]">{formatInr(totalPrice)}</span>
                 </div>
               </div>
             </div>

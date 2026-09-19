@@ -1,6 +1,7 @@
 import { PROPERTIES } from "@/data/properties";
 import { stayTypes } from "@/data/stayTypes";
 import { PropertyCard } from "@/components/PropertyCard";
+import { PromotionalAds } from "@/components/PromotionalAds";
 import { searchProperties } from "@/lib/api";
 import Link from "next/link";
 import { Sparkles, CheckCircle2 } from "lucide-react";
@@ -100,6 +101,9 @@ export default async function StaysPage({
             );
           })}
         </div>
+
+        {/* 3 Featured Promotional Ads */}
+        <PromotionalAds limit={3} />
 
         {/* Properties Grid */}
         {propertiesList.length === 0 ? (
