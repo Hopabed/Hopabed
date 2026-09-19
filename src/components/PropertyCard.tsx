@@ -4,9 +4,7 @@ import { Heart, Star, ShieldCheck, MapPin } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useWishlist } from "./WishlistProvider";
-import { Property, formatInr } from "@/data/properties";
-
-const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=600&q=80";
+import { Property, formatInr, FALLBACK_PROPERTY_IMAGE, getValidImageUrl } from "@/data/properties";
 
 export function PropertyCard({ property }: { property: Partial<Property> & { id: string } }) {
   const { has, toggle } = useWishlist();
@@ -15,7 +13,8 @@ export function PropertyCard({ property }: { property: Partial<Property> & { id:
   const title = property.name || property.title || "Luxury Stay";
   const city = property.city || "India";
   const locality = property.locality || property.location || city;
-  const image = property.primaryImage || property.image || (property.images && property.images[0]) || FALLBACK_IMAGE;
+  const rawImage = property.primaryImage || property.image || (property.images && property.images[0]);
+  const image = getValidImageUrl(rawImage);
   const price = property.pricePerNight || 3000;
   const rating = property.rating || 4.5;
   const isVerified = property.isVerified ?? true;
@@ -25,12 +24,13 @@ export function PropertyCard({ property }: { property: Partial<Property> & { id:
     <article className="group flex flex-col gap-3 overflow-hidden rounded-2xl border border-gray-100 bg-white p-3 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
       <div className="relative aspect-[4/3] w-full overflow-hidden rounded-xl bg-gray-100">
         <Link href={`/stays/${property.id}`} className="block h-full">
-          <Image
+          <img
             src={image}
             alt={title}
-            fill
-            className="object-cover transition-transform duration-500 group-hover:scale-105"
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+            onError={(e) => {
+              (e.target as HTMLImageElement).src = FALLBACK_PROPERTY_IMAGE;
+            }}
           />
         </Link>
         

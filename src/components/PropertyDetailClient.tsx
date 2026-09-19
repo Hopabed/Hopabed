@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Property, formatInr } from "@/data/properties";
+import { Property, formatInr, FALLBACK_PROPERTY_IMAGE, getValidImageUrl } from "@/data/properties";
 import {
   ShieldCheck,
   MapPin,
@@ -159,25 +159,33 @@ export function PropertyDetailClient({ property }: PropertyDetailClientProps) {
         {/* Gallery Section */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-10">
           <div className="relative aspect-[16/10] lg:col-span-2 overflow-hidden rounded-2xl bg-gray-200 shadow-md">
-            <Image
-              src={images[activeImageIndex] || property.image}
+            <img
+              src={getValidImageUrl(images[activeImageIndex] || property.image)}
               alt={property.name}
-              fill
-              className="object-cover transition-all duration-300"
-              priority
+              className="h-full w-full object-cover transition-all duration-300"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = FALLBACK_PROPERTY_IMAGE;
+              }}
             />
           </div>
 
           <div className="grid grid-cols-2 lg:grid-cols-1 gap-4">
             {images.slice(0, 3).map((imgUrl, index) => (
               <button
-                key={imgUrl}
+                key={imgUrl + index}
                 onClick={() => setActiveImageIndex(index)}
                 className={`relative aspect-[16/10] overflow-hidden rounded-xl border-2 transition-all ${
                   activeImageIndex === index ? "border-brand ring-2 ring-brand/30 scale-[1.02]" : "border-transparent opacity-80 hover:opacity-100"
                 }`}
               >
-                <Image src={imgUrl} alt={`${property.name} ${index + 1}`} fill className="object-cover" />
+                <img
+                  src={getValidImageUrl(imgUrl)}
+                  alt={`${property.name} ${index + 1}`}
+                  className="h-full w-full object-cover"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = FALLBACK_PROPERTY_IMAGE;
+                  }}
+                />
               </button>
             ))}
           </div>

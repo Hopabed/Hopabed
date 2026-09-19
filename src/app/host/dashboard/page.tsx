@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { formatInr } from "@/data/properties";
+import { formatInr, FALLBACK_PROPERTY_IMAGE, getValidImageUrl } from "@/data/properties";
 import { CITIES } from "@/data/cities";
 import { getHostProperties, createProperty, uploadPropertyImage } from "@/lib/api";
 import {
@@ -136,14 +136,15 @@ export default function HostDashboardPage() {
                   className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow cursor-pointer"
                 >
                   <div>
-                    <div className="relative aspect-[16/10] w-full bg-gray-100">
-                      {property.primaryImage || property.image ? (
-                        <Image src={property.primaryImage || property.image} alt={property.title || property.name} fill className="object-cover" />
-                      ) : (
-                        <div className="absolute inset-0 flex items-center justify-center bg-gray-200 text-gray-400">
-                          <Building className="h-10 w-10" />
-                        </div>
-                      )}
+                    <div className="relative aspect-[16/10] w-full overflow-hidden bg-gray-100">
+                      <img
+                        src={getValidImageUrl(property.primaryImage || property.image || (property.images && property.images[0]))}
+                        alt={property.title || property.name || "Hopebed Property"}
+                        className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = FALLBACK_PROPERTY_IMAGE;
+                        }}
+                      />
                       
                       {property.isVerified ? (
                         <span className="absolute left-3 top-3 flex items-center gap-1 rounded-full bg-emerald-600 px-2.5 py-1 text-[10px] font-bold text-white shadow-sm">

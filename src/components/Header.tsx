@@ -122,8 +122,8 @@ export default function Header() {
 
               {/* User Dropdown Panel */}
               {profileDropdownOpen && (
-                <div className="absolute right-0 top-12 z-50 w-64 overflow-hidden rounded-2xl border border-slate-200 bg-white p-2 shadow-xl space-y-1 text-slate-800 animate-in fade-in zoom-in-95 duration-150">
-                  <div className="px-3.5 py-3 border-b border-slate-100 flex items-center gap-3 bg-slate-50/80 rounded-xl mb-1">
+                <div className="absolute right-0 top-12 z-50 w-64 overflow-hidden rounded-2xl border border-slate-200/90 bg-white p-2 shadow-2xl space-y-1 text-slate-900 animate-in fade-in zoom-in-95 duration-150">
+                  <div className="px-3.5 py-3 border-b border-slate-100 flex items-center gap-3 bg-slate-50/90 rounded-xl mb-1">
                     <div className="h-9 w-9 rounded-full bg-[#0b8f3c] text-white font-bold flex items-center justify-center text-sm shrink-0 ring-2 ring-emerald-500/20">
                       {user.avatarUrl ? (
                         <img
@@ -140,8 +140,8 @@ export default function Header() {
                       </span>
                     </div>
                     <div className="overflow-hidden">
-                      <p className="text-xs font-bold text-slate-900 truncate">{user.name}</p>
-                      <p className="text-[11px] text-slate-500 truncate">{user.email}</p>
+                      <p className="text-xs font-extrabold text-slate-900 truncate">{user.name}</p>
+                      <p className="text-[11px] font-medium text-slate-500 truncate">{user.email}</p>
                       <span className="mt-1 inline-block rounded-full bg-emerald-100 px-2 py-0.5 text-[9px] font-bold text-emerald-800 capitalize">
                         {user.role} Account
                       </span>
@@ -151,19 +151,19 @@ export default function Header() {
                   <Link
                     href="/bookings"
                     onClick={() => setProfileDropdownOpen(false)}
-                    className="flex items-center gap-2.5 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-700 hover:bg-slate-100 hover:text-slate-900 transition-all"
+                    className="flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-slate-900 hover:bg-slate-100 hover:text-emerald-700 transition-all group"
                   >
-                    <Calendar className="h-4 w-4 text-[#0b8f3c]" />
-                    <span>My Bookings</span>
+                    <Calendar className="h-4.5 w-4.5 text-[#0b8f3c] shrink-0" />
+                    <span className="text-xs font-bold text-slate-900 group-hover:text-emerald-700">My Bookings</span>
                   </Link>
 
                   <Link
                     href="/host/dashboard"
                     onClick={() => setProfileDropdownOpen(false)}
-                    className="flex items-center gap-2.5 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-700 hover:bg-slate-100 hover:text-slate-900 transition-all"
+                    className="flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-slate-900 hover:bg-slate-100 hover:text-teal-700 transition-all group"
                   >
-                    <Briefcase className="h-4 w-4 text-teal-600" />
-                    <span>Host Dashboard</span>
+                    <Briefcase className="h-4.5 w-4.5 text-teal-600 shrink-0" />
+                    <span className="text-xs font-bold text-slate-900 group-hover:text-teal-700">Host Dashboard</span>
                   </Link>
 
                   <button
@@ -172,10 +172,10 @@ export default function Header() {
                       toggleHostMode();
                       setProfileDropdownOpen(false);
                     }}
-                    className="w-full flex items-center gap-2.5 rounded-xl px-3.5 py-2.5 text-left text-xs font-semibold text-slate-700 hover:bg-slate-100 hover:text-slate-900 transition-all"
+                    className="w-full flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-left text-slate-900 hover:bg-slate-100 transition-all group"
                   >
-                    <Sparkles className="h-4 w-4 text-amber-500" />
-                    <span>Switch to {user.role === "HOST" ? "Guest" : "Host"} Mode</span>
+                    <Sparkles className="h-4.5 w-4.5 text-amber-500 shrink-0" />
+                    <span className="text-xs font-bold text-slate-900">Switch to {user.role === "HOST" ? "Guest" : "Host"} Mode</span>
                   </button>
 
                   <div className="border-t border-slate-100 pt-1">
@@ -185,10 +185,10 @@ export default function Header() {
                         logout();
                         setProfileDropdownOpen(false);
                       }}
-                      className="w-full flex items-center gap-2.5 rounded-xl px-3.5 py-2.5 text-left text-xs font-semibold text-rose-600 hover:bg-rose-50 transition-all"
+                      className="w-full flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-left text-rose-600 hover:bg-rose-50 transition-all group"
                     >
-                      <LogOut className="h-4 w-4 text-rose-500" />
-                      <span>Sign Out</span>
+                      <LogOut className="h-4.5 w-4.5 text-rose-500 shrink-0" />
+                      <span className="text-xs font-bold text-rose-600">Sign Out</span>
                     </button>
                   </div>
                 </div>
