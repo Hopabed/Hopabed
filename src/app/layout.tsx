@@ -49,6 +49,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         <link rel="icon" href="/brand/hopabed-icon.jpg" type="image/jpeg" />
         <link rel="apple-touch-icon" href="/brand/hopabed-icon.jpg" />
+        <Script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5507783627988593"
+          crossOrigin="anonymous"
+          strategy="afterInteractive"
+        />
         <Script src="https://www.googletagmanager.com/gtag/js?id=AW-836763755" strategy="afterInteractive" />
         <Script id="google-analytics" strategy="afterInteractive">
           {`
