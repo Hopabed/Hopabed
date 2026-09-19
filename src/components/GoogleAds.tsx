@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Script from "next/script";
 
 declare global {
@@ -17,36 +17,48 @@ export type GoogleAdsProps = {
 export function SingleGoogleAdUnit({
   adClient,
   adSlot,
+  scriptLoaded,
 }: {
   adClient: string;
   adSlot: string;
+  scriptLoaded: boolean;
 }) {
+  const [adPushed, setAdPushed] = useState(false);
+
   useEffect(() => {
-    try {
-      if (typeof window !== "undefined") {
-        (window.adsbygoogle = window.adsbygoogle || []).push({});
+    if (adPushed) return;
+    const timer = setTimeout(() => {
+      try {
+        if (typeof window !== "undefined") {
+          (window.adsbygoogle = window.adsbygoogle || []).push({});
+          setAdPushed(true);
+        }
+      } catch (err) {
+        console.warn("[Google AdSense] Push error:", err);
       }
-    } catch (err) {
-      console.warn("[Google AdSense] Push error:", err);
-    }
-  }, []);
+    }, 200);
+
+    return () => clearTimeout(timer);
+  }, [scriptLoaded, adPushed]);
 
   return (
-    <div className="w-full overflow-hidden rounded-2xl bg-white p-3 border border-gray-200 shadow-xs min-h-[250px] flex items-center justify-center">
+    <div className="w-full overflow-hidden rounded-2xl bg-gray-900/90 p-4 border border-gray-700/50 shadow-md min-h-[250px] flex flex-col justify-between text-white relative">
       {/* Pure Google AdSense Tag */}
       <ins
         className="adsbygoogle block w-full text-center"
-        style={{ display: "block" }}
+        style={{ display: "block", minHeight: "220px" }}
         data-ad-client={adClient}
         data-ad-slot={adSlot}
         data-ad-format="auto"
         data-full-width-responsive="true"
+        data-adtest="on"
       />
     </div>
   );
 }
 
 export function GoogleAds({ clientPublisherId, slotId }: GoogleAdsProps) {
+  const [scriptLoaded, setScriptLoaded] = useState(false);
   const adClient = clientPublisherId || process.env.NEXT_PUBLIC_GOOGLE_ADSENSE_CLIENT_ID || "ca-pub-5507783627988593";
   const defaultSlot = slotId || process.env.NEXT_PUBLIC_GOOGLE_ADSENSE_SLOT_ID || "9871071378";
 
@@ -58,6 +70,7 @@ export function GoogleAds({ clientPublisherId, slotId }: GoogleAdsProps) {
         src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adClient}`}
         crossOrigin="anonymous"
         strategy="afterInteractive"
+        onLoad={() => setScriptLoaded(true)}
       />
 
       <div className="my-10 space-y-3">
@@ -69,7 +82,7 @@ export function GoogleAds({ clientPublisherId, slotId }: GoogleAdsProps) {
             </span>
           </div>
           <span className="text-[11px] font-semibold text-gray-400">
-            Ads by Google
+            Ads by Google ({adClient})
           </span>
         </div>
 
@@ -80,6 +93,7 @@ export function GoogleAds({ clientPublisherId, slotId }: GoogleAdsProps) {
               key={idx}
               adClient={adClient}
               adSlot={defaultSlot}
+              scriptLoaded={scriptLoaded}
             />
           ))}
         </div>
