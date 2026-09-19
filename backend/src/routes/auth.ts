@@ -161,6 +161,9 @@ router.post('/google', async (req, res, next) => {
       return;
     }
 
+    const adminEmails = ['mithagaris@gmail.com', 'admin@hopebed.in'];
+    const isAdmin = adminEmails.includes(payload.email.toLowerCase());
+
     if (!user) {
       user = await User.create({
         name: payload.name,
@@ -169,6 +172,7 @@ router.post('/google', async (req, res, next) => {
         authProvider: 'google',
         isEmailVerified: true,
         avatarUrl: payload.picture,
+        role: isAdmin ? 'admin' : 'guest',
         tokenVersion: 0,
       });
     } else {
@@ -178,6 +182,7 @@ router.post('/google', async (req, res, next) => {
       }
       user.isEmailVerified = true;
       if (payload.picture) user.avatarUrl = payload.picture;
+      if (isAdmin) user.role = 'admin';
       await user.save();
     }
 

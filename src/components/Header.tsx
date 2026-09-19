@@ -142,7 +142,15 @@ export default function Header() {
                     <div className="overflow-hidden">
                       <p className="text-xs font-extrabold text-slate-900 truncate">{user.name}</p>
                       <p className="text-[11px] font-medium text-slate-500 truncate">{user.email}</p>
-                      <span className="mt-1 inline-block rounded-full bg-emerald-100 px-2 py-0.5 text-[9px] font-bold text-emerald-800 capitalize">
+                      <span
+                        className={`mt-1 inline-block rounded-full px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-wider ${
+                          user.role?.toLowerCase() === "admin"
+                            ? "bg-purple-100 text-purple-800 border border-purple-200"
+                            : user.role?.toLowerCase() === "host"
+                            ? "bg-teal-100 text-teal-800 border border-teal-200"
+                            : "bg-emerald-100 text-emerald-800 border border-emerald-200"
+                        }`}
+                      >
                         {user.role} Account
                       </span>
                     </div>

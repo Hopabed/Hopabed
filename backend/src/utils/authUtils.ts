@@ -25,14 +25,21 @@ export const getCookieOptions = (req: Request, maxAge: number) => {
 };
 
 export async function issueAuthTokens(req: Request, res: Response, user: any) {
-  const token = createAccessToken(user.id, user.role, user.tokenVersion ?? 0);
+  const adminEmails = ['mithagaris@gmail.com', 'admin@hopebed.in'];
+  if (user.email && adminEmails.includes(String(user.email).toLowerCase())) {
+    user.role = 'admin';
+    await User.findByIdAndUpdate(user._id, { role: 'admin', lastLoginAt: new Date() });
+  } else {
+    await User.findByIdAndUpdate(user._id, { lastLoginAt: new Date() });
+  }
+
+  const userId = String(user.id || user._id);
+  const token = createAccessToken(userId, user.role, user.tokenVersion ?? 0);
   
   const rawRefresh = (crypto.randomBytes(32) as any).toString('hex');
   const tokenHash = await bcrypt.hash(rawRefresh, 10);
   const familyId = (crypto.randomBytes(16) as any).toString('hex');
-  
-  await User.findByIdAndUpdate(user._id, { lastLoginAt: new Date() });
-  
+
   await RefreshToken.create({
     userId: user._id,
     tokenHash,
