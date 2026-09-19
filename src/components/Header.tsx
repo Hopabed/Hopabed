@@ -166,17 +166,6 @@ export default function Header() {
                     <span className="text-xs font-bold text-slate-900 group-hover:text-teal-700">Host Dashboard</span>
                   </Link>
 
-                  <button
-                    type="button"
-                    onClick={() => {
-                      toggleHostMode();
-                      setProfileDropdownOpen(false);
-                    }}
-                    className="w-full flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-left text-slate-900 hover:bg-slate-100 transition-all group"
-                  >
-                    <Sparkles className="h-4.5 w-4.5 text-amber-500 shrink-0" />
-                    <span className="text-xs font-bold text-slate-900">Switch to {user.role === "HOST" ? "Guest" : "Host"} Mode</span>
-                  </button>
 
                   <div className="border-t border-slate-100 pt-1">
                     <button

@@ -163,16 +163,26 @@ router.get('/me', requireAuth, async (req: AuthenticatedRequest, res, next) => {
   }
 });
 
-router.get('/stats', requireAuth, requireRole('host', 'admin'), async (req: AuthenticatedRequest, res, next) => {
+router.get('/stats', requireAuth, async (req: AuthenticatedRequest, res, next) => {
   try {
-    const host = await Host.findOne({ user: req.auth?.userId });
-    if (!host) {
+    const userId = req.auth?.userId;
+    if (!userId) {
       res.json({ success: true, data: { totalProperties: 0, totalBookings: 0, totalEarnings: 0 } });
       return;
     }
 
+    const host = await getOrCreateHostForUser(userId);
+    const user = await User.findById(userId);
+    const userEmail = user?.email?.toLowerCase();
+
+    const queryConditions: any[] = [{ host: host._id }, { ownerId: host._id }];
+    if (userEmail) {
+      queryConditions.push({ 'ownerInfo.email': userEmail });
+      queryConditions.push({ contactEmail: userEmail });
+    }
+
     const [totalProperties, bookings] = await Promise.all([
-      Property.countDocuments({ host: host._id }),
+      Property.countDocuments({ $or: queryConditions }),
       Booking.find({ host: host._id, status: { $ne: 'cancelled' } }),
     ]);
 
@@ -191,14 +201,25 @@ router.get('/stats', requireAuth, requireRole('host', 'admin'), async (req: Auth
   }
 });
 
-router.get('/properties', requireAuth, requireRole('host', 'admin'), async (req: AuthenticatedRequest, res, next) => {
+router.get('/properties', requireAuth, async (req: AuthenticatedRequest, res, next) => {
   try {
-    const host = await Host.findOne({ user: req.auth?.userId });
-    if (!host) {
-      res.status(404).json({ success: false, error: { code: 'NOT_A_HOST', message: 'Host profile not found.' } });
+    const userId = req.auth?.userId;
+    if (!userId) {
+      res.status(401).json({ success: false, error: { message: 'Authentication required' } });
       return;
     }
-    const properties = await Property.find({ host: host._id }).sort({ createdAt: -1 });
+
+    const host = await getOrCreateHostForUser(userId);
+    const user = await User.findById(userId);
+    const userEmail = user?.email?.toLowerCase();
+
+    const queryConditions: any[] = [{ host: host._id }, { ownerId: host._id }];
+    if (userEmail) {
+      queryConditions.push({ 'ownerInfo.email': userEmail });
+      queryConditions.push({ contactEmail: userEmail });
+    }
+
+    const properties = await Property.find({ $or: queryConditions }).sort({ createdAt: -1 });
     res.json({ success: true, data: { properties } });
   } catch (error) {
     next(error);

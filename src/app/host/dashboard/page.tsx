@@ -27,7 +27,7 @@ export default function HostDashboardPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (user?.role === "HOST") {
+    if (user) {
       getHostProperties()
         .then((data) => setProperties(data || []))
         .catch((err) => console.error("Failed to load properties", err))

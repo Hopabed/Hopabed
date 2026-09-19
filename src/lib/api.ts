@@ -248,22 +248,7 @@ export async function authenticateWithPassword(input: {
 		throw new Error(body.error?.message || "Authentication failed. Please check your email and password.");
 	}
 
-	// 3. Resilient Fallback Session for local/test access
-	const isStaff = input.email.includes("admin") || input.email.includes("host");
-	const role = input.email.includes("admin") ? "admin" : input.email.includes("host") ? "host" : "guest";
-	return {
-		success: true,
-		data: {
-			token: "hb_token_" + Date.now(),
-			user: {
-				id: "usr_" + Math.random().toString(36).substring(2, 9),
-				name: input.name || (isStaff ? "Hopebed Admin" : input.email.split("@")[0] || "Verified Guest"),
-				email: input.email,
-				role: role,
-				phone: "+91 9876543210",
-			},
-		},
-	};
+	throw new Error("Unable to connect to authentication server. Please check your internet connection.");
 }
 
 export async function sendOtp(input: {
