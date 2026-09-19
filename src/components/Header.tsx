@@ -45,34 +45,55 @@ export default function Header() {
         <Logo />
 
         {/* Center: High-Contrast Pure White Navigation Links */}
-        <nav className="hidden md:flex items-center gap-6 lg:gap-10 xl:gap-12">
+        <nav className="hidden md:flex items-center gap-3 lg:gap-5 xl:gap-7 overflow-x-auto no-scrollbar">
           <Link
             href="/stays"
             style={{ color: '#ffffff' }}
-            className="text-sm lg:text-base font-bold !text-white hover:!text-[#0b8f3c] transition-colors whitespace-nowrap"
+            className="text-xs lg:text-sm font-bold !text-white hover:!text-[#0b8f3c] transition-colors whitespace-nowrap"
           >
             Explore Stays
           </Link>
           <Link
             href="/stays?type=hotels"
             style={{ color: '#ffffff' }}
-            className="text-sm lg:text-base font-bold !text-white hover:!text-[#0b8f3c] transition-colors whitespace-nowrap"
+            className="text-xs lg:text-sm font-bold !text-white hover:!text-[#0b8f3c] transition-colors whitespace-nowrap"
           >
             Hotels
           </Link>
           <Link
+            href="/stays?type=villas"
+            style={{ color: '#ffffff' }}
+            className="text-xs lg:text-sm font-bold !text-white hover:!text-[#0b8f3c] transition-colors whitespace-nowrap"
+          >
+            Villas
+          </Link>
+          <Link
+            href="/stays?type=apartments"
+            style={{ color: '#ffffff' }}
+            className="text-xs lg:text-sm font-bold !text-white hover:!text-[#0b8f3c] transition-colors whitespace-nowrap"
+          >
+            Apartments
+          </Link>
+          <Link
+            href="/stays?type=resorts"
+            style={{ color: '#ffffff' }}
+            className="text-xs lg:text-sm font-bold !text-white hover:!text-[#0b8f3c] transition-colors whitespace-nowrap"
+          >
+            Resorts
+          </Link>
+          <Link
             href="/stays?type=pg"
             style={{ color: '#ffffff' }}
-            className="text-sm lg:text-base font-bold !text-white hover:!text-[#0b8f3c] transition-colors whitespace-nowrap"
+            className="text-xs lg:text-sm font-bold !text-white hover:!text-[#0b8f3c] transition-colors whitespace-nowrap"
           >
             PG & Long-Stay
           </Link>
           <Link
             href="/stays?type=homestays"
             style={{ color: '#ffffff' }}
-            className="text-sm lg:text-base font-bold !text-white hover:!text-[#0b8f3c] transition-colors whitespace-nowrap"
+            className="text-xs lg:text-sm font-bold !text-white hover:!text-[#0b8f3c] transition-colors whitespace-nowrap"
           >
-            Homestays & Villas
+            Homestays
           </Link>
         </nav>
 
