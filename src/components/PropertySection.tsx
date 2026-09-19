@@ -25,7 +25,27 @@ export function PropertySection() {
   }, []);
 
   if (!loading && properties.length === 0) {
-    return null; // Keep empty state clean if no data
+    return (
+      <section className="bg-canvas py-12 sm:py-16">
+        <div className="container-page">
+          <div className="mb-8 flex items-end justify-between gap-4">
+            <div>
+              <h2 className="text-2xl font-bold tracking-tight text-ink-soft sm:text-3xl">Featured verified stays</h2>
+              <p className="mt-2 text-muted">Book properties with confidence.</p>
+            </div>
+          </div>
+          <div className="rounded-2xl border border-dashed border-gray-300 bg-gray-50/80 p-10 text-center shadow-xs">
+            <h3 className="text-base font-bold text-gray-800">No verified stays currently featured</h3>
+            <p className="mt-1 text-xs text-gray-500 max-w-md mx-auto">
+              Explore all categories to discover available verified hotels, PGs, and homestays.
+            </p>
+            <Link href="/stays" className="mt-4 inline-block font-bold text-[#0b8f3c] hover:underline text-xs">
+              Explore All Stays →
+            </Link>
+          </div>
+        </div>
+      </section>
+    );
   }
 
   return (

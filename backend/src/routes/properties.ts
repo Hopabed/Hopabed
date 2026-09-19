@@ -89,7 +89,15 @@ router.get('/search', async (req, res, next) => {
         { verificationStatus: { $in: ['VERIFIED', 'PUBLISHED'] } },
         { status: { $in: ['VERIFIED', 'PUBLISHED'] } },
       ],
-      host: { $in: verifiedHostIds },
+      $and: [
+        {
+          $or: [
+            { host: { $in: verifiedHostIds } },
+            { host: { $exists: false } },
+            { host: null },
+          ],
+        },
+      ],
     };
     if (query.destination) {
       propertyFilter.$and = [
