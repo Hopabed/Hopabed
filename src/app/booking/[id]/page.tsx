@@ -2,11 +2,11 @@
 
 import React, { useState, useEffect } from "react";
 import { useParams, useSearchParams, useRouter } from "next/navigation";
-import { getPropertyById, formatInr } from "@/data/properties";
+import { getPropertyById, formatInr, Property } from "@/data/properties";
 import { useBooking } from "@/context/BookingContext";
 import { useAuth } from "@/context/AuthContext";
-import { initRazorpayPayment, initRazorpayCheckout, verifyRazorpayPayment } from "@/lib/api";
-import { ShieldCheck, Calendar, Users, MapPin, CheckCircle2, ArrowLeft, Lock, Info, XCircle, RefreshCw, AlertTriangle } from "lucide-react";
+import { initRazorpayPayment, initRazorpayCheckout, verifyRazorpayPayment, getPropertyDetails } from "@/lib/api";
+import { ShieldCheck, Calendar, Users, MapPin, CheckCircle2, ArrowLeft, Lock, Info, XCircle, RefreshCw, AlertTriangle, Loader2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -18,7 +18,8 @@ export default function BookingCheckoutPage() {
   const { addBooking } = useBooking();
   const { user, openAuthModal } = useAuth();
 
-  const property = getPropertyById(params.id);
+  const [property, setProperty] = useState<Property | undefined>(() => getPropertyById(params.id));
+  const [isLoadingProperty, setIsLoadingProperty] = useState(!property);
 
   const initialCheckIn = searchParams.get("checkIn") || "";
   const initialCheckOut = searchParams.get("checkOut") || "";
@@ -42,6 +43,42 @@ export default function BookingCheckoutPage() {
   const [countdown, setCountdown] = useState<number>(5);
 
   useEffect(() => {
+    if (!property && params.id) {
+      setIsLoadingProperty(true);
+      getPropertyDetails(params.id)
+        .then((details) => {
+          setProperty({
+            id: details.id,
+            name: details.title,
+            title: details.title,
+            location: `${details.locality || details.city}, ${details.city}`,
+            locality: details.locality || details.city,
+            city: details.city,
+            state: "India",
+            rating: details.rating || 4.8,
+            reviewCount: 18,
+            pricePerNight: details.pricePerNight || (details.rooms?.[0]?.pricePerNight) || 2000,
+            type: (details.propertyType?.toLowerCase() || "hotels") as any,
+            propertyType: details.propertyType || "Hotel",
+            image: details.primaryImage || "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80",
+            images: [
+              details.primaryImage || "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80",
+            ],
+            isVerified: details.isVerified !== false,
+            description: details.description || "",
+            address: details.address || "",
+            amenities: details.amenities || [],
+            maxGuests: details.rooms?.[0]?.capacity || 4,
+            roomsCount: details.rooms?.length || 1,
+            hostName: "Hopebed Verified Host",
+          });
+        })
+        .catch((err) => console.error("Failed to load property details:", err))
+        .finally(() => setIsLoadingProperty(false));
+    }
+  }, [params.id, property]);
+
+  useEffect(() => {
     if (user) {
       if (!guestName) setGuestName(user.name);
       if (user.email) setGuestEmail(user.email);
@@ -58,6 +95,15 @@ export default function BookingCheckoutPage() {
     return () => clearInterval(timer);
   }, [paymentStatus, countdown]);
 
+  if (isLoadingProperty) {
+    return (
+      <main className="container-page py-20 text-center flex flex-col items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-brand mb-4" />
+        <p className="text-sm font-bold text-gray-700">Loading stay details...</p>
+      </main>
+    );
+  }
+
   if (!property) {
     return (
       <main className="container-page py-16 text-center">
@@ -69,6 +115,7 @@ export default function BookingCheckoutPage() {
       </main>
     );
   }
+
 
   const calculateNights = () => {
     if (!checkIn || !checkOut) return 1;

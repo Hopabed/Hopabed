@@ -221,10 +221,10 @@ export default function Header() {
             <button
               type="button"
               onClick={openAuthModal}
-              className="flex items-center gap-1.5 rounded-full bg-blue-600 px-4 py-2 text-xs sm:text-sm font-bold text-white shadow-md shadow-blue-600/40 hover:bg-blue-500 transition-all whitespace-nowrap shrink-0"
+              className="flex items-center gap-1.5 rounded-full bg-blue-600 px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-bold text-white shadow-md shadow-blue-600/40 hover:bg-blue-500 transition-all whitespace-nowrap shrink-0"
             >
-              <User className="h-4 w-4 text-white shrink-0" />
-              <span className="text-white whitespace-nowrap">Sign In / Register</span>
+              <User className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-white shrink-0" />
+              <span className="text-white whitespace-nowrap">Sign In<span className="hidden sm:inline"> / Register</span></span>
             </button>
           )}
 

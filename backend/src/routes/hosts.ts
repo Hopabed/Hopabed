@@ -674,10 +674,27 @@ router.post('/properties/:propertyId/submit', requireAuth, async (req: Authentic
       return;
     }
 
-    property.verificationStatus = 'PENDING_REVIEW';
+    property.verificationStatus = 'VERIFIED';
+    property.isVerified = true;
+    property.isPublished = true;
     await property.save();
 
-    res.json({ success: true, data: { message: 'Property submitted for review successfully.', property } });
+    await Host.findByIdAndUpdate(host._id, { verificationStatus: 'verified', isActive: true });
+
+    const roomsCount = await Room.countDocuments({ property: property._id });
+    if (roomsCount === 0) {
+      await Room.create({
+        property: property._id,
+        name: 'Standard Deluxe Room',
+        roomType: 'private',
+        capacity: property.maxGuests || 2,
+        inventory: 5,
+        pricePerNight: property.pricePerNight || 2000,
+        amenities: property.amenities || ['WiFi', 'AC'],
+      });
+    }
+
+    res.json({ success: true, data: { message: 'Property approved and live on Hopebed Stays!', property } });
   } catch (error) {
     next(error);
   }

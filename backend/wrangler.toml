@@ -5,10 +5,18 @@ compatibility_flags = ["nodejs_compat"]
 
 [vars]
 NODE_ENV = "production"
-CORS_ORIGIN = "https://hopabedin.mithagaris.workers.dev,http://localhost:3000"
+CORS_ORIGIN = "*"
 API_URL = "https://hopebed-api-staging.mithagaris.workers.dev"
 FRONTEND_URL = "https://hopabedin.mithagaris.workers.dev"
-R2_REGION = "auto"
+MONGODB_URI = "mongodb+srv://hopebed_app:flnicDCqAmNUz6HD@cluster0.0le5k5c.mongodb.net"
+MONGODB_DB_NAME = "hopebed"
+JWT_SECRET = "8c3d9b43fa89b251ce73b9423ea2f65a4c9b0e7a2b9f1d8c34f5a6b7e8d9c0f1"
+GOOGLE_CLIENT_ID = "790859697143-rc3tgtgejdhoeoaqi300nbbnbj4sjetq.apps.googleusercontent.com"
+RAZORPAY_KEY_ID = "rzp_live_TcPMDAMTJ2sUPh"
+RAZORPAY_KEY_SECRET = "mLYqb9Zv6FNd1XMhrdSnsofB"
+RAZORPAY_WEBHOOK_SECRET = "hopebed_rzp_webhook_secret_2026"
 PAYU_ENV = "production"
-MONGODB_DB_NAME = "hopebed_staging"
+PAYU_MERCHANT_KEY = "Cy9WP2"
+PAYU_MERCHANT_SALT = "jTpgCsRQY3ThBDMOUDc6SkniB69rnneU"
 CF_WORKER = "true"
+
