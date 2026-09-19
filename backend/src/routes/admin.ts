@@ -42,6 +42,116 @@ router.get('/stats', async (req, res, next) => {
 });
 
 /**
+ * GET /api/admin/bookings
+ * Fetch all platform bookings for internal admin tracking
+ */
+router.get('/bookings', async (req, res, next) => {
+  try {
+    const bookings = await Booking.find({})
+      .populate('property', 'title city locality primaryImage address')
+      .populate('guest', 'name email phone mobile')
+      .populate('room', 'name roomType')
+      .sort({ createdAt: -1 })
+      .lean();
+
+    res.json({ success: true, data: { bookings } });
+  } catch (error) {
+    next(error);
+  }
+});
+
+/**
+ * POST /api/admin/properties
+ * Add a new property directly (Internal Onboarding)
+ */
+router.post('/properties', async (req, res, next) => {
+  try {
+    const input = z.object({
+      title: z.string().trim().min(3),
+      propertyType: z.string().trim(),
+      city: z.string().trim(),
+      locality: z.string().trim(),
+      address: z.string().trim(),
+      pricePerNight: z.coerce.number().min(0),
+      pricePerMonth: z.coerce.number().optional().default(0),
+      isMonthlyAvailable: z.boolean().optional().default(false),
+      messIncluded: z.boolean().optional().default(false),
+      messMonthlyFee: z.coerce.number().optional().default(0),
+      description: z.string().trim().optional(),
+      primaryImage: z.string().trim().optional(),
+      amenities: z.array(z.string()).optional().default([]),
+      maxGuests: z.coerce.number().min(1).default(2),
+    }).parse(req.body);
+
+    const firstHost = await Host.findOne({ isActive: true }) || await Host.create({ businessName: 'Hopebed Managed' });
+    const slug = input.title.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + Date.now();
+
+    const property = new Property({
+      ...input,
+      host: firstHost._id,
+      slug,
+      isVerified: true,
+      isPublished: true,
+      verificationStatus: 'VERIFIED',
+      currency: 'INR',
+      location: { type: 'Point', coordinates: [73.0022, 19.0759] }
+    });
+    await property.save();
+
+    await Room.create({
+      property: property._id,
+      name: 'Standard Room',
+      roomType: input.propertyType === 'pg' ? 'shared' : 'private',
+      capacity: input.maxGuests,
+      inventory: 5,
+      pricePerNight: input.pricePerNight,
+      pricePerMonth: input.pricePerMonth,
+      messIncluded: input.messIncluded,
+      messMonthlyFee: input.messMonthlyFee,
+      currency: 'INR',
+      isActive: true,
+    });
+
+    res.status(201).json({ success: true, data: { property } });
+  } catch (error) {
+    next(error);
+  }
+});
+
+/**
+ * PUT /api/admin/properties/:id
+ * Edit property details
+ */
+router.put('/properties/:id', async (req, res, next) => {
+  try {
+    const propId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+    const property = await Property.findByIdAndUpdate(propId, { $set: req.body }, { new: true });
+    if (!property) {
+      res.status(404).json({ success: false, error: { message: 'Property not found' } });
+      return;
+    }
+    res.json({ success: true, data: { property } });
+  } catch (error) {
+    next(error);
+  }
+});
+
+/**
+ * DELETE /api/admin/properties/:id
+ * Remove a property listing
+ */
+router.delete('/properties/:id', async (req, res, next) => {
+  try {
+    const propId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+    await Property.findByIdAndDelete(propId);
+    await Room.deleteMany({ property: propId });
+    res.json({ success: true, message: 'Property deleted successfully' });
+  } catch (error) {
+    next(error);
+  }
+});
+
+/**
  * GET /api/admin/audit-logs
  * Fetch recent verification audit trail logs
  */

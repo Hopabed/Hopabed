@@ -41,16 +41,16 @@ export function Footer() {
               <ShieldCheck className="h-4 w-4" /> 100% On-Site Property Verification
             </div>
             <div className="mt-6 flex gap-4">
-              <Social href="https://instagram.com" label="Instagram">
+              <Social href="#" label="Instagram">
                 <Instagram className="h-[18px] w-[18px]" />
               </Social>
-              <Social href="https://facebook.com" label="Facebook">
+              <Social href="#" label="Facebook">
                 <Facebook className="h-[18px] w-[18px]" />
               </Social>
-              <Social href="https://x.com" label="X">
+              <Social href="#" label="X">
                 <span className="text-[14px] font-bold tracking-tighter">𝕏</span>
               </Social>
-              <Social href="https://linkedin.com" label="LinkedIn">
+              <Social href="#" label="LinkedIn">
                 <Linkedin className="h-[18px] w-[18px]" />
               </Social>
             </div>

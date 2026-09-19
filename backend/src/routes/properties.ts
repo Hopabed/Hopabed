@@ -148,7 +148,16 @@ router.post('/:id/bookings', requireAuth, bookingLimiter, async (req: Authentica
       res.status(404).json({ success: false, error: { code: 'PROPERTY_NOT_FOUND', message: 'Property not found.' } });
       return;
     }
-    const input = z.object({ roomId: z.string().refine(Types.ObjectId.isValid), checkIn: z.coerce.date(), checkOut: z.coerce.date(), guests: z.coerce.number().int().min(1), roomCount: z.coerce.number().int().min(1).max(20).default(1), notes: z.string().trim().max(500).optional() }).parse(req.body);
+    const input = z.object({ 
+      roomId: z.string().refine(Types.ObjectId.isValid), 
+      checkIn: z.coerce.date(), 
+      checkOut: z.coerce.date(), 
+      guests: z.coerce.number().int().min(1), 
+      roomCount: z.coerce.number().int().min(1).max(20).default(1), 
+      bookingType: z.enum(['nightly', 'monthly']).optional().default('nightly'),
+      messOption: z.boolean().optional().default(false),
+      notes: z.string().trim().max(500).optional() 
+    }).parse(req.body);
     const nights = validateDates(input.checkIn, input.checkOut);
     const auth = req.auth;
     if (!auth) throw new Error('UNAUTHORIZED');
@@ -168,10 +177,49 @@ router.post('/:id/bookings', requireAuth, bookingLimiter, async (req: Authentica
       const overlap = await Booking.aggregate([{ $match: { room: room._id, status: { $in: ['pending', 'confirmed', 'checked_in'] }, checkIn: { $lt: input.checkOut }, checkOut: { $gt: input.checkIn } } }]).session(session);
       const bookedCount = overlap.reduce((total, item) => total + (item.roomCount ?? 1), 0);
       if (bookedCount + input.roomCount > room.inventory) throw new Error('ROOM_UNAVAILABLE');
-      const subtotal = room.pricePerNight * nights * input.roomCount;
+
+      let unitPrice = room.pricePerNight;
+      let baseCost = 0;
+
+      if (input.bookingType === 'monthly' && (room.pricePerMonth || property.pricePerMonth)) {
+        const months = Math.max(1, Math.round(nights / 30));
+        unitPrice = room.pricePerMonth || property.pricePerMonth || room.pricePerNight;
+        baseCost = unitPrice * months * input.roomCount;
+      } else {
+        baseCost = unitPrice * nights * input.roomCount;
+      }
+
+      if (input.messOption) {
+        const messFee = room.messMonthlyFee || property.messMonthlyFee || 3000;
+        const months = Math.max(1, Math.round(nights / 30));
+        baseCost += messFee * months * input.roomCount;
+      }
+
+      const subtotal = Math.round(baseCost);
       const serviceFee = Math.round(subtotal * 0.05);
       const taxes = Math.round((subtotal + serviceFee) * 0.05);
-      booking = new Booking({ property: property._id, guest: auth.userId, host: property.host, room: room._id, checkIn: input.checkIn, checkOut: input.checkOut, nights, guests: input.guests, roomCount: input.roomCount, pricePerNight: room.pricePerNight, subtotal, serviceFee, taxes, totalAmount: subtotal + serviceFee + taxes, currency: room.currency, notes: input.notes, status: 'pending', paymentStatus: 'UNPAID' });
+      booking = new Booking({ 
+        property: property._id, 
+        guest: auth.userId, 
+        host: property.host, 
+        room: room._id, 
+        checkIn: input.checkIn, 
+        checkOut: input.checkOut, 
+        nights, 
+        guests: input.guests, 
+        roomCount: input.roomCount, 
+        pricePerNight: unitPrice, 
+        bookingType: input.bookingType,
+        messOption: input.messOption,
+        subtotal, 
+        serviceFee, 
+        taxes, 
+        totalAmount: subtotal + serviceFee + taxes, 
+        currency: room.currency, 
+        notes: input.notes, 
+        status: 'pending', 
+        paymentStatus: 'UNPAID' 
+      });
       await booking.save({ session });
     });
     res.status(201).json({ success: true, data: { booking } });

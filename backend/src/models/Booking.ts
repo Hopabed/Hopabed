@@ -11,6 +11,9 @@ export interface IBooking {
   guests: number;
   roomCount: number;
   pricePerNight: number;
+  bookingType?: 'nightly' | 'monthly';
+  messOption?: boolean;
+  manualRefundRequired?: boolean;
   status: 'pending' | 'confirmed' | 'checked_in' | 'completed' | 'cancelled' | 'rejected';
   subtotal: number;
   serviceFee: number;
@@ -37,6 +40,9 @@ const bookingSchema = new Schema<IBooking>(
     guests: { type: Number, required: true, min: 1 },
     roomCount: { type: Number, required: true, min: 1, default: 1 },
     pricePerNight: { type: Number, required: true, min: 0 },
+    bookingType: { type: String, enum: ['nightly', 'monthly'], default: 'nightly' },
+    messOption: { type: Boolean, default: false },
+    manualRefundRequired: { type: Boolean, default: false },
     status: {
       type: String,
       enum: ['pending', 'confirmed', 'checked_in', 'completed', 'cancelled', 'rejected'],

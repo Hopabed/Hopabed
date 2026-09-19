@@ -38,6 +38,9 @@ export function PropertyDetailClient({ property }: PropertyDetailClientProps) {
   const [rooms, setRooms] = useState<number>(1);
   const [copied, setCopied] = useState(false);
 
+  const [bookingType, setBookingType] = useState<"nightly" | "monthly">("nightly");
+  const [messOption, setMessOption] = useState<boolean>(Boolean(property.messIncluded));
+
   // Date difference calculation
   const calculateNights = () => {
     if (!checkIn || !checkOut) return 1;
@@ -49,7 +52,24 @@ export function PropertyDetailClient({ property }: PropertyDetailClientProps) {
   };
 
   const nights = calculateNights();
-  const subtotal = property.pricePerNight * nights * rooms;
+  
+  let unitRate = property.pricePerNight;
+  let subtotal = 0;
+
+  if (bookingType === "monthly" && (property.pricePerMonth || property.pricePerNight * 20)) {
+    unitRate = property.pricePerMonth || Math.round(property.pricePerNight * 20);
+    const months = Math.max(1, Math.round(nights / 30));
+    subtotal = unitRate * months * rooms;
+  } else {
+    subtotal = unitRate * nights * rooms;
+  }
+
+  if (messOption) {
+    const messFee = property.messMonthlyFee || 3500;
+    const months = Math.max(1, Math.round(nights / 30));
+    subtotal += messFee * months * rooms;
+  }
+
   const taxes = Math.round(subtotal * 0.12);
   const total = subtotal + taxes;
 
@@ -60,6 +80,8 @@ export function PropertyDetailClient({ property }: PropertyDetailClientProps) {
     if (checkOut) params.set("checkOut", checkOut);
     params.set("guests", String(guests));
     params.set("rooms", String(rooms));
+    params.set("bookingType", bookingType);
+    params.set("messOption", String(messOption));
     router.push(`/booking/${property.id}?${params.toString()}`);
   };
 
@@ -267,6 +289,45 @@ export function PropertyDetailClient({ property }: PropertyDetailClientProps) {
               </div>
 
               <form onSubmit={handleBookNow} className="space-y-4">
+                {/* PG Rate & Stay Type Selector */}
+                {(property.isMonthlyAvailable || property.propertyType?.toLowerCase() === "pg" || property.pricePerMonth) && (
+                  <div className="rounded-2xl bg-blue-50 border border-blue-100 p-3 space-y-2">
+                    <span className="text-[11px] font-bold text-brand uppercase tracking-wider block">Stay Type</span>
+                    <div className="grid grid-cols-2 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setBookingType("nightly")}
+                        className={`py-1.5 px-3 rounded-xl text-xs font-bold transition-all ${
+                          bookingType === "nightly" ? "bg-brand text-white shadow-sm" : "bg-white text-gray-700 hover:bg-gray-100"
+                        }`}
+                      >
+                        Nightly Stay
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setBookingType("monthly")}
+                        className={`py-1.5 px-3 rounded-xl text-xs font-bold transition-all ${
+                          bookingType === "monthly" ? "bg-brand text-white shadow-sm" : "bg-white text-gray-700 hover:bg-gray-100"
+                        }`}
+                      >
+                        Monthly PG ({formatInr(property.pricePerMonth || Math.round(property.pricePerNight * 20))}/mo)
+                      </button>
+                    </div>
+
+                    <label className="flex items-center gap-2 pt-1 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={messOption}
+                        onChange={(e) => setMessOption(e.target.checked)}
+                        className="rounded text-brand focus:ring-brand h-4 w-4"
+                      />
+                      <span className="text-xs font-semibold text-gray-800">
+                        Include Daily Mess / Food (+{formatInr(property.messMonthlyFee || 3500)}/mo)
+                      </span>
+                    </label>
+                  </div>
+                )}
+
                 {/* Dates */}
                 <div className="grid grid-cols-2 gap-2 rounded-2xl border border-gray-200 p-2 bg-gray-50">
                   <div>

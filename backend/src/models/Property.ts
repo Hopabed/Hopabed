@@ -34,6 +34,10 @@ export interface IProperty {
   bathrooms?: number;
   maxGuests?: number;
   pricePerNight?: number;
+  pricePerMonth?: number;
+  isMonthlyAvailable?: boolean;
+  messIncluded?: boolean;
+  messMonthlyFee?: number;
   currency: string;
   description?: string;
   amenities: string[];
@@ -123,6 +127,10 @@ const propertySchema = new Schema<IProperty>(
     bathrooms: { type: Number, default: 0, min: 0 },
     maxGuests: { type: Number, default: 0, min: 0 },
     pricePerNight: { type: Number, default: 0, min: 0 },
+    pricePerMonth: { type: Number, default: 0, min: 0 },
+    isMonthlyAvailable: { type: Boolean, default: false },
+    messIncluded: { type: Boolean, default: false },
+    messMonthlyFee: { type: Number, default: 0, min: 0 },
     currency: { type: String, required: true, default: 'INR', uppercase: true },
     description: { type: String, trim: true, maxlength: 4000 },
     amenities: { type: [String], default: [] },

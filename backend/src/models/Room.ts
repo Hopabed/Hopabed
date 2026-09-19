@@ -7,6 +7,9 @@ export interface IRoom {
   capacity: number;
   inventory: number;
   pricePerNight: number;
+  pricePerMonth?: number;
+  messIncluded?: boolean;
+  messMonthlyFee?: number;
   currency: string;
   amenities: string[];
   isActive: boolean;
@@ -28,6 +31,9 @@ const roomSchema = new Schema<IRoom>(
     capacity: { type: Number, required: true, min: 1 },
     inventory: { type: Number, required: true, min: 1 },
     pricePerNight: { type: Number, required: true, min: 0 },
+    pricePerMonth: { type: Number, default: 0, min: 0 },
+    messIncluded: { type: Boolean, default: false },
+    messMonthlyFee: { type: Number, default: 0, min: 0 },
     currency: { type: String, required: true, default: 'INR', uppercase: true },
     amenities: { type: [String], default: [] },
     isActive: { type: Boolean, default: true },

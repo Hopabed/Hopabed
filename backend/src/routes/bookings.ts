@@ -222,6 +222,9 @@ router.post('/:id/cancel', requireAuth, async (req: AuthenticatedRequest, res, n
     // --- End Phase 8 ---
 
     booking.status = 'cancelled';
+    if (booking.paymentStatus === 'PAID' && booking.paymentStatus !== 'REFUNDED') {
+      booking.manualRefundRequired = true;
+    }
     await booking.save();
 
     const guestName = booking.guest?.name || 'Guest';

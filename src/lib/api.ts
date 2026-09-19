@@ -80,6 +80,10 @@ export type SearchProperty = {
 	propertyType: string;
 	primaryImage?: string;
 	pricePerNight: number;
+	pricePerMonth?: number;
+	isMonthlyAvailable?: boolean;
+	messIncluded?: boolean;
+	messMonthlyFee?: number;
 	rating?: number;
 	isVerified?: boolean;
 };
@@ -89,7 +93,18 @@ export type PropertyDetails = SearchProperty & {
 	address: string;
 	amenities: string[];
 	houseRules?: string[];
-	rooms: Array<{ id: string; name: string; roomType: string; capacity: number; inventory: number; pricePerNight: number; amenities: string[] }>;
+	rooms: Array<{ 
+		id: string; 
+		name: string; 
+		roomType: string; 
+		capacity: number; 
+		inventory: number; 
+		pricePerNight: number; 
+		pricePerMonth?: number;
+		messIncluded?: boolean;
+		messMonthlyFee?: number;
+		amenities: string[] 
+	}>;
 };
 
 type AuthResponse = {
@@ -201,10 +216,20 @@ export async function searchProperties(params: URLSearchParams): Promise<SearchP
 	const body = (await response.json()) as { data?: { properties: Array<Record<string, unknown>> }; error?: { message?: string } };
 	if (!response.ok || !body.data) return [];
 	return body.data.properties.map((property) => ({
-		id: String(property.id || property._id), title: String(property.title), city: String(property.city), locality: String(property.locality),
-		propertyType: String(property.propertyType), primaryImage: typeof property.primaryImage === "string" ? property.primaryImage : undefined,
-		pricePerNight: Number(property.pricePerNight), rating: typeof property.rating === "number" ? property.rating : undefined,
-		isVerified: Boolean(property.isVerified && property.verificationStatus === 'VERIFIED')}));
+		id: String(property.id || property._id), 
+		title: String(property.title), 
+		city: String(property.city), 
+		locality: String(property.locality),
+		propertyType: String(property.propertyType), 
+		primaryImage: typeof property.primaryImage === "string" ? property.primaryImage : undefined,
+		pricePerNight: Number(property.pricePerNight), 
+		pricePerMonth: property.pricePerMonth ? Number(property.pricePerMonth) : undefined,
+		isMonthlyAvailable: Boolean(property.isMonthlyAvailable),
+		messIncluded: Boolean(property.messIncluded),
+		messMonthlyFee: property.messMonthlyFee ? Number(property.messMonthlyFee) : undefined,
+		rating: typeof property.rating === "number" ? property.rating : undefined,
+		isVerified: Boolean(property.isVerified && property.verificationStatus === 'VERIFIED')
+	}));
 }
 
 export async function getPropertyDetails(id: string): Promise<PropertyDetails> {
@@ -217,13 +242,53 @@ export async function getPropertyDetails(id: string): Promise<PropertyDetails> {
 	const body = (await response.json()) as { data?: { property: Record<string, unknown>; rooms: Array<Record<string, unknown>> }; error?: { message?: string } };
 	if (!response.ok || !body.data) throw new Error(body.error?.message ?? "We couldn't load this stay.");
 	const property = body.data.property;
-	return { id: String(property.id || property._id), title: String(property.title), city: String(property.city), locality: String(property.locality), propertyType: String(property.propertyType), primaryImage: typeof property.primaryImage === "string" ? property.primaryImage : undefined, pricePerNight: Number(property.pricePerNight), rating: typeof property.rating === "number" ? property.rating : undefined, description: String(property.description), address: String(property.address), amenities: Array.isArray(property.amenities) ? property.amenities.map(String) : [], houseRules: Array.isArray(property.houseRules) ? property.houseRules.map(String) : [], rooms: body.data.rooms.map((room) => ({ id: String(room.id || room._id), name: String(room.name), roomType: String(room.roomType), capacity: Number(room.capacity), inventory: Number(room.inventory), pricePerNight: Number(room.pricePerNight), amenities: Array.isArray(room.amenities) ? room.amenities.map(String) : [] })) };
+	return { 
+		id: String(property.id || property._id), 
+		title: String(property.title), 
+		city: String(property.city), 
+		locality: String(property.locality), 
+		propertyType: String(property.propertyType), 
+		primaryImage: typeof property.primaryImage === "string" ? property.primaryImage : undefined, 
+		pricePerNight: Number(property.pricePerNight), 
+		pricePerMonth: property.pricePerMonth ? Number(property.pricePerMonth) : undefined,
+		isMonthlyAvailable: Boolean(property.isMonthlyAvailable),
+		messIncluded: Boolean(property.messIncluded),
+		messMonthlyFee: property.messMonthlyFee ? Number(property.messMonthlyFee) : undefined,
+		rating: typeof property.rating === "number" ? property.rating : undefined, 
+		description: String(property.description), 
+		address: String(property.address), 
+		amenities: Array.isArray(property.amenities) ? property.amenities.map(String) : [], 
+		houseRules: Array.isArray(property.houseRules) ? property.houseRules.map(String) : [], 
+		rooms: body.data.rooms.map((room) => ({ 
+			id: String(room.id || room._id), 
+			name: String(room.name), 
+			roomType: String(room.roomType), 
+			capacity: Number(room.capacity), 
+			inventory: Number(room.inventory), 
+			pricePerNight: Number(room.pricePerNight), 
+			pricePerMonth: room.pricePerMonth ? Number(room.pricePerMonth) : undefined,
+			messIncluded: Boolean(room.messIncluded),
+			messMonthlyFee: room.messMonthlyFee ? Number(room.messMonthlyFee) : undefined,
+			amenities: Array.isArray(room.amenities) ? room.amenities.map(String) : [] 
+		})) 
+	};
 }
 
-export async function createBooking(input: { propertyId: string; roomId: string; checkIn: string; checkOut: string; guests: number; roomCount?: number }) {
-
-
-	const response = await apiFetch(`${API_BASE_URL}/api/properties/${input.propertyId}/bookings`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(input) });
+export async function createBooking(input: { 
+	propertyId: string; 
+	roomId: string; 
+	checkIn: string; 
+	checkOut: string; 
+	guests: number; 
+	roomCount?: number;
+	bookingType?: 'nightly' | 'monthly';
+	messOption?: boolean;
+}) {
+	const response = await apiFetch(`${API_BASE_URL}/api/properties/${input.propertyId}/bookings`, { 
+		method: "POST", 
+		headers: { "Content-Type": "application/json" }, 
+		body: JSON.stringify(input) 
+	});
 	const body = (await response.json()) as { data?: { booking: Record<string, unknown> }; error?: { message?: string } };
 	if (!response.ok || !body.data) throw new Error(body.error?.message ?? "We couldn't create this booking.");
 	return body.data.booking;

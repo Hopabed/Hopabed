@@ -9,7 +9,11 @@ export type Property = {
   rating: number;
   reviewCount: number;
   pricePerNight: number;
-  type: "hotels" | "villas" | "apartments" | "homestays" | "resorts";
+  pricePerMonth?: number;
+  isMonthlyAvailable?: boolean;
+  messIncluded?: boolean;
+  messMonthlyFee?: number;
+  type: "hotels" | "villas" | "apartments" | "homestays" | "resorts" | "pg";
   propertyType?: string;
   image: string;
   images: string[];
@@ -21,6 +25,7 @@ export type Property = {
   amenities: string[];
   maxGuests: number;
   roomsCount: number;
+  rooms?: any[];
   hostName: string;
   hostAvatar?: string;
   houseRules?: string[];
