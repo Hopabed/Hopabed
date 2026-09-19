@@ -224,18 +224,18 @@ export default function AdminDashboardPage() {
   }, [mainTab, propertyStatus, hostStatus]);
 
   useEffect(() => {
-    if (user?.role === "admin") {
+    if (user?.role?.toLowerCase() === "admin") {
       loadData();
     } else {
       setLoading(false);
     }
   }, [user, mainTab, propertyStatus, hostStatus, loadData]);
 
-  if (!user || user.role !== "admin") {
+  if (!user || user.role?.toLowerCase() !== "admin") {
     return (
       <div className="container-page py-20 text-center">
         <h1 className="mb-4 text-3xl font-bold text-ink">Admin Dashboard</h1>
-        <p className="text-muted">You do not have permission to view this page.</p>
+        <p className="text-muted">Access Restricted. You do not have administrator permissions to view this page.</p>
       </div>
     );
   }

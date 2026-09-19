@@ -26,11 +26,18 @@ outreachRouter.post(
       const filter: Record<string, unknown> = {};
 
       if (city && city.trim().length > 0) {
-        filter.city = new RegExp(`^${city.trim()}$`, 'i');
+        filter.city = new RegExp(city.trim(), 'i');
       }
 
       if (category && category.trim().length > 0 && category.toLowerCase() !== 'all') {
-        filter.propertyType = category.toLowerCase().trim();
+        const catNorm = category.toLowerCase().trim();
+        if (catNorm.includes('hotel') || catNorm.includes('resort')) {
+          filter.propertyType = { $in: ['hotel', 'resort', 'guesthouse', 'apartment', 'villa', 'Hotel', 'Resort'] };
+        } else if (catNorm.includes('pg') || catNorm.includes('hostel')) {
+          filter.propertyType = { $in: ['pg', 'hostel', 'PG', 'Hostel'] };
+        } else if (catNorm.includes('homestay')) {
+          filter.propertyType = { $in: ['homestay', 'villa', 'Homestay'] };
+        }
       }
 
       if (query && query.trim().length > 0) {
@@ -50,11 +57,43 @@ outreachRouter.post(
         }
       }
 
-      console.log('[Outreach Trace] Finding leads in DB...');
-      const leads = await LeadListing.find(filter).sort({ createdAt: -1 });
-      console.log('[Outreach Trace] Found leads:', leads.length);
+      const dbLeads = await LeadListing.find(filter).sort({ createdAt: -1 });
 
-      res.json({ data: { leads, count: leads.length, source: 'database' } });
+      // Aggregate UNCLAIMED properties from Property collection
+      const unclaimedPropFilter: Record<string, unknown> = {};
+      if (city && city.trim().length > 0) {
+        unclaimedPropFilter.city = new RegExp(city.trim(), 'i');
+      }
+
+      const unclaimedProperties = await Property.find(unclaimedPropFilter).sort({ createdAt: -1 });
+
+      const mappedProps = unclaimedProperties.map((p) => ({
+        _id: String(p._id),
+        placeId: p.sourcePlaceId || `prop_${p._id}`,
+        title: p.title,
+        propertyType: p.propertyType,
+        city: p.city || 'Mumbai',
+        locality: p.locality || 'Downtown',
+        address: p.address || `${p.title}, ${p.city}`,
+        phone: p.phone || p.contactPhone,
+        email: p.contactEmail || 'contact@' + p.slug + '.com',
+        status: p.claimed ? 'CLAIMED' : 'UNCLAIMED',
+        claimToken: p.claimToken || String(p._id),
+        rating: 4.8,
+        primaryImage: p.primaryImage,
+      }));
+
+      const combined: any[] = [...dbLeads];
+      const titles = new Set(dbLeads.map((l) => l.title.toLowerCase()));
+
+      for (const p of mappedProps) {
+        if (!titles.has(p.title.toLowerCase())) {
+          combined.push(p);
+          titles.add(p.title.toLowerCase());
+        }
+      }
+
+      res.json({ data: { leads: combined, count: combined.length, source: 'database' } });
     } catch (error: any) {
       console.error('[Outreach ERROR] Failed searching leads:', error);
       res.status(500).json({ error: { message: error?.message || 'Failed to search lead listings.' } });

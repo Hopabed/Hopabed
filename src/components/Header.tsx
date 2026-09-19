@@ -157,14 +157,27 @@ export default function Header() {
                     <span className="text-xs font-bold text-slate-900 group-hover:text-emerald-700">My Bookings</span>
                   </Link>
 
-                  <Link
-                    href="/host/dashboard"
-                    onClick={() => setProfileDropdownOpen(false)}
-                    className="flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-slate-900 hover:bg-slate-100 hover:text-teal-700 transition-all group"
-                  >
-                    <Briefcase className="h-4.5 w-4.5 text-teal-600 shrink-0" />
-                    <span className="text-xs font-bold text-slate-900 group-hover:text-teal-700">Host Dashboard</span>
-                  </Link>
+                  {(user.role?.toLowerCase() === "host" || user.role?.toLowerCase() === "admin") && (
+                    <Link
+                      href="/host/dashboard"
+                      onClick={() => setProfileDropdownOpen(false)}
+                      className="flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-slate-900 hover:bg-slate-100 hover:text-teal-700 transition-all group"
+                    >
+                      <Briefcase className="h-4.5 w-4.5 text-teal-600 shrink-0" />
+                      <span className="text-xs font-bold text-slate-900 group-hover:text-teal-700">Host Dashboard</span>
+                    </Link>
+                  )}
+
+                  {user.role?.toLowerCase() === "admin" && (
+                    <Link
+                      href="/admin"
+                      onClick={() => setProfileDropdownOpen(false)}
+                      className="flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-slate-900 hover:bg-slate-100 hover:text-purple-700 transition-all group"
+                    >
+                      <Sparkles className="h-4.5 w-4.5 text-purple-600 shrink-0" />
+                      <span className="text-xs font-bold text-slate-900 group-hover:text-purple-700">Admin Portal</span>
+                    </Link>
+                  )}
 
 
                   <div className="border-t border-slate-100 pt-1">

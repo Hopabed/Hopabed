@@ -163,7 +163,7 @@ router.get('/me', requireAuth, async (req: AuthenticatedRequest, res, next) => {
   }
 });
 
-router.get('/stats', requireAuth, async (req: AuthenticatedRequest, res, next) => {
+router.get('/stats', requireAuth, requireRole('host', 'admin'), async (req: AuthenticatedRequest, res, next) => {
   try {
     const userId = req.auth?.userId;
     if (!userId) {
@@ -201,7 +201,7 @@ router.get('/stats', requireAuth, async (req: AuthenticatedRequest, res, next) =
   }
 });
 
-router.get('/properties', requireAuth, async (req: AuthenticatedRequest, res, next) => {
+router.get('/properties', requireAuth, requireRole('host', 'admin'), async (req: AuthenticatedRequest, res, next) => {
   try {
     const userId = req.auth?.userId;
     if (!userId) {

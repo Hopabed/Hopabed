@@ -26,8 +26,10 @@ export default function HostDashboardPage() {
   const [properties, setProperties] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  const isHost = user && (user.role?.toLowerCase() === "host" || user.role?.toLowerCase() === "admin");
+
   useEffect(() => {
-    if (user) {
+    if (user && isHost) {
       getHostProperties()
         .then((data) => setProperties(data || []))
         .catch((err) => console.error("Failed to load properties", err))
@@ -35,7 +37,7 @@ export default function HostDashboardPage() {
     } else {
       setIsLoading(false);
     }
-  }, [user]);
+  }, [user, isHost]);
 
   if (!user) {
     return (
@@ -51,9 +53,29 @@ export default function HostDashboardPage() {
           onClick={openAuthModal}
           className="mt-6 rounded-2xl bg-brand px-8 py-3.5 text-sm font-bold text-white shadow-lg hover:bg-brand-dark transition-all"
         >
-          Sign In as Host
+          Sign In
         </button>
         <AuthModal />
+      </main>
+    );
+  }
+
+  if (user && !isHost) {
+    return (
+      <main className="container-page py-20 text-center">
+        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-amber-50 text-amber-600 mb-4">
+          <Building className="h-8 w-8" />
+        </div>
+        <h1 className="text-2xl font-extrabold text-gray-900">Host Account Required</h1>
+        <p className="mt-2 text-sm text-gray-500 max-w-sm mx-auto">
+          You are currently signed in with a Guest Account ({user.email}). Register as a Host to list stay properties and access the Host Dashboard.
+        </p>
+        <Link
+          href="/host/onboarding"
+          className="mt-6 inline-block rounded-2xl bg-brand px-8 py-3.5 text-sm font-bold text-white shadow-lg hover:bg-brand-dark transition-all"
+        >
+          Register as a Host
+        </Link>
       </main>
     );
   }

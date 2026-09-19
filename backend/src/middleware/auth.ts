@@ -67,12 +67,14 @@ export async function requireAuth(req: AuthenticatedRequest, res: Response, next
   }
 }
 
-export function requireRole(...roles: UserRole[]) {
+export function requireRole(...roles: string[]) {
   return (req: AuthenticatedRequest, res: Response, next: NextFunction): void => {
-    if (!req.auth || !roles.includes(req.auth.role)) {
+    const userRole = req.auth?.role?.toLowerCase();
+    const normalizedRoles = roles.map((r) => r.toLowerCase());
+    if (!req.auth || !userRole || !normalizedRoles.includes(userRole)) {
       res.status(403).json({
         success: false,
-        error: { code: 'FORBIDDEN', message: 'You do not have permission to access this resource.' },
+        error: { code: 'FORBIDDEN', message: 'Access denied. Required role: ' + roles.join(' or ') },
       });
       return;
     }
