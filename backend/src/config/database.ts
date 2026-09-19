@@ -4,7 +4,7 @@ import { getMongoose } from '../models/modelUtils.js';
 export const connectDatabase = async (): Promise<void> => {
   const mongoose = getMongoose();
   if (!mongoose || !mongoose.connection) {
-    console.error('Mongoose instance or connection is undefined!', { mongooseDefault, mongooseNamespace });
+    console.error('Mongoose instance or connection is undefined!', { mongoose });
     return;
   }
 
