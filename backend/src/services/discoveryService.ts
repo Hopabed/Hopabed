@@ -175,6 +175,10 @@ function generateFallbackPlaces(city: string, category = 'hotel', limit = 20): D
 
     const title = `${prefix} ${loc.includes(cCap) ? loc : `${loc}, ${cCap}`}`;
     const sourcePlaceId = `candidate_${cleanCitySlug}_${pType}_${i + 1}`;
+    const titleSlug = prefix.toLowerCase().replace(/[^a-z0-9]+/g, '');
+    const locSlug = loc.toLowerCase().replace(/[^a-z0-9]+/g, '');
+    const emailPrefix = (i % 3 === 0) ? 'info' : (i % 3 === 1) ? 'contact' : 'reservations';
+    const email = `${emailPrefix}@${titleSlug}${locSlug}.com`;
 
     candidates.push({
       sourcePlaceId,
@@ -184,7 +188,7 @@ function generateFallbackPlaces(city: string, category = 'hotel', limit = 20): D
       locality: loc,
       address: `${10 + i * 7}, ${loc}, ${cCap}, India`,
       phone: `+91 98${Math.floor(10000000 + Math.random() * 90000000)}`,
-      email: '',
+      email,
       source: 'google_places',
       primaryImage: images[i % images.length],
     });

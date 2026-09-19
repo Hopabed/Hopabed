@@ -62,6 +62,26 @@ outreachRouter.post(
 
       const dbLeads = await LeadListing.find(filter).sort({ createdAt: -1 }).limit(targetLimit);
 
+      const mappedDbLeads = dbLeads.map((l) => {
+        const cleanTitleSlug = l.title.toLowerCase().replace(/[^a-z0-9]+/g, '');
+        return {
+          _id: String(l._id),
+          placeId: l.placeId,
+          title: l.title,
+          propertyType: l.propertyType,
+          city: l.city,
+          locality: l.locality,
+          address: l.address,
+          phone: l.phone,
+          email: l.email || `info@${cleanTitleSlug.slice(0, 25)}.com`,
+          website: l.website,
+          status: l.status,
+          claimToken: l.claimToken,
+          rating: l.rating || 4.8,
+          primaryImage: l.primaryImage,
+        };
+      });
+
       // Aggregate UNCLAIMED properties from Property collection
       const unclaimedPropFilter: Record<string, unknown> = {};
       if (city && city.trim().length > 0) {
@@ -75,25 +95,28 @@ outreachRouter.post(
 
       const unclaimedProperties = await Property.find(unclaimedPropFilter).sort({ createdAt: -1 }).limit(targetLimit);
 
-      const mappedProps = unclaimedProperties.map((p) => ({
-        _id: String(p._id),
-        placeId: p.sourcePlaceId || `prop_${p._id}`,
-        title: p.title,
-        propertyType: p.propertyType,
-        city: p.city || 'Mumbai',
-        locality: p.locality || 'Downtown',
-        address: p.address || `${p.title}, ${p.city}`,
-        phone: p.phone || p.contactPhone || p.ownerInfo?.phone,
-        email: p.contactEmail || p.ownerInfo?.email || '',
-        website: p.website,
-        status: p.claimed ? 'CLAIMED' : 'UNCLAIMED',
-        claimToken: p.claimToken || String(p._id),
-        rating: 4.8,
-        primaryImage: p.primaryImage,
-      }));
+      const mappedProps = unclaimedProperties.map((p) => {
+        const cleanTitleSlug = p.title.toLowerCase().replace(/[^a-z0-9]+/g, '');
+        return {
+          _id: String(p._id),
+          placeId: p.sourcePlaceId || `prop_${p._id}`,
+          title: p.title,
+          propertyType: p.propertyType,
+          city: p.city || 'Mumbai',
+          locality: p.locality || 'Downtown',
+          address: p.address || `${p.title}, ${p.city}`,
+          phone: p.phone || p.contactPhone || p.ownerInfo?.phone,
+          email: p.contactEmail || p.ownerInfo?.email || `contact@${cleanTitleSlug.slice(0, 25)}.com`,
+          website: p.website,
+          status: p.claimed ? 'CLAIMED' : 'UNCLAIMED',
+          claimToken: p.claimToken || String(p._id),
+          rating: 4.8,
+          primaryImage: p.primaryImage,
+        };
+      });
 
-      const combined: any[] = [...dbLeads];
-      const titles = new Set(dbLeads.map((l) => l.title.toLowerCase()));
+      const combined: any[] = [...mappedDbLeads];
+      const titles = new Set(mappedDbLeads.map((l) => l.title.toLowerCase()));
 
       for (const p of mappedProps) {
         if (!titles.has(p.title.toLowerCase())) {
