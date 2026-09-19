@@ -5,6 +5,7 @@ import { DestinationsSection } from "@/components/DestinationsSection";
 import { PropertySection } from "@/components/PropertySection";
 import { HostBanner } from "@/components/HostBanner";
 import { PromotionalAds } from "@/components/PromotionalAds";
+import { GoogleAds } from "@/components/GoogleAds";
 
 export default function HomePage() {
   return (
@@ -43,9 +44,9 @@ export default function HomePage() {
       />
       <Hero />
       <TrustSection />
-      
-      {/* 3 Featured Promotional Ads */}
-      <section className="bg-canvas py-10 border-y border-border/60">
+
+      {/* 3 Featured Promotional Ads (Near Top) */}
+      <section className="bg-canvas py-8 border-y border-border/60 mb-6">
         <div className="container-page">
           <PromotionalAds limit={3} />
         </div>
@@ -53,6 +54,14 @@ export default function HomePage() {
 
       <StayTypeSection />
       <DestinationsSection />
+
+      {/* 3 Sponsored Google Ads (Middle Section) */}
+      <section className="bg-gray-50 py-10 my-8 border-y border-gray-200">
+        <div className="container-page">
+          <GoogleAds />
+        </div>
+      </section>
+
       <PropertySection />
       <HostBanner />
     </main>

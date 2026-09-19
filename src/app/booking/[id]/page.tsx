@@ -204,7 +204,7 @@ export default function BookingCheckoutPage() {
         name: "Hopebed Stays",
         description: `Stay Payment - ${property.name}`,
         order_id: checkoutInit.orderId,
-        offer_id: checkoutInit.offerId || process.env.NEXT_PUBLIC_RAZORPAY_OFFER_ID || "offer_TdyZnF3E2TetT1",
+        offer_id: (checkoutInit as { offerId?: string }).offerId || process.env.NEXT_PUBLIC_RAZORPAY_OFFER_ID || "offer_TdyZnF3E2TetT1",
         prefill: {
           name: guestName || user.name || "Sharukh Mithagari",
           email: guestEmail || user.email || "hello@hopebed.in",

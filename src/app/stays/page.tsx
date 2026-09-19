@@ -2,6 +2,7 @@ import { PROPERTIES } from "@/data/properties";
 import { stayTypes } from "@/data/stayTypes";
 import { PropertyCard } from "@/components/PropertyCard";
 import { PromotionalAds } from "@/components/PromotionalAds";
+import { GoogleAds } from "@/components/GoogleAds";
 import { searchProperties } from "@/lib/api";
 import Link from "next/link";
 import { Sparkles, CheckCircle2 } from "lucide-react";
@@ -102,10 +103,12 @@ export default async function StaysPage({
           })}
         </div>
 
-        {/* 3 Featured Promotional Ads */}
-        <PromotionalAds limit={3} />
+        {/* 3 Featured Promotional Ads (Near Top) */}
+        <div className="mb-8">
+          <PromotionalAds limit={3} />
+        </div>
 
-        {/* Properties Grid */}
+        {/* Properties Grid with Google Ads in Middle */}
         {propertiesList.length === 0 ? (
           <div className="rounded-2xl border border-gray-200 bg-white p-12 text-center shadow-sm">
             <p className="text-gray-500">No properties currently found in this category.</p>
@@ -114,11 +117,28 @@ export default async function StaysPage({
             </Link>
           </div>
         ) : (
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {propertiesList.map((property) => (
-              <PropertyCard key={property.id} property={property} />
-            ))}
-          </div>
+          <>
+            {/* Top Property Cards */}
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 mb-10">
+              {propertiesList.slice(0, Math.min(6, propertiesList.length)).map((property) => (
+                <PropertyCard key={property.id} property={property} />
+              ))}
+            </div>
+
+            {/* 3 Sponsored Google Ads in Middle */}
+            <div className="my-10 pt-4 border-t border-gray-200">
+              <GoogleAds />
+            </div>
+
+            {/* Remaining Property Cards */}
+            {propertiesList.length > 6 && (
+              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 mt-10">
+                {propertiesList.slice(6).map((property) => (
+                  <PropertyCard key={property.id} property={property} />
+                ))}
+              </div>
+            )}
+          </>
         )}
       </div>
     </section>
