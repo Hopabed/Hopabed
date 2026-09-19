@@ -269,38 +269,62 @@ export default function Header() {
                 </button>
               </div>
 
-              <nav className="space-y-2">
+              <nav className="space-y-1.5">
                 <Link
                   href="/stays"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-3 rounded-xl px-4 py-3 text-base font-bold text-slate-700 hover:bg-emerald-50 hover:text-[#0b8f3c] transition-all"
+                  className="flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-bold text-slate-200 hover:bg-zinc-800 hover:text-white transition-all"
                 >
-                  <Search className="h-5 w-5 text-slate-400" />
+                  <Search className="h-4 w-4 text-slate-400" />
                   <span>Explore Stays</span>
                 </Link>
                 <Link
                   href="/stays?type=hotels"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-3 rounded-xl px-4 py-3 text-base font-bold text-slate-700 hover:bg-emerald-50 hover:text-[#0b8f3c] transition-all"
+                  className="flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-bold text-slate-200 hover:bg-zinc-800 hover:text-white transition-all"
                 >
-                  <Building2 className="h-5 w-5 text-blue-600" />
+                  <Building2 className="h-4 w-4 text-blue-400" />
                   <span>Hotels</span>
+                </Link>
+                <Link
+                  href="/stays?type=villas"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-bold text-slate-200 hover:bg-zinc-800 hover:text-white transition-all"
+                >
+                  <Tent className="h-4 w-4 text-amber-400" />
+                  <span>Villas</span>
+                </Link>
+                <Link
+                  href="/stays?type=apartments"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-bold text-slate-200 hover:bg-zinc-800 hover:text-white transition-all"
+                >
+                  <Building2 className="h-4 w-4 text-indigo-400" />
+                  <span>Apartments</span>
+                </Link>
+                <Link
+                  href="/stays?type=resorts"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-bold text-slate-200 hover:bg-zinc-800 hover:text-white transition-all"
+                >
+                  <Sparkles className="h-4 w-4 text-teal-400" />
+                  <span>Resorts</span>
                 </Link>
                 <Link
                   href="/stays?type=pg"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-3 rounded-xl px-4 py-3 text-base font-bold text-slate-700 hover:bg-emerald-50 hover:text-[#0b8f3c] transition-all"
+                  className="flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-bold text-slate-200 hover:bg-zinc-800 hover:text-white transition-all"
                 >
-                  <Sparkles className="h-5 w-5 text-amber-500" />
+                  <Sparkles className="h-4 w-4 text-amber-400" />
                   <span>PG & Long-Stay</span>
                 </Link>
                 <Link
                   href="/stays?type=homestays"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-3 rounded-xl px-4 py-3 text-base font-bold text-slate-700 hover:bg-emerald-50 hover:text-[#0b8f3c] transition-all"
+                  className="flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-bold text-slate-200 hover:bg-zinc-800 hover:text-white transition-all"
                 >
-                  <Tent className="h-5 w-5 text-emerald-600" />
-                  <span>Homestays & Villas</span>
+                  <Tent className="h-4 w-4 text-emerald-400" />
+                  <span>Homestays</span>
                 </Link>
                 <Link
                   href="/host"
