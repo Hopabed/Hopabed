@@ -1403,14 +1403,20 @@ export default function AdminDashboardPage() {
                     </div>
 
                     <p className="text-xs text-muted mt-2 truncate">📍 {lead.address}</p>
+                    {lead.phone && <p className="text-xs text-muted mt-1">📞 {lead.phone}</p>}
+                    {lead.website && (
+                      <p className="text-xs text-muted mt-0.5 truncate">
+                        🌐 <a href={String(lead.website)} target="_blank" rel="noreferrer" className="underline hover:text-brand">{String(lead.website)}</a>
+                      </p>
+                    )}
 
                     <div className="mt-4 pt-3 border-t border-gray-100 space-y-3">
                       <div>
-                        <label className="block text-[11px] font-semibold text-muted mb-1">Property Owner Email Address</label>
+                        <label className="block text-[11px] font-semibold text-muted mb-1">Property Owner Email Address *</label>
                         <input
                           type="email"
-                          placeholder="e.g. owner@hotel.com"
-                          value={customEmails[leadId] || (lead.email as string) || ""}
+                          placeholder="Enter owner email (e.g. owner@hotel.com)"
+                          value={customEmails[leadId] !== undefined ? customEmails[leadId] : (lead.email as string) || ""}
                           onChange={(e) => setCustomEmails({ ...customEmails, [leadId]: e.target.value })}
                           className="w-full rounded-lg border border-border bg-canvas p-2 text-xs text-ink-soft focus:border-brand focus:outline-none"
                         />

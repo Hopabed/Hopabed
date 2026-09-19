@@ -184,7 +184,7 @@ function generateFallbackPlaces(city: string, category = 'hotel', limit = 20): D
       locality: loc,
       address: `${10 + i * 7}, ${loc}, ${cCap}, India`,
       phone: `+91 98${Math.floor(10000000 + Math.random() * 90000000)}`,
-      email: `contact@stay-${cleanCitySlug}-${i + 1}.com`,
+      email: '',
       source: 'google_places',
       primaryImage: images[i % images.length],
     });
