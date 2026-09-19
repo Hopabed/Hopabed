@@ -594,6 +594,7 @@ router.post('/razorpay-init-checkout', async (req, res, next) => {
         amount: order.amount,
         currency: order.currency,
         keyId: env.RAZORPAY_KEY_ID,
+        offerId: process.env.RAZORPAY_OFFER_ID || 'offer_TdyZnF3E2TetT1',
       },
     });
   } catch (error: any) {
