@@ -22,12 +22,14 @@ outreachRouter.post(
   requireRole('admin'),
   async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
-      const { city, category, query } = req.body as { city?: string; category?: string; query?: string };
+      const { city, category, query, limit } = req.body as { city?: string; category?: string; query?: string; limit?: number };
+      const targetLimit = Math.min(Math.max(Number(limit) || 20, 1), 50);
 
       const filter: Record<string, unknown> = {};
 
       if (city && city.trim().length > 0) {
-        filter.city = new RegExp(`^${city.trim()}$`, 'i');
+        const escapedCity = city.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        filter.city = new RegExp(escapedCity, 'i');
       }
 
       if (category && category.trim().length > 0 && category.toLowerCase() !== 'all') {
@@ -52,21 +54,26 @@ outreachRouter.post(
       // -- REAL DISCOVERY ENGINE: Run Google Places API discovery if configured --
       if (city && city.trim().length > 0 && !query) {
         try {
-          await discoverFromGooglePlaces(city, category || 'hotel');
+          await discoverFromGooglePlaces(city, category || 'hotel', targetLimit);
         } catch (discoverErr) {
           console.error('[Outreach WARNING] Failed to discover new leads:', discoverErr);
         }
       }
 
-      const dbLeads = await LeadListing.find(filter).sort({ createdAt: -1 });
+      const dbLeads = await LeadListing.find(filter).sort({ createdAt: -1 }).limit(targetLimit);
 
       // Aggregate UNCLAIMED properties from Property collection
       const unclaimedPropFilter: Record<string, unknown> = {};
       if (city && city.trim().length > 0) {
-        unclaimedPropFilter.city = new RegExp(`^${city.trim()}$`, 'i');
+        const escapedCity = city.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        unclaimedPropFilter.city = new RegExp(escapedCity, 'i');
       }
+      if (filter.propertyType) {
+        unclaimedPropFilter.propertyType = filter.propertyType;
+      }
+      unclaimedPropFilter.claimed = { $ne: true };
 
-      const unclaimedProperties = await Property.find(unclaimedPropFilter).sort({ createdAt: -1 });
+      const unclaimedProperties = await Property.find(unclaimedPropFilter).sort({ createdAt: -1 }).limit(targetLimit);
 
       const mappedProps = unclaimedProperties.map((p) => ({
         _id: String(p._id),
@@ -94,7 +101,9 @@ outreachRouter.post(
         }
       }
 
-      res.json({ data: { leads: combined, count: combined.length, source: 'database' } });
+      const finalLeads = combined.slice(0, targetLimit);
+
+      res.json({ data: { leads: finalLeads, count: finalLeads.length, source: 'database' } });
     } catch (error: any) {
       console.error('[Outreach ERROR] Failed searching leads:', error);
       res.status(500).json({ error: { message: error?.message || 'Failed to search lead listings.' } });

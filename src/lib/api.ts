@@ -961,14 +961,11 @@ export async function createLeadListing(input: {
 	return body.data;
 }
 
-export async function searchGoogleLeads(input: { city?: string; category?: string; query?: string }) {
-
-
-
+export async function searchGoogleLeads(input: { city?: string; category?: string; query?: string; limit?: number }) {
 	const response = await apiFetch(`${API_BASE_URL}/api/admin/leads/search`, {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },
-		body: JSON.stringify(input)});
+		body: JSON.stringify({ limit: 20, ...input })});
 
 	const body = (await response.json()) as { data?: { leads: Array<Record<string, unknown>> }; error?: { message?: string } };
 	if (!response.ok || !body.data) throw new Error(body.error?.message ?? "Failed to search leads.");

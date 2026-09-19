@@ -122,264 +122,81 @@ export async function createUnclaimedProperty(data: DiscoveredPlaceInput) {
   return { created: true, duplicate: false, property: newProperty };
 }
 
-function generateFallbackPlaces(city: string, category = 'hotel'): DiscoveredPlaceInput[] {
+function generateFallbackPlaces(city: string, category = 'hotel', limit = 20): DiscoveredPlaceInput[] {
   const c = city.trim();
   const cLower = c.toLowerCase();
   const cCap = c.charAt(0).toUpperCase() + c.slice(1);
   const cat = category.toLowerCase();
 
-  // 1. Goa Specific authentic properties
-  if (cLower.includes('goa')) {
-    if (cat.includes('pg') || cat.includes('hostel')) {
-      return [
-        {
-          sourcePlaceId: 'goa_pg_1_zolo_nomad',
-          title: 'Zolo Nomad Beach Co-Living Hostel',
-          propertyType: 'pg',
-          city: 'Goa',
-          locality: 'Anjuna Beach',
-          address: 'Anjuna Flea Market Road, Anjuna, Goa 403509',
-          phone: '+91 98200 44112',
-          email: 'stay@zolonomad-goa.com',
-          source: 'google_places',
-          primaryImage: 'https://images.unsplash.com/photo-1555854877-bab0e564b8d5?auto=format&fit=crop&w=800&q=80',
-        },
-        {
-          sourcePlaceId: 'goa_pg_2_hostel_villa',
-          title: 'Vagator Co-Work & Surf Backpackers Hostel',
-          propertyType: 'pg',
-          city: 'Goa',
-          locality: 'Vagator',
-          address: 'Ozran Beach Road, Vagator, Goa 403509',
-          phone: '+91 98200 88223',
-          email: 'hello@vagatorsurfhouse.com',
-          source: 'google_places',
-          primaryImage: 'https://images.unsplash.com/photo-1595526114035-0d45ed16cfbf?auto=format&fit=crop&w=800&q=80',
-        },
-      ];
-    }
-    if (cat.includes('homestay') || cat.includes('villa')) {
-      return [
-        {
-          sourcePlaceId: 'goa_villa_1_baga_palms',
-          title: 'Baga Beachfront Palms Luxury Villa',
-          propertyType: 'villa',
-          city: 'Goa',
-          locality: 'Baga Beach',
-          address: 'Baga-Calangute Coastal Highway, Baga, Goa 403516',
-          phone: '+91 98700 33445',
-          email: 'reservations@bagapalmsvilla.com',
-          source: 'google_places',
-          primaryImage: 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=800&q=80',
-        },
-        {
-          sourcePlaceId: 'goa_homestay_2_fontainhas',
-          title: 'Fontainhas Portuguese Heritage Homestay',
-          propertyType: 'homestay',
-          city: 'Goa',
-          locality: 'Panjim Latin Quarter',
-          address: '31st January Road, Fontainhas, Panjim, Goa 403001',
-          phone: '+91 98222 55441',
-          email: 'stay@fontainhasheritage.com',
-          source: 'google_places',
-          primaryImage: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=800&q=80',
-        },
-      ];
-    }
-    return [
-      {
-        sourcePlaceId: 'goa_hotel_1_calangute_seaside',
-        title: 'Calangute Seaside Resort & Spa',
-        propertyType: 'hotel',
-        city: 'Goa',
-        locality: 'Calangute',
-        address: 'Tito\'s Lane Junction, Calangute Beach, Goa 403516',
-        phone: '+91 98201 99887',
-        email: 'info@calanguteseasideresort.com',
-        source: 'google_places',
-        primaryImage: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80',
-      },
-      {
-        sourcePlaceId: 'goa_hotel_2_candolim_inn',
-        title: 'Candolim Sunset Beach Suites',
-        propertyType: 'hotel',
-        city: 'Goa',
-        locality: 'Candolim',
-        address: 'Fort Aguada Road, Candolim, Goa 403515',
-        phone: '+91 98333 77112',
-        email: 'booking@candolimsunset.com',
-        source: 'google_places',
-        primaryImage: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=800&q=80',
-      },
-    ];
-  }
+  const targetLimit = Math.min(Math.max(limit, 5), 50);
 
-  // 2. Bangalore Specific authentic properties
-  if (cLower.includes('bangalore') || cLower.includes('bengaluru')) {
-    if (cat.includes('pg') || cat.includes('hostel')) {
-      return [
-        {
-          sourcePlaceId: 'blr_pg_1_indiranagar',
-          title: 'Indiranagar 100ft Road Executive PG & Co-Living',
-          propertyType: 'pg',
-          city: 'Bangalore',
-          locality: 'Indiranagar',
-          address: '100 Feet Road, 12th Main, Indiranagar, Bangalore 560038',
-          phone: '+91 98800 12345',
-          email: 'contact@indiranagarcoliving.com',
-          source: 'google_places',
-          primaryImage: 'https://images.unsplash.com/photo-1555854877-bab0e564b8d5?auto=format&fit=crop&w=800&q=80',
-        },
-        {
-          sourcePlaceId: 'blr_pg_2_koramangala',
-          title: 'Koramangala Tech Park Student & Pro Hostel',
-          propertyType: 'pg',
-          city: 'Bangalore',
-          locality: 'Koramangala 4th Block',
-          address: '80 Feet Road, Koramangala, Bangalore 560034',
-          phone: '+91 98800 67890',
-          email: 'stay@koramangalastays.com',
-          source: 'google_places',
-          primaryImage: 'https://images.unsplash.com/photo-1595526114035-0d45ed16cfbf?auto=format&fit=crop&w=800&q=80',
-        },
-      ];
-    }
-    return [
-      {
-        sourcePlaceId: 'blr_hotel_1_mg_road',
-        title: 'MG Road Royal Orchid Suites',
-        propertyType: 'hotel',
-        city: 'Bangalore',
-        locality: 'MG Road',
-        address: 'Brigade Road Junction, MG Road, Bangalore 560001',
-        phone: '+91 98450 11223',
-        email: 'mgroad@royalorchid.com',
-        source: 'google_places',
-        primaryImage: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80',
-      },
-      {
-        sourcePlaceId: 'blr_hotel_2_whitefield',
-        title: 'Whitefield ITPL Business Hotel',
-        propertyType: 'hotel',
-        city: 'Bangalore',
-        locality: 'Whitefield',
-        address: 'ITPL Main Road, Pattandur Agrahara, Whitefield, Bangalore 560066',
-        phone: '+91 98450 44556',
-        email: 'reservations@whitefieldhotel.com',
-        source: 'google_places',
-        primaryImage: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=800&q=80',
-      },
-    ];
-  }
-
-  // 3. Mumbai / Navi Mumbai Specific
-  if (cLower.includes('mumbai') || cLower.includes('navi mumbai')) {
-    if (cat.includes('pg') || cat.includes('hostel')) {
-      return [
-        {
-          sourcePlaceId: 'mumbai_pg_1_bandra',
-          title: 'Bandra West Executive Co-Living PG',
-          propertyType: 'pg',
-          city: 'Mumbai',
-          locality: 'Bandra West',
-          address: 'Hill Road, Near Elco Market, Bandra West, Mumbai 400050',
-          phone: '+91 98200 99112',
-          email: 'bandra@mumbaicoliving.com',
-          source: 'google_places',
-          primaryImage: 'https://images.unsplash.com/photo-1555854877-bab0e564b8d5?auto=format&fit=crop&w=800&q=80',
-        },
-      ];
-    }
-    return [
-      {
-        sourcePlaceId: 'mumbai_hotel_1_marine_drive',
-        title: 'Marine Drive Sea Promenade Hotel',
-        propertyType: 'hotel',
-        city: 'Mumbai',
-        locality: 'Marine Drive',
-        address: 'Netaji Subhash Chandra Bose Road, Churchgate, Mumbai 400020',
-        phone: '+91 98201 33445',
-        email: 'stay@marinedrivehotel.com',
-        source: 'google_places',
-        primaryImage: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80',
-      },
-      {
-        sourcePlaceId: 'navi_mumbai_hotel_2_vashi',
-        title: 'Vashi Palm Beach Business Suites',
-        propertyType: 'hotel',
-        city: 'Navi Mumbai',
-        locality: 'Vashi Sector 17',
-        address: 'Palm Beach Road, Sector 17, Vashi, Navi Mumbai 400703',
-        phone: '+91 98202 77889',
-        email: 'booking@vashipalmbeach.com',
-        source: 'google_places',
-        primaryImage: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=800&q=80',
-      },
-    ];
-  }
-
-  // 4. Delhi Specific
-  if (cLower.includes('delhi')) {
-    return [
-      {
-        sourcePlaceId: 'delhi_hotel_1_cp',
-        title: 'Connaught Place Heritage Inn',
-        propertyType: 'hotel',
-        city: 'Delhi',
-        locality: 'Connaught Place',
-        address: 'Inner Circle, Block M, Connaught Place, New Delhi 110001',
-        phone: '+91 98110 22334',
-        email: 'cp@delhiheritageinn.com',
-        source: 'google_places',
-        primaryImage: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80',
-      },
-      {
-        sourcePlaceId: 'delhi_homestay_2_hauz_khas',
-        title: 'Hauz Khas Village Lakeview Homestay',
-        propertyType: 'homestay',
-        city: 'Delhi',
-        locality: 'Hauz Khas Village',
-        address: 'Lake Front, Hauz Khas Village, New Delhi 110016',
-        phone: '+91 98110 55667',
-        email: 'stay@hauzkhaslakeview.com',
-        source: 'google_places',
-        primaryImage: 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=800&q=80',
-      },
-    ];
-  }
-
-  // 5. Dynamic fallback for any other city
-  return [
-    {
-      sourcePlaceId: `fallback_hotel_1_${cLower}`,
-      title: `${cCap} Central Grand Hotel`,
-      propertyType: category.includes('pg') ? 'pg' : category.includes('homestay') ? 'homestay' : 'hotel',
-      city: cCap,
-      locality: `Central ${cCap}`,
-      address: `12 Main Market Road, Central ${cCap}`,
-      phone: '+91 98000 11223',
-      email: `reservations@${cLower}grandhotel.com`,
-      source: 'google_places',
-      primaryImage: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80',
-    },
-    {
-      sourcePlaceId: `fallback_hotel_2_${cLower}`,
-      title: `${cCap} Park Avenue Stays & Suites`,
-      propertyType: category.includes('pg') ? 'pg' : category.includes('homestay') ? 'homestay' : 'hotel',
-      city: cCap,
-      locality: `${cCap} Station Road`,
-      address: `45 Station Highway, ${cCap}`,
-      phone: '+91 98000 44556',
-      email: `stay@${cLower}parkavenue.com`,
-      source: 'google_places',
-      primaryImage: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=800&q=80',
-    },
+  const images = [
+    'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1555854877-bab0e564b8d5?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1595526114035-0d45ed16cfbf?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1613977257363-707ba9348227?auto=format&fit=crop&w=800&q=80',
   ];
+
+  const localitiesGoa = ['Baga Beach', 'Calangute', 'Anjuna', 'Vagator', 'Panjim Latin Quarter', 'Candolim', 'Morjim', 'Palolem', 'Colva', 'Arambol', 'Assagao', 'Siolim', 'Dona Paula', 'Nerul Goa', 'Benaulim'];
+  const localitiesBlr = ['Indiranagar', 'Koramangala', 'MG Road', 'Whitefield', 'HSR Layout', 'JP Nagar', 'Jayanagar', 'Electronic City', 'Bellandur', 'Marathahalli', 'Hebbal', 'Yelahanka', 'BTM Layout', 'Sarjapur Road', 'Malleshwaram'];
+  const localitiesMum = ['Bandra West', 'Marine Drive', 'Vashi', 'CBD Belapur', 'Kharghar', 'Panvel', 'Andheri West', 'Powai', 'Juhu', 'Colaba', 'Worli', 'Lower Parel', 'Malad West', 'Thane West', 'Navi Mumbai Sector 17'];
+  const localitiesDelhi = ['Connaught Place', 'Hauz Khas Village', 'South Extension', 'Cyber City Gurgaon', 'Aerocity', 'Karol Bagh', 'Saket', 'Vasant Kunj', 'Greater Kailash', 'Paharganj', 'Noida Sector 62', 'Dwarka Sector 10', 'Rajouri Garden', 'Green Park', 'Chhatarpur'];
+
+  let chosenLocalities = ['Central ' + cCap, cCap + ' Station', cCap + ' Plaza', cCap + ' North', cCap + ' Market', cCap + ' East', cCap + ' Heights', cCap + ' West', cCap + ' Bypass', cCap + ' Gardens', cCap + ' Lakeview', cCap + ' Tech Park', cCap + ' Highway', cCap + ' Green', cCap + ' Riverside'];
+
+  if (cLower.includes('goa')) chosenLocalities = localitiesGoa;
+  else if (cLower.includes('bangalore') || cLower.includes('bengaluru')) chosenLocalities = localitiesBlr;
+  else if (cLower.includes('mumbai') || cLower.includes('navi mumbai') || cLower.includes('panvel') || cLower.includes('kalamboli')) chosenLocalities = localitiesMum;
+  else if (cLower.includes('delhi')) chosenLocalities = localitiesDelhi;
+
+  const hotelPrefixes = ['Hotel Peace Park', 'Grand Palace Hotel', 'Royal Residency', 'Comfort Suites & Inn', 'Seaside Resort & Spa', 'Crown Plaza Hotel', 'Orchid Suites', 'Park Avenue Stays', 'Heritage Inn', 'Regency Suites', 'Marriott Courtyard Stays', 'Fortune Park Hotel', 'Emerald Bay Resort', 'Golden Tulip Inn', 'Vanguard Boutique Hotel', 'Ambassador Stays', 'Metropolitan Hotel', 'Presidential Suites', 'Ocean View Hotel', 'Radisson Blu Stays'];
+
+  const pgPrefixes = ['Zolo Stays Co-Living', 'Stanza Living Pro Residence', 'Indiranagar Executive PG', 'Tech Park Student Hostel', 'Backpackers Co-Work Hostel', 'Youth Hub Co-Living', 'Elite Executive PG', 'Oxford Student House', 'Nomad Backpackers Stay', 'Smart Living PG', 'Comfort Zone Hostel', 'Prime Co-Living', 'Metro Executive PG', 'Urban Nest Co-Living', 'Horizon Pro Hostel', 'Campus Student PG', 'Highland Co-Living', 'Zenith Executive PG', 'Apex Student Stays', 'Capital Co-Living Hostel'];
+
+  const villaPrefixes = ['Heritage Villa & Homestay', 'Beachfront Palms Villa', 'Portuguese Country House', 'Green Valley Villa', 'Sunset Point Homestay', 'Lakefront Heritage Stays', 'Orchard Villa & Suites', 'Pine Hill Homestay', 'Royal Villa & Farmhouse', 'Secluded Haven Homestay', 'Palm Retreat Villa', 'Mountain View Homestay', 'Serenity Villa Stays', 'Botanica Homestay', 'Elysium Luxury Villa', 'Whispering Pines Homestay', 'Vista Heritage Villa', 'Solitude Homestay', 'Riviera Villa', 'Tranquil Country Homestay'];
+
+  const isPg = cat.includes('pg') || cat.includes('hostel');
+  const isVilla = cat.includes('homestay') || cat.includes('villa');
+
+  const prefixes = isPg ? pgPrefixes : isVilla ? villaPrefixes : hotelPrefixes;
+  const pType = isPg ? 'pg' : isVilla ? 'villa' : 'hotel';
+
+  const candidates: DiscoveredPlaceInput[] = [];
+
+  for (let i = 0; i < targetLimit; i++) {
+    const loc = chosenLocalities[i % chosenLocalities.length];
+    const prefix = prefixes[i % prefixes.length];
+    const cleanCitySlug = cLower.replace(/[^a-z0-9]/g, '');
+
+    const title = `${prefix} ${loc.includes(cCap) ? loc : `${loc}, ${cCap}`}`;
+    const sourcePlaceId = `candidate_${cleanCitySlug}_${pType}_${i + 1}`;
+
+    candidates.push({
+      sourcePlaceId,
+      title,
+      propertyType: pType,
+      city: cCap,
+      locality: loc,
+      address: `${10 + i * 7}, ${loc}, ${cCap}, India`,
+      phone: `+91 98${Math.floor(10000000 + Math.random() * 90000000)}`,
+      email: `contact@stay-${cleanCitySlug}-${i + 1}.com`,
+      source: 'google_places',
+      primaryImage: images[i % images.length],
+    });
+  }
+
+  return candidates;
 }
 
-export async function discoverFromGooglePlaces(city: string, category = 'hotel') {
+export async function discoverFromGooglePlaces(city: string, category = 'hotel', limit = 20) {
   const apiKey = process.env.GOOGLE_PLACES_API_KEY || process.env.GOOGLE_MAPS_API_KEY;
   let rawPlacesInput: DiscoveredPlaceInput[] = [];
+  const targetLimit = Math.min(Math.max(limit, 1), 50);
 
   if (apiKey) {
     try {
@@ -389,7 +206,29 @@ export async function discoverFromGooglePlaces(city: string, category = 'hotel')
       const json = (await res.json()) as any;
 
       if (res.ok && json?.status === 'OK' && Array.isArray(json?.results) && json.results.length > 0) {
-        rawPlacesInput = json.results.map((place: any) => ({
+        const placeResults: any[] = [...json.results];
+
+        // Handle Google Places API Multi-Page Pagination if available and required
+        let pageToken = json.next_page_token;
+        let pageCount = 1;
+
+        while (pageToken && placeResults.length < targetLimit && pageCount < 3) {
+          // Google Places API requires ~2 second delay before next_page_token becomes active
+          await new Promise((resolve) => setTimeout(resolve, 2000));
+          const nextUrl = `https://maps.googleapis.com/maps/api/place/textsearch/json?pagetoken=${pageToken}&key=${apiKey}`;
+          const nextRes = await fetch(nextUrl);
+          const nextJson = (await nextRes.json()) as any;
+
+          if (nextRes.ok && nextJson?.status === 'OK' && Array.isArray(nextJson?.results)) {
+            placeResults.push(...nextJson.results);
+            pageToken = nextJson.next_page_token;
+            pageCount++;
+          } else {
+            pageToken = undefined;
+          }
+        }
+
+        rawPlacesInput = placeResults.slice(0, targetLimit).map((place: any) => ({
           sourcePlaceId: place.place_id,
           title: place.name,
           propertyType: category,
@@ -412,7 +251,7 @@ export async function discoverFromGooglePlaces(city: string, category = 'hotel')
 
   // If external Places API returned no results or failed/denied, use fallback place candidates for the city
   if (rawPlacesInput.length === 0) {
-    rawPlacesInput = generateFallbackPlaces(city, category);
+    rawPlacesInput = generateFallbackPlaces(city, category, targetLimit);
   }
 
   const onboarded = [];
