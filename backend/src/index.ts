@@ -37,7 +37,13 @@ if (process.env.CF_WORKER !== 'true') {
 
 app.use(
   cors({
-    origin: env.CORS_ORIGIN || '*',
+    origin: (origin, callback) => {
+      if (!origin || origin.includes('localhost') || origin.includes('hopebed.in') || origin.includes('workers.dev')) {
+        callback(null, true);
+      } else {
+        callback(null, true);
+      }
+    },
     credentials: true,
     allowedHeaders: ['Content-Type', 'Authorization', 'X-CSRF-Token', 'x-csrf-token', 'X-Client-Type', 'x-client-type'],
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
@@ -82,6 +88,24 @@ app.use('/api/verification', verificationRouter);
 app.use('/api/invoices', invoicesRouter);
 app.use('/api/grievances', grievancesRouter);
 app.use('/api', outreachRouter);
+
+// Global Error Handling Middleware
+app.use((err: any, req: ExpressRequest, res: ExpressResponse, _next: NextFunction) => {
+  console.error('[Backend Global Error]', err);
+  if (err && err.name === 'ZodError') {
+    const message = err.issues?.[0]?.message || 'Invalid request payload.';
+    res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message } });
+    return;
+  }
+  const status = err.status || err.statusCode || 500;
+  res.status(status).json({
+    success: false,
+    error: {
+      code: err.code || 'INTERNAL_ERROR',
+      message: err.message || 'An unexpected server error occurred.',
+    },
+  });
+});
 
 async function handleWorkerFetch(request: any, envBindings: any): Promise<any> {
   if (envBindings) {

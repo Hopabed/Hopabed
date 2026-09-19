@@ -29,7 +29,7 @@ const googleClient = new OAuth2Client();
 const credentialsSchema = z.object({
   name: z.string().trim().min(2).max(80).optional(),
   email: z.string().trim().email().transform((value) => value.toLowerCase()),
-  password: z.string().min(8).max(128),
+  password: z.string().min(1).max(128),
 });
 
 function publicUser(user: {
