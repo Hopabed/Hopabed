@@ -20,6 +20,18 @@ import invoicesRouter from './routes/invoices.js';
 import { outreachRouter } from './routes/outreach.js';
 import grievancesRouter from './routes/grievances.js';
 
+import * as Sentry from '@sentry/node';
+import { nodeProfilingIntegration } from '@sentry/profiling-node';
+
+Sentry.init({
+  dsn: process.env.SENTRY_DSN,
+  integrations: [
+    nodeProfilingIntegration(),
+  ],
+  tracesSampleRate: 1.0,
+  profilesSampleRate: 1.0,
+});
+
 export const app = express();
 
 app.disable('x-powered-by');
@@ -89,6 +101,8 @@ app.use('/api/verification', verificationRouter);
 app.use('/api/invoices', invoicesRouter);
 app.use('/api/grievances', grievancesRouter);
 app.use('/api', outreachRouter);
+
+Sentry.setupExpressErrorHandler(app);
 
 // Global Error Handling Middleware
 app.use((err: any, req: ExpressRequest, res: ExpressResponse, _next: NextFunction) => {

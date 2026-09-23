@@ -28,4 +28,13 @@ if (process.env.NEXT_PRIVATE_CLOUDFLARE_DEV === "1") {
   initOpenNextCloudflareForDev();
 }
 
-export default nextConfig;
+import { withSentryConfig } from "@sentry/nextjs";
+
+export default withSentryConfig(nextConfig, {
+  silent: true,
+  org: "hopebed",
+  project: "hopebed-frontend",
+  widenClientFileUpload: true,
+  hideSourceMaps: true,
+  disableLogger: true,
+});
