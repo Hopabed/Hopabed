@@ -71,6 +71,9 @@ router.get('/search', async (req, res, next) => {
       checkIn: z.coerce.date().optional(),
       checkOut: z.coerce.date().optional(),
       guests: z.coerce.number().int().min(1).max(50).default(1),
+      amenities: z.union([z.string(), z.array(z.string())]).optional(),
+      page: z.coerce.number().int().min(1).default(1),
+      limit: z.coerce.number().int().min(1).max(100).default(20),
     }).parse(req.query);
     
     let nights = 0;
@@ -101,6 +104,7 @@ router.get('/search', async (req, res, next) => {
     };
     if (query.destination) {
       propertyFilter.$and = [
+        ...((propertyFilter.$and as any) || []),
         {
           $or: [
             { city: new RegExp(escapeRegex(query.destination), 'i') },
@@ -114,16 +118,39 @@ router.get('/search', async (req, res, next) => {
     if (query.minPrice !== undefined || query.maxPrice !== undefined) {
       propertyFilter.pricePerNight = { ...(query.minPrice !== undefined ? { $gte: query.minPrice } : {}), ...(query.maxPrice !== undefined ? { $lte: query.maxPrice } : {}) };
     }
-    const properties = await Property.find(propertyFilter).sort({ isFeatured: -1, createdAt: -1 }).limit(50).lean();
+    if (query.amenities) {
+      const amenitiesList = Array.isArray(query.amenities) ? query.amenities : query.amenities.split(',');
+      if (amenitiesList.length > 0) {
+        propertyFilter.amenities = { $all: amenitiesList };
+      }
+    }
+
+    let baseProperties = await Property.find(propertyFilter).sort({ isFeatured: -1, createdAt: -1 }).lean();
     
-    let finalProperties = properties;
+    let availableProperties = baseProperties;
     if (query.checkIn && query.checkOut) {
-      const rooms = await availableRooms(properties.map((property) => property._id), query.checkIn, query.checkOut, query.guests);
+      const rooms = await availableRooms(baseProperties.map((property) => property._id), query.checkIn, query.checkOut, query.guests);
       const availablePropertyIds = new Set(rooms.map((room) => String(room.property)));
-      finalProperties = properties.filter((property) => availablePropertyIds.has(String(property._id)));
+      availableProperties = baseProperties.filter((property) => availablePropertyIds.has(String(property._id)));
     }
     
-    res.json({ success: true, data: { nights, properties: finalProperties } });
+    const totalCount = availableProperties.length;
+    const totalPages = Math.ceil(totalCount / query.limit);
+    const skip = (query.page - 1) * query.limit;
+    const paginatedProperties = availableProperties.slice(skip, skip + query.limit);
+    
+    res.json({ 
+      success: true, 
+      data: { 
+        nights, 
+        properties: paginatedProperties,
+        pagination: {
+          totalCount,
+          totalPages,
+          currentPage: query.page,
+        }
+      } 
+    });
   } catch (error) {
     if (error instanceof Error && error.message === 'DATES_INVALID') {
       res.status(400).json({ success: false, error: { code: 'DATES_INVALID', message: 'Choose a future check-in and a later check-out date.' } });

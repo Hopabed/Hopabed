@@ -13,8 +13,8 @@ export function PropertySection() {
   useEffect(() => {
     const fetchProps = async () => {
       try {
-        const data = await searchProperties(new URLSearchParams());
-        setProperties(data.slice(0, 4));
+        const result = await searchProperties(new URLSearchParams());
+        setProperties(result.properties.slice(0, 4));
       } catch (err) {
         console.error("Failed to fetch properties:", err);
       } finally {

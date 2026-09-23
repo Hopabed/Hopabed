@@ -349,31 +349,40 @@ export async function getCurrentUser(): Promise<AuthResponse["data"]["user"]> {
 	return body.data.user;
 }
 
-export async function searchProperties(params: URLSearchParams): Promise<SearchProperty[]> {
+export type PaginationData = {
+	totalCount: number;
+	totalPages: number;
+	currentPage: number;
+};
+
+export async function searchProperties(params: URLSearchParams): Promise<{ properties: SearchProperty[], pagination?: PaginationData }> {
 	let response: Response;
 	try {
 		response = await apiFetch(`${API_BASE_URL}/api/properties/search?${params.toString()}`, { cache: "no-store" });
 	} catch {
 		console.warn("[Hopebed API] Backend API is unreachable or offline at:", API_BASE_URL);
-		return [];
+		return { properties: [] };
 	}
-	const body = (await response.json()) as { data?: { properties: Array<Record<string, unknown>> }; error?: { message?: string } };
-	if (!response.ok || !body.data) return [];
-	return body.data.properties.map((property) => ({
-		id: String(property.id || property._id), 
-		title: String(property.title), 
-		city: String(property.city), 
-		locality: String(property.locality),
-		propertyType: String(property.propertyType), 
-		primaryImage: typeof property.primaryImage === "string" ? property.primaryImage : undefined,
-		pricePerNight: Number(property.pricePerNight), 
-		pricePerMonth: property.pricePerMonth ? Number(property.pricePerMonth) : undefined,
-		isMonthlyAvailable: Boolean(property.isMonthlyAvailable),
-		messIncluded: Boolean(property.messIncluded),
-		messMonthlyFee: property.messMonthlyFee ? Number(property.messMonthlyFee) : undefined,
-		rating: typeof property.rating === "number" ? property.rating : undefined,
-		isVerified: Boolean(property.isVerified && property.verificationStatus === 'VERIFIED')
-	}));
+	const body = (await response.json()) as { data?: { properties: Array<Record<string, unknown>>, pagination?: PaginationData }; error?: { message?: string } };
+	if (!response.ok || !body.data) return { properties: [] };
+	return {
+		properties: body.data.properties.map((property) => ({
+			id: String(property.id || property._id), 
+			title: String(property.title), 
+			city: String(property.city), 
+			locality: String(property.locality),
+			propertyType: String(property.propertyType), 
+			primaryImage: typeof property.primaryImage === "string" ? property.primaryImage : undefined,
+			pricePerNight: Number(property.pricePerNight), 
+			pricePerMonth: property.pricePerMonth ? Number(property.pricePerMonth) : undefined,
+			isMonthlyAvailable: Boolean(property.isMonthlyAvailable),
+			messIncluded: Boolean(property.messIncluded),
+			messMonthlyFee: property.messMonthlyFee ? Number(property.messMonthlyFee) : undefined,
+			rating: typeof property.rating === "number" ? property.rating : undefined,
+			isVerified: Boolean(property.isVerified && property.verificationStatus === 'VERIFIED')
+		})),
+		pagination: body.data.pagination
+	};
 }
 
 export async function getPropertyDetails(id: string): Promise<PropertyDetails> {

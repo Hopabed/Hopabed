@@ -26,9 +26,9 @@ export default async function StaysPage({
   let hasApiError = false;
 
   try {
-    const apiProps = await searchProperties(queryParams);
-    if (Array.isArray(apiProps)) {
-      propertiesList = apiProps;
+    const result = await searchProperties(queryParams);
+    if (result && Array.isArray(result.properties)) {
+      propertiesList = result.properties;
     }
   } catch (err) {
     console.error("[Hopebed API Error] searchProperties failed:", err);

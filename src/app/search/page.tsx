@@ -23,6 +23,8 @@ function SearchContent() {
   const query = useSearchParams();
   const destinationParam = query.get("destination") || "";
   const typeParam = query.get("type") || query.get("propertyType") || "";
+  const amenitiesParam = query.getAll("amenities");
+  const pageParam = Number(query.get("page")) || 1;
   const checkInParam = query.get("checkIn") || "";
   const checkOutParam = query.get("checkOut") || "";
   const guestsParam = Number(query.get("guests")) || 2;
@@ -35,16 +37,21 @@ function SearchContent() {
     types: typeParam ? [typeParam] : [],
     city: destinationParam,
     verifiedOnly: false,
+    amenities: amenitiesParam,
   });
   const [sort, setSort] = useState<SortOption>("RECOMMENDED");
   const [properties, setProperties] = useState<SearchProperty[]>([]);
   const [loading, setLoading] = useState(true);
+  const [hasApiError, setHasApiError] = useState(false);
+  const [page, setPage] = useState(pageParam);
+  const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
     setFilters((prev) => ({
       ...prev,
       city: destinationParam,
       types: typeParam ? [typeParam] : prev.types,
+      amenities: amenitiesParam.length > 0 ? amenitiesParam : prev.amenities,
     }));
   }, [destinationParam, typeParam]);
 
@@ -52,6 +59,7 @@ function SearchContent() {
     let active = true;
     const fetchProps = async () => {
       setLoading(true);
+      setHasApiError(false);
       try {
         const params = new URLSearchParams();
         if (filters.city) params.set("destination", filters.city);
@@ -61,28 +69,41 @@ function SearchContent() {
         if (checkInParam) params.set("checkIn", checkInParam);
         if (checkOutParam) params.set("checkOut", checkOutParam);
         params.set("guests", guestsParam.toString());
+        
+        if (filters.amenities.length > 0) {
+          filters.amenities.forEach(a => params.append("amenities", a));
+        }
+        params.set("page", page.toString());
+        params.set("limit", "12");
 
-        const data = await searchProperties(params);
+        const result = await searchProperties(params);
         if (active) {
-          // Sort results
-          const sorted = [...data].sort((a, b) => {
-            if (sort === "PRICE_ASC") return a.pricePerNight - b.pricePerNight;
-            if (sort === "PRICE_DESC") return b.pricePerNight - a.pricePerNight;
-            if (sort === "RATING_DESC") return (b.rating || 0) - (a.rating || 0);
-            return 0;
-          });
-          
-          setProperties(sorted);
+          if (result && Array.isArray(result.properties)) {
+            const sorted = [...result.properties].sort((a, b) => {
+              if (sort === "PRICE_ASC") return a.pricePerNight - b.pricePerNight;
+              if (sort === "PRICE_DESC") return b.pricePerNight - a.pricePerNight;
+              if (sort === "RATING_DESC") return (b.rating || 0) - (a.rating || 0);
+              return 0;
+            });
+            
+            setProperties(sorted);
+            if (result.pagination) {
+              setTotalPages(result.pagination.totalPages);
+            }
+          } else {
+            setHasApiError(true);
+          }
         }
       } catch (err) {
         console.error("Failed to fetch search results:", err);
+        if (active) setHasApiError(true);
       } finally {
         if (active) setLoading(false);
       }
     };
     fetchProps();
     return () => { active = false; };
-  }, [filters, checkInParam, checkOutParam, guestsParam, sort]);
+  }, [filters, checkInParam, checkOutParam, guestsParam, sort, page]);
 
   function handleResetFilters() {
     setFilters({
@@ -91,7 +112,9 @@ function SearchContent() {
       types: [],
       city: "",
       verifiedOnly: false,
+      amenities: [],
     });
+    setPage(1);
   }
 
   return (
@@ -115,7 +138,7 @@ function SearchContent() {
               {destinationParam ? `Stays in "${destinationParam}"` : "Discover Stays in India"}
             </h1>
             <p className="text-sm text-gray-500 mt-1">
-              Showing {properties.length} verified stays available
+              Showing verified stays available
             </p>
           </div>
 
@@ -136,7 +159,7 @@ function SearchContent() {
           <div className="hidden md:block md:col-span-1 sticky top-24">
             <PropertyFilters
               filters={filters}
-              onChange={setFilters}
+              onChange={(f) => { setFilters(f); setPage(1); }}
               onReset={handleResetFilters}
             />
           </div>
@@ -153,7 +176,7 @@ function SearchContent() {
                 </div>
                 <PropertyFilters
                   filters={filters}
-                  onChange={setFilters}
+                  onChange={(f) => { setFilters(f); setPage(1); }}
                   onReset={handleResetFilters}
                 />
                 <button
@@ -172,6 +195,20 @@ function SearchContent() {
               <div className="flex h-64 items-center justify-center">
                 <Loader2 className="h-10 w-10 animate-spin text-brand/60" />
               </div>
+            ) : hasApiError ? (
+              <div className="rounded-2xl border border-rose-200 bg-rose-50 p-12 text-center shadow-sm">
+                <h3 className="text-lg font-bold text-rose-900">Unable to load properties</h3>
+                <p className="mt-2 text-sm text-rose-700 max-w-md mx-auto">
+                  We encountered an issue connecting to our servers. Please try adjusting your filters or try again later.
+                </p>
+                <button
+                  type="button"
+                  onClick={handleResetFilters}
+                  className="mt-6 rounded-xl bg-rose-600 px-6 py-2.5 text-xs font-bold text-white shadow-md hover:bg-rose-700 transition-all"
+                >
+                  Reset & Try Again
+                </button>
+              </div>
             ) : properties.length === 0 ? (
               <div className="rounded-2xl border border-gray-200 bg-white p-12 text-center shadow-sm">
                 <Search className="mx-auto h-12 w-12 text-gray-400" />
@@ -188,11 +225,36 @@ function SearchContent() {
                 </button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {properties.map((property) => (
-                  <PropertyCard key={property.id} property={property as any} />
-                ))}
-              </div>
+              <>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                  {properties.map((property) => (
+                    <PropertyCard key={property.id} property={property as any} />
+                  ))}
+                </div>
+                
+                {/* Pagination Controls */}
+                {totalPages > 1 && (
+                  <div className="flex items-center justify-center gap-2 pt-6 border-t border-gray-200">
+                    <button 
+                      onClick={() => setPage(p => Math.max(1, p - 1))}
+                      disabled={page === 1}
+                      className="px-4 py-2 rounded-xl text-sm font-semibold border border-gray-200 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                    >
+                      Previous
+                    </button>
+                    <span className="text-sm font-medium text-gray-600 px-4">
+                      Page {page} of {totalPages}
+                    </span>
+                    <button 
+                      onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                      disabled={page === totalPages}
+                      className="px-4 py-2 rounded-xl text-sm font-semibold border border-gray-200 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                    >
+                      Next
+                    </button>
+                  </div>
+                )}
+              </>
             )}
           </div>
         </div>

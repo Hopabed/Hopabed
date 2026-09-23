@@ -10,6 +10,7 @@ export type FilterState = {
   types: string[];
   city: string;
   verifiedOnly: boolean;
+  amenities: string[];
 };
 
 type PropertyFiltersProps = {
@@ -26,6 +27,16 @@ const PROPERTY_TYPES = [
   { id: "resorts", label: "Resorts" },
 ];
 
+const AMENITIES_LIST = [
+  { id: "WiFi", label: "WiFi" },
+  { id: "AC", label: "Air Conditioning" },
+  { id: "Power Backup", label: "Power Backup" },
+  { id: "Housekeeping", label: "Housekeeping" },
+  { id: "Kitchen", label: "Kitchen" },
+  { id: "Parking", label: "Parking" },
+  { id: "Swimming Pool", label: "Swimming Pool" },
+];
+
 export function PropertyFilters({ filters, onChange, onReset }: PropertyFiltersProps) {
   function handleTypeToggle(typeId: string) {
     const exists = filters.types.includes(typeId);
@@ -33,6 +44,14 @@ export function PropertyFilters({ filters, onChange, onReset }: PropertyFiltersP
       ? filters.types.filter((t) => t !== typeId)
       : [...filters.types, typeId];
     onChange({ ...filters, types: updatedTypes });
+  }
+
+  function handleAmenityToggle(amenityId: string) {
+    const exists = filters.amenities.includes(amenityId);
+    const updatedAmenities = exists
+      ? filters.amenities.filter((a) => a !== amenityId)
+      : [...filters.amenities, amenityId];
+    onChange({ ...filters, amenities: updatedAmenities });
   }
 
   return (
@@ -117,6 +136,32 @@ export function PropertyFilters({ filters, onChange, onReset }: PropertyFiltersP
                   type="checkbox"
                   checked={isChecked}
                   onChange={() => handleTypeToggle(type.id)}
+                  className="h-4 w-4 rounded accent-brand cursor-pointer"
+                />
+              </label>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Amenities Filter */}
+      <div>
+        <h4 className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-3">
+          Amenities
+        </h4>
+        <div className="space-y-2">
+          {AMENITIES_LIST.map((amenity) => {
+            const isChecked = filters.amenities.includes(amenity.id);
+            return (
+              <label
+                key={amenity.id}
+                className="flex items-center justify-between text-sm font-medium text-gray-700 cursor-pointer rounded-lg px-2 py-1.5 hover:bg-gray-50"
+              >
+                <span>{amenity.label}</span>
+                <input
+                  type="checkbox"
+                  checked={isChecked}
+                  onChange={() => handleAmenityToggle(amenity.id)}
                   className="h-4 w-4 rounded accent-brand cursor-pointer"
                 />
               </label>
