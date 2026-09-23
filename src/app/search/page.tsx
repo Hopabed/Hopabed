@@ -1,25 +1,21 @@
 "use client";
 
-import { useState, useEffect, Suspense, useMemo } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { SearchBar } from "@/components/SearchBar";
 import { PropertyCard } from "@/components/PropertyCard";
 import { PropertyFilters, FilterState } from "@/components/PropertyFilters";
 import { PropertySort, SortOption } from "@/components/PropertySort";
-import { PROPERTIES, Property } from "@/data/properties";
-import { Search, SlidersHorizontal, X } from "lucide-react";
+import { Search, SlidersHorizontal, X, Loader2 } from "lucide-react";
+import { searchProperties, SearchProperty } from "@/lib/api";
 
 export default function SearchPage() {
   return (
-    <Suspense
-      fallback={
-        <main className="container-page py-16">
-          <div className="h-80 animate-pulse rounded-2xl bg-gray-100" />
-        </main>
-      }
-    >
-      <SearchContent />
-    </Suspense>
+    <main className="bg-gray-50 min-h-screen pb-16">
+      <Suspense fallback={<div className="flex h-screen items-center justify-center"><Loader2 className="w-10 h-10 animate-spin text-brand/60" /></div>}>
+        <SearchContent />
+      </Suspense>
+    </main>
   );
 }
 
@@ -41,6 +37,8 @@ function SearchContent() {
     verifiedOnly: false,
   });
   const [sort, setSort] = useState<SortOption>("RECOMMENDED");
+  const [properties, setProperties] = useState<SearchProperty[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     setFilters((prev) => ({
@@ -50,46 +48,41 @@ function SearchContent() {
     }));
   }, [destinationParam, typeParam]);
 
-  const filteredProperties = useMemo(() => {
-    return PROPERTIES.filter((p) => {
-      // City search match
-      if (
-        filters.city &&
-        !p.city.toLowerCase().includes(filters.city.toLowerCase()) &&
-        !p.name.toLowerCase().includes(filters.city.toLowerCase()) &&
-        !p.location.toLowerCase().includes(filters.city.toLowerCase())
-      ) {
-        return false;
-      }
+  useEffect(() => {
+    let active = true;
+    const fetchProps = async () => {
+      setLoading(true);
+      try {
+        const params = new URLSearchParams();
+        if (filters.city) params.set("destination", filters.city);
+        if (filters.types.length > 0) params.set("propertyType", filters.types[0]);
+        if (filters.minPrice > 0) params.set("minPrice", filters.minPrice.toString());
+        if (filters.maxPrice < 15000) params.set("maxPrice", filters.maxPrice.toString());
+        if (checkInParam) params.set("checkIn", checkInParam);
+        if (checkOutParam) params.set("checkOut", checkOutParam);
+        params.set("guests", guestsParam.toString());
 
-      // Price filter
-      if (p.pricePerNight < filters.minPrice || p.pricePerNight > filters.maxPrice) {
-        return false;
+        const data = await searchProperties(params);
+        if (active) {
+          // Sort results
+          const sorted = [...data].sort((a, b) => {
+            if (sort === "PRICE_ASC") return a.pricePerNight - b.pricePerNight;
+            if (sort === "PRICE_DESC") return b.pricePerNight - a.pricePerNight;
+            if (sort === "RATING_DESC") return (b.rating || 0) - (a.rating || 0);
+            return 0;
+          });
+          
+          setProperties(sorted);
+        }
+      } catch (err) {
+        console.error("Failed to fetch search results:", err);
+      } finally {
+        if (active) setLoading(false);
       }
-
-      // Type filter
-      if (filters.types.length > 0 && !filters.types.includes(p.type)) {
-        return false;
-      }
-
-      // Verified filter
-      if (filters.verifiedOnly && !p.isVerified) {
-        return false;
-      }
-
-      // Guest count filter
-      if (p.maxGuests < guestsParam) {
-        return false;
-      }
-
-      return true;
-    }).sort((a, b) => {
-      if (sort === "PRICE_ASC") return a.pricePerNight - b.pricePerNight;
-      if (sort === "PRICE_DESC") return b.pricePerNight - a.pricePerNight;
-      if (sort === "RATING_DESC") return b.rating - a.rating;
-      return 0;
-    });
-  }, [filters, sort, guestsParam]);
+    };
+    fetchProps();
+    return () => { active = false; };
+  }, [filters, checkInParam, checkOutParam, guestsParam, sort]);
 
   function handleResetFilters() {
     setFilters({
@@ -102,7 +95,7 @@ function SearchContent() {
   }
 
   return (
-    <section className="bg-gray-50 min-h-screen pb-16">
+    <>
       <div className="bg-white border-b border-gray-200 py-6">
         <div className="container-page">
           <SearchBar
@@ -122,7 +115,7 @@ function SearchContent() {
               {destinationParam ? `Stays in "${destinationParam}"` : "Discover Stays in India"}
             </h1>
             <p className="text-sm text-gray-500 mt-1">
-              Showing {filteredProperties.length} verified stays available
+              Showing {properties.length} verified stays available
             </p>
           </div>
 
@@ -175,7 +168,11 @@ function SearchContent() {
 
           {/* Results Grid */}
           <div className="md:col-span-3">
-            {filteredProperties.length === 0 ? (
+            {loading ? (
+              <div className="flex h-64 items-center justify-center">
+                <Loader2 className="h-10 w-10 animate-spin text-brand/60" />
+              </div>
+            ) : properties.length === 0 ? (
               <div className="rounded-2xl border border-gray-200 bg-white p-12 text-center shadow-sm">
                 <Search className="mx-auto h-12 w-12 text-gray-400" />
                 <h3 className="mt-4 text-lg font-bold text-gray-900">No properties found</h3>
@@ -192,14 +189,14 @@ function SearchContent() {
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredProperties.map((property) => (
-                  <PropertyCard key={property.id} property={property} />
+                {properties.map((property) => (
+                  <PropertyCard key={property.id} property={property as any} />
                 ))}
               </div>
             )}
           </div>
         </div>
       </div>
-    </section>
+    </>
   );
 }

@@ -1,0 +1,13 @@
+Component,Status,Details
+Frontend Architecture,PARTIAL,Next.js with App Router is correctly set up with Tailwind CSS. UI looks good but uses hardcoded demo data.
+Backend Architecture,PARTIAL,Express Node.js Mongoose setup exists. Basic routing and middleware are structured well.
+Database Architecture,PARTIAL,MongoDB schemas are defined but currently no live production database connection is set.
+Deployment (Frontend),DONE,open-next and wrangler are configured to deploy the Next.js frontend to Cloudflare Pages/Workers perfectly.
+Deployment (Backend),MISSING,Standard Express setup not currently deployed. We need a host for this.
+Authentication APIs,PARTIAL,Routes exist with JWT and bcrypt. Needs integration with the frontend forms.
+Property APIs,PARTIAL,Basic search and booking APIs exist. Host workflow for adding/editing properties is missing.
+Booking Logic,PARTIAL,Logic to prevent double-booking using MongoDB transactions exists.
+Payment Logic,MISSING,Payment schema exists but no integration with gateways or webhook handlers.
+Admin/Host Dashboard,MISSING,Frontend folders exist but backend APIs to support these workflows are largely absent.
+Security Baseline,DONE,Backend has helmet cors rateLimit and basic error handling configured.
+Stay Pass & QR,MISSING,No current implementation for generating Stay Passes or verifying QR codes.

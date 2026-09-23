@@ -305,6 +305,23 @@ const startServer = async (): Promise<void> => {
         console.error('Server error:', err);
       }
     });
+
+    const gracefulShutdown = async () => {
+      console.log('Shutting down gracefully...');
+      server.close(async () => {
+        console.log('HTTP server closed.');
+        const { disconnectDatabase } = await import('./config/database.js');
+        await disconnectDatabase();
+        process.exit(0);
+      });
+      setTimeout(() => {
+        console.error('Could not close connections in time, forcefully shutting down');
+        process.exit(1);
+      }, 10000);
+    };
+
+    process.on('SIGTERM', gracefulShutdown);
+    process.on('SIGINT', gracefulShutdown);
   } catch (error) {
     console.error('Failed to start backend server:', error);
     process.exit(1);

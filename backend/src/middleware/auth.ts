@@ -49,14 +49,14 @@ export async function requireAuth(req: AuthenticatedRequest, res: Response, next
       throw new Error('Invalid access token payload.');
     }
 
-    const user = await User.findById(payload.sub).select('tokenVersion').lean();
+    const user = await User.findById(payload.sub).select('tokenVersion role').lean();
     const currentVersion = user?.tokenVersion ?? 0;
     if (!user || currentVersion !== payload.tokenVersion) {
       console.error(`[Auth] User tokenVersion: ${currentVersion}, Payload tokenVersion: ${payload.tokenVersion}`);
       throw new Error('Session expired or user not found.');
     }
 
-    req.auth = { userId: payload.sub, role: payload.role };
+    req.auth = { userId: payload.sub, role: user.role as UserRole };
     requireCsrf(req, res, next);
   } catch (err) {
     console.error('[requireAuth Error]', err);

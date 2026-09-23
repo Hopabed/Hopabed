@@ -4,9 +4,10 @@ import React from "react";
 import { useParams } from "next/navigation";
 import { useBooking } from "@/context/BookingContext";
 import { formatInr } from "@/data/properties";
-import { CheckCircle2, Calendar, MapPin, Printer, ArrowRight, ShieldCheck, UserCheck } from "lucide-react";
+import { CheckCircle2, Calendar, MapPin, Printer, ArrowRight, ShieldCheck, UserCheck, QrCode } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { QRCodeSVG } from "qrcode.react";
 
 export default function BookingConfirmationPage() {
   const params = useParams<{ id: string }>();
@@ -50,6 +51,19 @@ export default function BookingConfirmationPage() {
           <div className="inline-flex items-center gap-2 rounded-2xl bg-gray-100 px-4 py-2 text-sm font-extrabold text-gray-800">
             <span>Booking Reference ID:</span>
             <span className="text-brand font-mono text-base">{booking.id}</span>
+          </div>
+
+          <div className="mt-6 mx-auto flex flex-col items-center justify-center p-6 bg-gray-50 border border-gray-200 rounded-3xl w-fit">
+            <h3 className="text-sm font-bold text-gray-700 mb-4 flex items-center gap-2"><QrCode className="w-4 h-4" /> Your Secure Stay Pass</h3>
+            <div className="p-3 bg-white rounded-xl shadow-sm inline-block">
+              <QRCodeSVG 
+                value={JSON.stringify({ bookingId: booking.id, type: "HOPEBED_STAY_PASS" })}
+                size={180}
+                level="H"
+                includeMargin={false}
+              />
+            </div>
+            <p className="text-xs text-gray-500 mt-4 max-w-[200px] text-center">Show this QR code to the host upon check-in for instant verification.</p>
           </div>
         </div>
 
