@@ -16,4 +16,14 @@ router.get('/', async (_req, res) => {
   });
 });
 
+router.get('/ready', async (_req, res) => {
+  const dbStatus = await validateDatabaseConfiguration();
+  
+  if (!dbStatus.ok) {
+    return res.status(503).json({ status: 'not_ready', error: 'Database unavailable' });
+  }
+
+  res.status(200).json({ status: 'ready' });
+});
+
 export default router;

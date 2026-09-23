@@ -198,6 +198,11 @@ const propertiesSeed = [
 ];
 
 const seedData = async (): Promise<void> => {
+  if (process.env.NODE_ENV === 'production' || process.env.MONGODB_URI?.includes('cluster0')) {
+    console.error('CRITICAL: Seed script cannot be run against production environment!');
+    process.exit(1);
+  }
+
   await connectDatabase();
 
   const adminUser = await User.findOneAndUpdate(

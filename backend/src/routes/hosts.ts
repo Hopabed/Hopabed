@@ -515,6 +515,34 @@ router.post('/verify-pass', requireAuth, requireRole('host', 'admin'), async (re
   }
 });
 
+router.post('/bookings/:bookingId/check-out', requireAuth, requireRole('host', 'admin'), async (req: AuthenticatedRequest, res, next) => {
+  try {
+    const host = await Host.findOne({ user: req.auth?.userId });
+    if (!host) {
+      res.status(404).json({ success: false, error: { code: 'NOT_A_HOST', message: 'Host profile not found.' } });
+      return;
+    }
+
+    const booking = await Booking.findOne({ _id: req.params.bookingId, host: host._id });
+    if (!booking) {
+      res.status(404).json({ success: false, error: { message: 'Booking not found.' } });
+      return;
+    }
+
+    if (booking.status !== 'checked_in') {
+      res.status(400).json({ success: false, error: { message: 'Guest must be checked in before they can check out.' } });
+      return;
+    }
+
+    booking.status = 'completed';
+    await booking.save();
+
+    res.json({ success: true, data: { booking } });
+  } catch (error) {
+    next(error);
+  }
+});
+
 router.get('/properties/:propertyId/rooms/:roomId/availability', requireAuth, requireRole('host', 'admin'), async (req: AuthenticatedRequest, res, next) => {
   try {
     const host = await Host.findOne({ user: req.auth?.userId });
