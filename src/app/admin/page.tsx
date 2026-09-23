@@ -409,13 +409,13 @@ export default function AdminDashboardPage() {
       );
 
       const rawClaimUrl = res.claimUrl || `/claim-property?token=${leadId}`;
+      const origin = typeof window !== "undefined" ? window.location.origin : (process.env.NEXT_PUBLIC_APP_URL || "https://hopabedin.mithagaris.workers.dev");
       let fullClaimUrl = rawClaimUrl.trim();
-      if (fullClaimUrl.includes("http://localhost:3000http://localhost:3000")) {
-        fullClaimUrl = fullClaimUrl.replace("http://localhost:3000http://localhost:3000", "http://localhost:3000");
-      }
-      if (!fullClaimUrl.startsWith("http://") && !fullClaimUrl.startsWith("https://")) {
-        const origin = typeof window !== "undefined" ? window.location.origin : "http://localhost:3000";
-        fullClaimUrl = `${origin}${fullClaimUrl.startsWith("/") ? "" : "/"}${fullClaimUrl}`;
+      
+      // If the backend accidentally returned a local or dev URL, force the current production origin
+      if (fullClaimUrl.includes("localhost") || fullClaimUrl.startsWith("/")) {
+        const pathOnly = fullClaimUrl.split("localhost:3000").pop() || fullClaimUrl;
+        fullClaimUrl = `${origin}${pathOnly.startsWith("/") ? "" : "/"}${pathOnly}`;
       }
 
       setOutreachModal({
@@ -1508,11 +1508,10 @@ export default function AdminDashboardPage() {
                 rel="noopener noreferrer"
                 onClick={(e) => {
                   let clean = outreachModal.claimUrl.trim();
-                  if (clean.includes("http://localhost:3000http://localhost:3000")) {
-                    clean = clean.replace("http://localhost:3000http://localhost:3000", "http://localhost:3000");
-                  }
-                  if (!clean.startsWith("http://") && !clean.startsWith("https://")) {
-                    clean = `${window.location.origin}${clean.startsWith("/") ? "" : "/"}${clean}`;
+                  if (clean.includes("localhost") || clean.startsWith("/")) {
+                    const origin = typeof window !== "undefined" ? window.location.origin : "https://hopabedin.mithagaris.workers.dev";
+                    const pathOnly = clean.split("localhost:3000").pop() || clean;
+                    clean = `${origin}${pathOnly.startsWith("/") ? "" : "/"}${pathOnly}`;
                   }
                   e.currentTarget.href = clean;
                 }}

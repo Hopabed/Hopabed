@@ -77,29 +77,8 @@ async function apiFetch(url: string, options: RequestInit = {}) {
     const serverCsrf = response.headers.get('x-csrf-token') || response.headers.get('X-CSRF-Token');
     if (serverCsrf) setActiveCsrfToken(serverCsrf);
 
-    const contentType = response.headers.get('content-type') || '';
-    if (!response.ok && !contentType.includes('application/json') && API_BASE_URL !== 'http://localhost:4000') {
-      const localUrl = url.replace(API_BASE_URL, 'http://localhost:4000');
-      const localRes = await fetch(localUrl, options).catch(() => null);
-      if (localRes) {
-        response = localRes;
-        const localCsrf = response.headers.get('x-csrf-token') || response.headers.get('X-CSRF-Token');
-        if (localCsrf) setActiveCsrfToken(localCsrf);
-      }
-    }
   } catch (err) {
-    if (API_BASE_URL !== 'http://localhost:4000') {
-      const localUrl = url.replace(API_BASE_URL, 'http://localhost:4000');
-      try {
-        response = await fetch(localUrl, options);
-        const localCsrf = response.headers.get('x-csrf-token') || response.headers.get('X-CSRF-Token');
-        if (localCsrf) setActiveCsrfToken(localCsrf);
-      } catch {
-        throw err;
-      }
-    } else {
-      throw err;
-    }
+    throw err;
   }
 
   if (response.status === 401 && !url.includes('/api/auth/login') && !url.includes('/api/auth/refresh') && !url.includes('/api/auth/otp/verify')) {
@@ -185,17 +164,7 @@ export async function authenticateWithGoogle(credential: string): Promise<AuthRe
 			body: JSON.stringify({ credential }),
 		});
 	} catch {
-		if (API_BASE_URL !== "http://localhost:4000") {
-			try {
-				response = await apiFetch(`http://localhost:4000/api/auth/google`, {
-					method: "POST",
-					headers: { "Content-Type": "application/json" },
-					body: JSON.stringify({ credential }),
-				});
-			} catch {
-				response = undefined;
-			}
-		}
+		response = undefined;
 	}
 
 	if (response && response.ok) {
@@ -256,18 +225,7 @@ export async function authenticateWithPassword(input: {
 			body: JSON.stringify({ name: input.name, email: input.email, password: input.password }),
 		});
 	} catch {
-		// 2. Fallback attempt to http://localhost:4000 if different
-		if (API_BASE_URL !== "http://localhost:4000") {
-			try {
-				response = await apiFetch(`http://localhost:4000/api/auth/${endpoint}`, {
-					method: "POST",
-					headers: { "Content-Type": "application/json" },
-					body: JSON.stringify({ name: input.name, email: input.email, password: input.password }),
-				});
-			} catch {
-				response = undefined;
-			}
-		}
+		response = undefined;
 	}
 
 	if (response && response.ok) {
@@ -330,13 +288,7 @@ export async function getCurrentUser(): Promise<AuthResponse["data"]["user"]> {
 	try {
 		response = await apiFetch(`${API_BASE_URL}/api/auth/me`);
 	} catch {
-		if (API_BASE_URL !== "http://localhost:4000") {
-			try {
-				response = await apiFetch(`http://localhost:4000/api/auth/me`);
-			} catch {
-				response = undefined;
-			}
-		}
+		response = undefined;
 	}
 
 	if (!response || !response.ok) {
