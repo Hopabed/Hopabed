@@ -19,52 +19,13 @@ export type AdItem = {
   code?: string;
 };
 
-export const PROMOTIONAL_ADS: AdItem[] = [
-  {
-    id: "ad-1",
-    badge: "INSTANT DISCOUNT",
-    badgeBg: "bg-emerald-500/20 text-emerald-300 border-emerald-400/30",
-    badgeColor: "text-emerald-400",
-    icon: Tag,
-    title: "Get 20% Off Your First Verified Stay",
-    description: "Book any verified hotel or villa today. Use promo code HOPE20 at checkout for instant 20% savings.",
-    code: "HOPE20",
-    ctaText: "Claim Discount",
-    ctaHref: "/stays",
-    gradientBg: "from-zinc-900 via-emerald-950 to-zinc-900",
-    borderColor: "border-emerald-500/30",
-  },
-  {
-    id: "ad-2",
-    badge: "HOST SPECIAL",
-    badgeBg: "bg-blue-500/20 text-blue-300 border-blue-400/30",
-    badgeColor: "text-blue-400",
-    icon: ShieldCheck,
-    title: "List Property with 0% Commission",
-    description: "Register your hotel, PG, or homestay on Hopebed and keep 100% of your earnings for 30 days.",
-    ctaText: "List Property Free",
-    ctaHref: "/host",
-    gradientBg: "from-zinc-900 via-blue-950 to-zinc-900",
-    borderColor: "border-blue-500/30",
-  },
-  {
-    id: "ad-3",
-    badge: "MONTHLY OFFER",
-    badgeBg: "bg-amber-500/20 text-amber-300 border-amber-400/30",
-    badgeColor: "text-amber-400",
-    icon: Gift,
-    title: "Save up to ₹5,000/mo on Long Stays",
-    description: "Verified executive PGs & co-living spaces with daily meals, high-speed WiFi & housekeeping included.",
-    ctaText: "Explore PGs",
-    ctaHref: "/stays?type=pg",
-    gradientBg: "from-zinc-900 via-amber-950 to-zinc-900",
-    borderColor: "border-amber-500/30",
-  },
-];
+export const PROMOTIONAL_ADS: AdItem[] = [];
 
 export function PromotionalAds({ limit = 3 }: { limit?: number }) {
   const displayedAds = PROMOTIONAL_ADS.slice(0, limit);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  if (displayedAds.length === 0) return null;
 
   const handleAdAction = (ad: AdItem, e: React.MouseEvent) => {
     if (ad.code) {

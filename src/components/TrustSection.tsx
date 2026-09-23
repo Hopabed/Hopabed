@@ -18,8 +18,8 @@ export function TrustSection() {
           />
           <TrustCard
             icon={<Headphones className="h-6 w-6" />}
-            title="24/7 Support"
-            description="Help whenever you need it. Our dedicated team is available around the clock to assist you."
+            title="Dedicated Support"
+            description="Help whenever you need it. Our dedicated team is available to assist you."
           />
         </div>
       </div>

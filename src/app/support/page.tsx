@@ -7,7 +7,7 @@ export default function SupportPage() {
   return (
     <div className="container-page py-16 max-w-5xl">
       <h1 className="mb-4 text-4xl font-bold text-ink-soft">Support & Contact</h1>
-      <p className="mb-12 text-lg text-muted">We&apos;re here to help you 24/7 with your bookings or hosting inquiries.</p>
+      <p className="mb-12 text-lg text-muted">We&apos;re here to help you with your bookings or hosting inquiries.</p>
 
       <div className="grid gap-12 lg:grid-cols-2">
         {/* Contact Info */}
@@ -22,7 +22,7 @@ export default function SupportPage() {
                 </div>
                 <div>
                   <h3 className="font-semibold text-ink-soft">Phone Support</h3>
-                  <p className="mt-1 text-sm text-muted">Available 24/7 for urgent issues</p>
+                  <p className="mt-1 text-sm text-muted">Available for urgent issues</p>
                   <a href="tel:+918000000000" className="mt-2 inline-block font-semibold text-brand hover:underline">+91 8000 000 000</a>
                 </div>
               </div>

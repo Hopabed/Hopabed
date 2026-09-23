@@ -20,7 +20,7 @@ export default function ContactPage() {
       <div className="container-page max-w-4xl">
         <div className="text-center max-w-xl mx-auto mb-12">
           <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-100 px-3.5 py-1 text-xs font-bold text-brand uppercase tracking-wider mb-2">
-            <Sparkles className="h-3.5 w-3.5" /> 24/7 Hopebed Support
+            <Sparkles className="h-3.5 w-3.5" /> Dedicated Hopebed Support
           </span>
           <h1 className="text-3xl font-extrabold text-gray-900 sm:text-4xl">Get in Touch with Us</h1>
           <p className="mt-2 text-sm text-gray-600">

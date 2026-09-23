@@ -45,7 +45,7 @@ export default function HelpCenterPage() {
             <HelpCard
               icon={<MessageSquare className="h-5 w-5 text-brand" />}
               title="Contact Support"
-              description="Need direct help with an existing reservation? Get in touch with our 24/7 team."
+              description="Need direct help with an existing reservation? Get in touch with our dedicated support team."
               linkHref="/contact"
               linkLabel="Reach Support"
             />
