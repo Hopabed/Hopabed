@@ -5,9 +5,7 @@ export default function AboutPage() {
   return (
     <main className="bg-gray-50 min-h-screen py-16">
       <div className="container-page max-w-4xl">
-        <div className="rounded-2xl bg-amber-50 border border-amber-200 p-4 mb-8 text-amber-900 text-xs font-semibold flex items-center justify-between">
-          <span>⚠️ [FLAG FOR LAUNCH]: Final official company copy to be provided before launch.</span>
-        </div>
+
 
         <div className="rounded-3xl border border-gray-200 bg-white p-8 sm:p-12 shadow-sm space-y-8">
           <div className="text-center max-w-2xl mx-auto space-y-3">

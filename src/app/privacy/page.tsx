@@ -5,10 +5,7 @@ export default function PrivacyPolicyPage() {
       <p className="mb-4 text-sm font-semibold text-brand">Designed to support compliance with applicable Indian data protection, consumer protection and information technology requirements.</p>
       <p className="mb-8 text-sm text-muted">Last updated: {new Date().toLocaleDateString("en-IN")}</p>
 
-      <div className="mb-8 rounded-xl border border-yellow-200 bg-yellow-50 p-4">
-        <p className="text-sm font-semibold text-yellow-800">[LEGAL CONTENT PENDING: Business Owner Review Required]</p>
-        <p className="mt-1 text-xs text-yellow-700">This document contains placeholder structural information and requires final business and legal verification prior to marketing launch.</p>
-      </div>
+
       <div className="prose prose-slate space-y-8 text-ink-soft">
         <section>
           <h2 className="text-xl font-bold text-ink-soft">1. Overview & Commitment to Privacy</h2>
