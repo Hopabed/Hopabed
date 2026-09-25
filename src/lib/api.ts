@@ -1146,3 +1146,27 @@ export async function clearAdminData(): Promise<{ deletedUsers: number; deletedH
 	if (!response.ok || !body.data) throw new Error(body.error?.message ?? "Failed to clear platform data.");
 	return body.data;
 }
+
+export type ContactEnquiryPayload = {
+	name: string;
+	email: string;
+	subject: string;
+	message: string;
+	phone?: string;
+};
+
+export async function submitContactEnquiry(payload: ContactEnquiryPayload): Promise<{ success: boolean; message?: string }> {
+	const response = await fetch("/api/contact", {
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify(payload),
+	});
+
+	const body = await response.json().catch(() => ({}));
+	if (!response.ok || body.success === false) {
+		throw new Error(body.error?.message || body.message || "Failed to submit enquiry. Please try again.");
+	}
+
+	return body;
+}
+

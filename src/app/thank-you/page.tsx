@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { CheckCircle2, Home, MailCheck, Sparkles } from "lucide-react";
-import { Logo } from "@/components/Logo";
 
 export const metadata: Metadata = {
   title: "Thank You | Hopebed",
@@ -13,10 +13,20 @@ export default function ThankYouPage() {
     <main className="bg-gradient-to-b from-gray-50 via-white to-gray-50 min-h-[75vh] flex items-center justify-center py-16 px-4">
       <div className="w-full max-w-xl text-center">
         <div className="rounded-3xl border border-gray-200 bg-white p-8 sm:p-12 shadow-xl shadow-gray-100/50 space-y-6">
-          {/* Brand Logo */}
+          {/* Brand Logo specifically for Thank You card */}
           <div className="flex justify-center mb-2">
-            <Logo />
+            <Link href="/">
+              <Image
+                src="/brand/hopebed-logo.png"
+                alt="Hopebed Logo"
+                width={220}
+                height={60}
+                className="h-12 sm:h-14 w-auto object-contain transition-transform duration-200 hover:scale-105"
+                priority
+              />
+            </Link>
           </div>
+
 
           {/* Success Icon Badge */}
           <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-emerald-50 text-emerald-600 ring-8 ring-emerald-50/50">

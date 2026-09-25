@@ -19,6 +19,7 @@ import verificationRouter from './routes/verification.js';
 import invoicesRouter from './routes/invoices.js';
 import { outreachRouter } from './routes/outreach.js';
 import grievancesRouter from './routes/grievances.js';
+import contactRouter from './routes/contact.js';
 
 import * as Sentry from '@sentry/node';
 import { nodeProfilingIntegration } from '@sentry/profiling-node';
@@ -100,6 +101,7 @@ app.use('/api/admin', adminRouter);
 app.use('/api/verification', verificationRouter);
 app.use('/api/invoices', invoicesRouter);
 app.use('/api/grievances', grievancesRouter);
+app.use('/api/contact', contactRouter);
 app.use('/api', outreachRouter);
 
 Sentry.setupExpressErrorHandler(app);

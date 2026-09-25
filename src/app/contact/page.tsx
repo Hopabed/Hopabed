@@ -1,18 +1,50 @@
 "use client";
 
 import React, { useState } from "react";
-import { Mail, Phone, MapPin, Send, CheckCircle2, Sparkles, MessageSquare } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Mail, Phone, MapPin, Send, Sparkles, MessageSquare, Loader2, AlertCircle } from "lucide-react";
+import { submitContactEnquiry } from "@/lib/api";
 
 export default function ContactPage() {
+  const router = useRouter();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
-  const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitted(true);
+    setErrorMsg("");
+
+    if (!name.trim() || !email.trim() || !subject.trim() || !message.trim()) {
+      setErrorMsg("Please fill out all required fields.");
+      return;
+    }
+
+    setSubmitting(true);
+
+    try {
+      const res = await submitContactEnquiry({
+        name: name.trim(),
+        email: email.trim(),
+        subject: subject.trim(),
+        message: message.trim(),
+      });
+
+      if (res.success) {
+        // Redirect user ONLY after backend confirms successful submission
+        router.push("/thank-you");
+      } else {
+        setErrorMsg("Form submission failed. Please try again.");
+        setSubmitting(false);
+      }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Something went wrong while submitting. Please try again.";
+      setErrorMsg(msg);
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -76,84 +108,81 @@ export default function ContactPage() {
           {/* Contact Form */}
           <div className="md:col-span-2">
             <div className="rounded-3xl border border-gray-200 bg-white p-8 shadow-sm">
-              {submitted ? (
-                <div className="py-12 text-center space-y-4">
-                  <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
-                    <CheckCircle2 className="h-10 w-10" />
-                  </div>
-                  <h3 className="text-2xl font-bold text-gray-900">Message Sent Successfully!</h3>
-                  <p className="text-sm text-gray-600 max-w-md mx-auto">
-                    Thank you for reaching out, {name}. A support specialist will review your request and contact you at{" "}
-                    <span className="font-bold text-gray-900">{email}</span> shortly.
-                  </p>
-                  <button
-                    onClick={() => setSubmitted(false)}
-                    className="mt-4 rounded-xl bg-brand px-6 py-2.5 text-xs font-bold text-white shadow-md"
-                  >
-                    Send Another Message
-                  </button>
-                </div>
-              ) : (
-                <form onSubmit={handleSubmit} className="space-y-5">
-                  <h3 className="text-xl font-bold text-gray-900 border-b border-gray-100 pb-3">Send us a Message</h3>
+              <form onSubmit={handleSubmit} className="space-y-5">
+                <h3 className="text-xl font-bold text-gray-900 border-b border-gray-100 pb-3">Send us a Message</h3>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-xs font-bold text-gray-700 block mb-1">Your Name</label>
-                      <input
-                        type="text"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        required
-                        placeholder="Sharukh Mithagari"
-                        className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-medium outline-none focus:border-brand"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-xs font-bold text-gray-700 block mb-1">Your Email</label>
-                      <input
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                        placeholder="your@email.com"
-                        className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-medium outline-none focus:border-brand"
-                      />
-                    </div>
+                {errorMsg && (
+                  <div className="flex items-center gap-2 rounded-xl bg-red-50 p-4 text-xs font-semibold text-red-700 border border-red-100">
+                    <AlertCircle className="h-4 w-4 shrink-0 text-red-500" />
+                    <span>{errorMsg}</span>
                   </div>
+                )}
 
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="text-xs font-bold text-gray-700 block mb-1">Subject</label>
+                    <label className="text-xs font-bold text-gray-700 block mb-1">Your Name</label>
                     <input
                       type="text"
-                      value={subject}
-                      onChange={(e) => setSubject(e.target.value)}
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
                       required
-                      placeholder="e.g. Booking inquiry / Verification question"
+                      placeholder="Sharukh Mithagari"
                       className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-medium outline-none focus:border-brand"
                     />
                   </div>
-
                   <div>
-                    <label className="text-xs font-bold text-gray-700 block mb-1">Message</label>
-                    <textarea
-                      rows={4}
-                      value={message}
-                      onChange={(e) => setMessage(e.target.value)}
+                    <label className="text-xs font-bold text-gray-700 block mb-1">Your Email</label>
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
                       required
-                      placeholder="Describe how we can help you..."
+                      placeholder="your@email.com"
                       className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-medium outline-none focus:border-brand"
                     />
                   </div>
+                </div>
 
-                  <button
-                    type="submit"
-                    className="w-full rounded-2xl bg-brand py-3.5 text-center text-sm font-extrabold text-white shadow-lg shadow-brand/25 hover:bg-brand-dark transition-all flex items-center justify-center gap-2"
-                  >
-                    <Send className="h-4 w-4" /> Send Message Now
-                  </button>
-                </form>
-              )}
+                <div>
+                  <label className="text-xs font-bold text-gray-700 block mb-1">Subject</label>
+                  <input
+                    type="text"
+                    value={subject}
+                    onChange={(e) => setSubject(e.target.value)}
+                    required
+                    placeholder="e.g. Booking inquiry / Verification question"
+                    className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-medium outline-none focus:border-brand"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs font-bold text-gray-700 block mb-1">Message</label>
+                  <textarea
+                    rows={4}
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    required
+                    placeholder="Describe how we can help you..."
+                    className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-medium outline-none focus:border-brand"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="w-full rounded-2xl bg-brand py-3.5 text-center text-sm font-extrabold text-white shadow-lg shadow-brand/25 hover:bg-brand-dark transition-all flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  {submitting ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" /> Submitting Request...
+                    </>
+                  ) : (
+                    <>
+                      <Send className="h-4 w-4" /> Send Message Now
+                    </>
+                  )}
+                </button>
+              </form>
             </div>
           </div>
         </div>
@@ -161,3 +190,4 @@ export default function ContactPage() {
     </main>
   );
 }
+
