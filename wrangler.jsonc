@@ -12,6 +12,12 @@
     "NEXT_PUBLIC_API_URL": "https://hopebed-api-staging.mithagaris.workers.dev",
     "NEXT_PUBLIC_GOOGLE_CLIENT_ID": "790859697143-rc3tgtgejdhoeoaqi300nbbnbj4sjetq.apps.googleusercontent.com"
   },
+  "previews": {
+    "vars": {
+      "NEXT_PUBLIC_API_URL": "https://hopebed-api-staging.mithagaris.workers.dev",
+      "NEXT_PUBLIC_GOOGLE_CLIENT_ID": "790859697143-rc3tgtgejdhoeoaqi300nbbnbj4sjetq.apps.googleusercontent.com"
+    }
+  },
   "services": [
     {
       "binding": "WORKER_SELF_REFERENCE",
